@@ -2,54 +2,26 @@
 nextflow.preview.dsl=2
 
 
-params.reads = '/hpc/diaggen/users/Behzad/bam/PMABM000_fastq/*_r{1,2}.fastq'
-params.transcripts = '/hpc/diaggen/users/Behzad/bam/STAR/hg38_genome/gencode.v39.transcripts.fa'
+// Indexing modules
+include { INDEX } from './modules/salmon_index.nf'
 
+// Quantification modules
+include { QUANT } from './modules/salmon_quant.nf'
 
-process INDEX {
+// fastq modules
+include extractFastqPairFromDir from './modules/fastq.nf'
 
-    input:
-    path fasta
-
-    output:
-    path 'index'
-
-    """
-    salmon index \\
-        -t "${fasta}" \\
-        -i index \\
-    """
-}
+def fastq_files = extractFastqPairFromDir(params.fastq_path)
 
 
 transcriptome_ch = Channel.fromPath(params.transcripts)
 
 
-process QUANT {
-
-    input:
-    path index
-    tuple val(pair_id), path(reads)
-
-    output:
-    path (pair_id)
-
-    """
-    salmon quant \\
-        --index $index\\
-        --libType=U  \\
-        -1 ${reads[0]} \\
-        -2 ${reads[1]} \\
-        -o $pair_id
-    """
-}
-
-
-read_pairs_ch = Channel.fromFilePairs(params.reads, checkIfExists:true)
+//read_pairs_ch = Channel.fromFilePairs(params.reads, checkIfExists:true)
 
 workflow {
 
     index_ch=INDEX(transcriptome_ch)
-    quant_ch=QUANT(index_ch,read_pairs_ch)
+    quant_ch=QUANT(index_ch,fastq_files)
 
 }
