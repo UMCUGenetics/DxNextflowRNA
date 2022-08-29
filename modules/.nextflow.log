@@ -1,0 +1,11 @@
+Jun-06 14:33:40.508 [main] DEBUG nextflow.cli.Launcher - $> nextflow run -ansi-log false main.nf --fastq_path /hpc/diaggen/users/Behzad/bam/test_data/
+Jun-06 14:33:40.731 [main] INFO  nextflow.cli.CmdRun - N E X T F L O W  ~  version 20.04.1
+Jun-06 14:33:40.806 [main] DEBUG nextflow.cli.Launcher - Operation aborted
+nextflow.exception.AbortOperationException: Not a valid project name: main.nf
+	at nextflow.scm.AssetManager.resolveName(AssetManager.groovy:246)
+	at nextflow.scm.AssetManager.build(AssetManager.groovy:121)
+	at nextflow.scm.AssetManager.<init>(AssetManager.groovy:105)
+	at nextflow.cli.CmdRun.getScriptFile(CmdRun.groovy:331)
+	at nextflow.cli.CmdRun.run(CmdRun.groovy:245)
+	at nextflow.cli.Launcher.run(Launcher.groovy:460)
+	at nextflow.cli.Launcher.main(Launcher.groovy:642)
