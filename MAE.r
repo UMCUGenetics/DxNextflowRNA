@@ -1,5 +1,5 @@
 #! /usr/bin/env Rscript
-#Rscript MAE.r input_file output_file
+#Rscript MAE.r input_file(tsv file from GATK)  output_file(tsv file)
 
 #import required libraries
 library(tMAE)
@@ -7,24 +7,26 @@ library(ggplot2)
 
 args<-commandArgs(TRUE)
 
-
-
 #import data
-data <- read.table(args[1], header=TRUE, sep="\t")
-
+countdata <- read.table(args[1], header=TRUE, sep="\t")
 
 # run MAE analysis
 
-final <- resMAE <- DESeq4MAE(data, minCoverage = 10)
-resMAE[, signif := padj < 0.05]
-resMAE[signif == TRUE, .N]
-resMAE[, signif_ALT := signif == TRUE & altRatio >= 0.8]
-resMAE[signif_ALT == TRUE, .N]
+result_MAE <- DESeq4MAE(countdata, minCoverage = 10)
+result_MAE[, signif := padj < 0.05]
+result_MAE[signif == TRUE, .N]
+result_MAE[, signif_ALT := signif == TRUE & altRatio >= 0.8]
+result_MAE[signif_ALT == TRUE, .N]
 
-#plot the data
-ggplot(data, aes(refCount+1, altCount+1)) + geom_point() +
-    geom_abline(slope=1, intercept=0) + 
-    scale_y_log10() + scale_x_log10() + theme_bw()
+#save the pdf plot
+pdf("data distribution plot.pdf")
+ggplot(countdata, aes(refCount+1, altCount+1)) +
+        geom_point() +
+        geom_abline(slope=1, intercept=0) +
+        scale_y_log10() +
+        scale_x_log10() +
+        theme_bw()
+dev.off()
 
-#export the MAE in csv file
-write.table(final, file = args[2], sep = "\t")
+#export the MAE in tsv file
+write.table(result_MAE, file = args[2], sep = "\t")
