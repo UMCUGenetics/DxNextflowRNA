@@ -41,6 +41,7 @@ include ASEReadCounter from './modules/ASEReadCounter.nf'
 //MAE
 include MAE from './modules/MAE.nf'
 
+//ASGL
 include ASGAL from './modules/ASGAL.nf' params(optional: "--multi")
 
 
