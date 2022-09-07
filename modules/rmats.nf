@@ -25,6 +25,7 @@ process RMATS {
       --readLength 150 \\
       --nthread 10 \\
       --novelSS \\
+      --statoff \\
       --mil 50 \\
       --mel 500 \\
       --s1 s1.txt \\
