@@ -1,6 +1,7 @@
 process MAE {
 
-    label 'Mono Allelic Expresion'
+    tag {"MonoAllelicExpression"}
+    label 'MAE'
     shell = ['/bin/bash', '-euo', 'pipefail']
 
     input:
