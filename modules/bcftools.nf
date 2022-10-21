@@ -7,13 +7,13 @@ process norm_bcf_norm {
     shell = ['/bin/bash', '-euo', 'pipefail']
 
     input:
-    file(vcf_file)
+        path(vcf_file)
 
     output:
-    file("${vcf_file}.vcf")
+        path("${vcf_file}.vcf")
 
     script:
-    """
-    bcftools norm ${params.optional} ${vcf_file} > ${vcf_file}.vcf
-    """
+        """
+        bcftools norm ${params.optional} ${vcf_file} > ${vcf_file}.vcf
+        """
 }
