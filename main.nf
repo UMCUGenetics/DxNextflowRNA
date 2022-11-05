@@ -15,6 +15,7 @@ def fastq_files = extractFastqPairFromDir(params.fastq_path)
 
 //QC module
 include FastQC from './modules/FastQC.nf' params(optional:'')
+include CollectRnaSeqMetrics from './modules/CollectRnaSeqMetrics.nf' params(optional:'')
 
 //build star index
 include GenomeGenerate from './modules/GenomeGenerate.nf'
@@ -59,6 +60,7 @@ workflow {
 
 // run
     fastqc_ch=FastQC(fastq_files)
+    picard_QC_ch=CollectRnaSeqMetrics(bam_infile_ch)
     star_index_ch=GenomeGenerate(genome_ch,gtf_ch)
     star_mapping_ch=AlignReads(fastq_files,star_index_ch,gtf_ch)
     rmats_AS_calling_ch=RMATS(s1_ch, s2_ch, gtf_ch, STAR_genome_index_ch)
