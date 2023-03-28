@@ -1,11 +1,12 @@
 #!/bin/bash
 set -euo pipefail
 
-workflow_path='/hpc/diaggen/users/Martin/DxNextflowRNA/DxNextflowRNA'
+workflow_path='/hpc/diaggen/projects/RNAseq_Jade/DxNextflowRNA/'
 
 # Set input and output dirs
-output=`realpath $1`
-email=$2
+input=`realpath -e $1`
+output=`realpath $2`
+email=$3
 mkdir -p $output && cd $output
 mkdir -p log
 
@@ -14,13 +15,13 @@ touch workflow.running
 
 sbatch <<EOT
 #!/bin/bash
-#SBATCH --time=24:00:00
+#SBATCH --time=1:00:00
 #SBATCH --nodes=1
 #SBATCH --mem 5G
 #SBATCH --gres=tmpspace:10G
-#SBATCH --job-name index_STAR
-#SBATCH -o log/slurm_nextflow_wes.%j.out
-#SBATCH -e log/slurm_nextflow_wes.%j.err
+#SBATCH --job-name RNA_QC
+#SBATCH -o log/slurm_nextflow_rna_qc.%j.out
+#SBATCH -e log/slurm_nextflow_rna_qc.%j.err
 #SBATCH --mail-user $email
 #SBATCH --mail-type FAIL
 #SBATCH --export=NONE
@@ -28,8 +29,9 @@ sbatch <<EOT
 
 module load Java/1.8.0_60
 
-/hpc/diaggen/software/tools/nextflow run $workflow_path/index_genome.nf \
--c $workflow_path/index_genome.config \
+/hpc/diaggen/software/tools/nextflow run $workflow_path/RNA_QC.nf \
+-c $workflow_path/nextflow.config \
+--fastq_path $input \
 --outdir $output \
 --email $email \
 -profile slurm \

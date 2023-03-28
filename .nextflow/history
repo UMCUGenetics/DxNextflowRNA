@@ -1,0 +1,4 @@
+2023-03-22 12:21:23	-	exotic_hugle	-	86e5d0f3c306332b3a738eca7103db07	c84dc6d1-adb1-4eec-8c87-81ad0feebeda	nextflow run main.nf
+2023-03-22 12:22:19	-	sad_watson	-	86e5d0f3c306332b3a738eca7103db07	9cfa25af-7497-4501-af3e-e905dddf793e	nextflow run main.nf --fastq_path ../data/raw/220930_A00295_0668_BHGGKVDMXY/
+2023-03-22 12:24:35	39.1s	zen_lorenz	ERR	c477a573362bbc6a1fdcfa98d93fc13d	d33eb10c-12e0-4833-b53e-902d0fcd4e21	nextflow run main.nf --fastq_path ../data/raw/220930_A00295_0668_BHGGKVDMXY/
+2023-03-22 12:28:41	31m 30s	serene_wright	OK	c477a573362bbc6a1fdcfa98d93fc13d	92b242ed-803b-4a15-ad7d-980562240fa4	nextflow run main.nf --fastq_path ../test_data/
