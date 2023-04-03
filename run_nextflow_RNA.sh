@@ -15,11 +15,11 @@ touch workflow.running
 
 sbatch <<EOT
 #!/bin/bash
-#SBATCH --time=1:00:00
+#SBATCH --time=7:00:00
 #SBATCH --nodes=1
 #SBATCH --mem 5G
 #SBATCH --gres=tmpspace:10G
-#SBATCH --job-name RNA_QC
+#SBATCH --job-name RNAseq
 #SBATCH -o log/slurm_nextflow_rna_qc.%j.out
 #SBATCH -e log/slurm_nextflow_rna_qc.%j.err
 #SBATCH --mail-user $email
@@ -29,7 +29,7 @@ sbatch <<EOT
 
 module load Java/1.8.0_60
 
-/hpc/diaggen/software/tools/nextflow run $workflow_path/RNA_QC.nf \
+/hpc/diaggen/software/tools/nextflow run $workflow_path/RNA.nf \
 -c $workflow_path/nextflow.config \
 --fastq_path $input \
 --outdir $output \
