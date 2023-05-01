@@ -1,7 +1,7 @@
 #!/bin/bash
 set -euo pipefail
 
-workflow_path='/hpc/diaggen/projects/RNAseq_Jade/DxNextflowRNA/'
+workflow_path='/hpc/diaggen/projects/RNAseq_Jade/DxNextflowRNA_2/'
 
 # Set input and output dirs
 input=`realpath -e $1`
@@ -15,7 +15,7 @@ touch workflow.running
 
 sbatch <<EOT
 #!/bin/bash
-#SBATCH --time=12:00:00
+#SBATCH --time=24:00:00
 #SBATCH --nodes=1
 #SBATCH --mem 5G
 #SBATCH --gres=tmpspace:10G

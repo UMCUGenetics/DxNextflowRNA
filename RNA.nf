@@ -9,14 +9,14 @@ include extractBamFromDir from './NextflowModules/Utils/bam.nf'
 
 // QC modules
 include FastQC from './NextflowModules/FastQC/0.11.8/FastQC.nf' params(optional:'')
-include MultiQC as MultiQC_pre from './NextflowModules/MultiQC/1.10/MultiQC.nf' params(optional:'')
-include MultiQC as MultiQC_post from './NextflowModules/MultiQC/1.10/MultiQC.nf' params(optional:'')
+include MultiQC as MultiQC_pre from './NextflowModules/MultiQC/1.10/MultiQC.nf' params(optional:'-o preQC')
+include MultiQC as MultiQC_post from './NextflowModules/MultiQC/1.10/MultiQC.nf' params(optional:'-o postQC')
 
 // Trimming module
-include TrimGalore from './NextflowModules/TrimGalore/0.6.5/TrimGalore.nf' params(optional:'--fastqc', single_end: params.single_end)
+include TrimGalore from './NextflowModules/TrimGalore/0.6.5/TrimGalore.nf' params(optional: '--fastqc', single_end: false)
 
 // rRNA removal module
-include SortMeRNA from './NextflowModules/SortMeRNA/4.3.3/SortMeRNA.nf' params( single_end: params.single_end )
+include SortMeRNA from './NextflowModules/SortMeRNA/4.3.3/SortMeRNA.nf' params( single_end: false )
 
 // Mapping modules
 include GenomeGenerate from './NextflowModules/STAR/2.7.3a/GenomeGenerate.nf'
@@ -25,8 +25,7 @@ include Index from './NextflowModules/Sambamba/0.7.0/Index.nf'
 include Flagstat as Flagstat_raw from './NextflowModules/Sambamba/0.7.0/Flagstat.nf'
 
 // After mapping QC
-include RSeQC from './NextflowModules/RSeQC/3.0.1/RSeQC.nf' params( single_end:params.single_end)
-include RSeQC_TIN from './NextflowModules/RSeQC/3.0.1/RSeQC.nf'
+include RSeQC from './NextflowModules/RSeQC/3.0.1/RSeQC.nf' params( single_end: false)
 include LCExtrap from './NextflowModules/Preseq/2.0.3/LCExtrap.nf' params( optional:'-v -B -D')
 include GtfToGenePred from './NextflowModules/UCSC/377/GtfToGenePred.nf'
 include GenePredToBed from './NextflowModules/UCSC/377/GenePredToBed.nf'
@@ -53,6 +52,10 @@ workflow {
     if (!params.bam) {
         // FASTQC
         FastQC(fastq_files)
+
+        // MultiQC pre trimming
+        pre_QC = Channel.empty().mix(FastQC.out).collect()
+        MultiQC_pre(analysis_id, pre_QC)
 
         // TrimGalore
         TrimGalore(fastq_files)
@@ -124,21 +127,19 @@ workflow {
         genome_bed = GenePredToBed.out.genome_bed12
     }
     RSeQC(bam_files, genome_bed.collect())
-    RSeQC_TIN(bam_files, genome_bed.collect())
     LCExtrap(bam_files)
 
     // Qualimap
     Qualimap(bam_files, genome_gtf)
 
-    // Fastq screen - organism composition
-    FastqScreen(fastq_files, params.fastq_screen_config)
-
     // MultiQC
     if (!params.bam) {
-        qc_files = Channel.empty().mix(FastQC.out, TrimGalore.out.trimming_report, TrimGalore.out.fastqc_report, SortMeRNA.out.qc_report, star_logs, flagstat_logs, RSeQC.out, RSeQC_TIN.out, LCExtrap.out, Qualimap.out, PICARD_CollectMultipleMetrics.out, PICARD_EstimateLibraryComplexity.out, FastqScreen.out).collect()
+        FastqScreen(final_fastqs, params.fastq_screen_config)
+        qc_files = Channel.empty().mix(TrimGalore.out.trimming_report, TrimGalore.out.fastqc_report, SortMeRNA.out.qc_report, star_logs, flagstat_logs, RSeQC.out, LCExtrap.out, Qualimap.out, PICARD_CollectMultipleMetrics.out, PICARD_EstimateLibraryComplexity.out, FastqScreen.out).collect()
     }
     else{
-        qc_files = Channel.empty().mix(PICARD_CollectMultipleMetrics.out, PICARD_EstimateLibraryComplexity.out, RSeQC.out, RSeQC_TIN.out, LCExtrap.out, Qualimap.out, FastqScreen.out).collect()
+        FastqScreen(fastq_files, params.fastq_screen_config)
+        qc_files = Channel.empty().mix(PICARD_CollectMultipleMetrics.out, PICARD_EstimateLibraryComplexity.out, RSeQC.out, LCExtrap.out, Qualimap.out, FastqScreen.out).collect()
     }
     MultiQC_post(analysis_id, qc_files)
 
@@ -168,7 +169,7 @@ workflow.onComplete {
             to: params.email.trim(),
             subject: subject,
             body: email_html,
-            attach: "${params.outdir}/QC/${analysis_id}_multiqc_report.html"
+            attach: ["${params.outdir}/QC/preQC/${analysis_id}_multiqc_report.html","${params.outdir}/QC/postQC/${analysis_id}_multiqc_report.html"]
         )
 
     } else {
