@@ -20,9 +20,10 @@ include SortMeRNA from './NextflowModules/SortMeRNA/4.3.3/SortMeRNA.nf' params( 
 
 // Mapping modules
 include GenomeGenerate from './NextflowModules/STAR/2.7.3a/GenomeGenerate.nf'
-include AlignReads from './NextflowModules/STAR/2.7.3a/AlignReads.nf'
+include AlignReads from './NextflowModules/STAR/2.7.3a/AlignReads.nf' params(optional: '--outReadsUnmapped Fastx', single_end: false)
 include Index from './NextflowModules/Sambamba/0.7.0/Index.nf'
 include Flagstat as Flagstat_raw from './NextflowModules/Sambamba/0.7.0/Flagstat.nf'
+include Merge as Sambamba_Merge from './NextflowModules/Sambamba/0.7.0/Merge.nf'
 
 // After mapping QC
 include RSeQC from './NextflowModules/RSeQC/3.0.1/RSeQC.nf' params( single_end: false)
@@ -38,7 +39,7 @@ include EstimateLibraryComplexity as PICARD_EstimateLibraryComplexity from './Ne
 )
 include FixMateInformation as PICARD_FixMateInformation from './NextflowModules/Picard/2.22.0/FixMateInformation.nf' params(optional: '')
 include UmiAwareMarkDuplicatesWithMateCigar as PICARD_UmiAwareMarkDuplicatesWithMateCigar from './NextflowModules/Picard/2.22.0/UmiAwareMarkDuplicatesWithMateCigar.nf' params(optional:'')
-include Qualimap from './NextflowModules/qualimap-2.2.2d.1.nf' 
+//include Qualimap from './NextflowModules/qualimap-2.2.2d.1.nf' 
 include FastqScreen from './NextflowModules/Fastq-screen-0.15.3.nf'
 
 // DROP
@@ -93,11 +94,14 @@ workflow {
         AlignReads( final_fastqs, star_index.collect(), genome_gtf.collect() )
         Index( AlignReads.out.bam_file.map {sample_id, rg_id, bam ->
                                            [sample_id, bam] })
-        Flagstat_raw( AlignReads.out.bam_file.join(Index.out).map {sample_id, rg_id, bam, bai ->
-                                           [sample_id, bam, bai] } )
         bam_files = AlignReads.out.bam_file.map {sample_id, rg_id, bam ->
                                            [sample_id, bam] }
         bam_files = bam_files.join(Index.out)
+
+        Sambamba_Merge(bam_files.groupTuple())
+        bam_files = Sambamba_Merge.out
+
+        Flagstat_raw(bam_files)
         star_logs = AlignReads.out.log.mix(AlignReads.out.final_log)
         flagstat_logs = Flagstat_raw.out
     }
@@ -130,19 +134,19 @@ workflow {
     LCExtrap(bam_files)
 
     // Qualimap
-    Qualimap(bam_files, genome_gtf)
+    //Qualimap(bam_files, genome_gtf)
 
     // MultiQC
+    
     if (!params.bam) {
         FastqScreen(final_fastqs, params.fastq_screen_config)
-        qc_files = Channel.empty().mix(TrimGalore.out.trimming_report, TrimGalore.out.fastqc_report, SortMeRNA.out.qc_report, star_logs, flagstat_logs, RSeQC.out, LCExtrap.out, Qualimap.out, PICARD_CollectMultipleMetrics.out, PICARD_EstimateLibraryComplexity.out, FastqScreen.out).collect()
+        qc_files = Channel.empty().mix(TrimGalore.out.trimming_report, TrimGalore.out.fastqc_report, SortMeRNA.out.qc_report, star_logs, flagstat_logs, RSeQC.out, LCExtrap.out, PICARD_CollectMultipleMetrics.out, PICARD_EstimateLibraryComplexity.out, FastqScreen.out).collect()
     }
     else{
         FastqScreen(fastq_files, params.fastq_screen_config)
-        qc_files = Channel.empty().mix(PICARD_CollectMultipleMetrics.out, PICARD_EstimateLibraryComplexity.out, RSeQC.out, LCExtrap.out, Qualimap.out, FastqScreen.out).collect()
+        qc_files = Channel.empty().mix(PICARD_CollectMultipleMetrics.out, PICARD_EstimateLibraryComplexity.out, RSeQC.out, LCExtrap.out, FastqScreen.out).collect()
     }
     MultiQC_post(analysis_id, qc_files)
-
     // WES data
 
     // DROP
