@@ -1,12 +1,13 @@
 #!/bin/bash
 set -euo pipefail
 
-workflow_path='/hpc/diaggen/projects/RNAseq_Jade/DxNextflowRNA_2/'
+workflow_path='/hpc/diaggen/projects/RNAseq_Jade/DxNextflowRNA/'
 
 # Set input and output dirs
 input=`realpath -e $1`
-output=`realpath $2`
-email=$3
+input_WES=`realpath -e $2`
+output=`realpath $3`
+email=$4
 mkdir -p $output && cd $output
 mkdir -p log
 
@@ -15,7 +16,7 @@ touch workflow.running
 
 sbatch <<EOT
 #!/bin/bash
-#SBATCH --time=24:00:00
+#SBATCH --time=5:00:00
 #SBATCH --nodes=1
 #SBATCH --mem 5G
 #SBATCH --gres=tmpspace:10G
@@ -32,6 +33,7 @@ module load Java/1.8.0_60
 /hpc/diaggen/software/tools/nextflow run $workflow_path/RNA.nf \
 -c $workflow_path/nextflow.config \
 --fastq_path $input \
+--wes_path $input_WES \
 --outdir $output \
 --email $email \
 -profile slurm \

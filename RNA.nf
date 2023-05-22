@@ -20,9 +20,12 @@ include SortMeRNA from './NextflowModules/SortMeRNA/4.3.3/SortMeRNA.nf' params( 
 
 // Mapping modules
 include GenomeGenerate from './NextflowModules/STAR/2.7.3a/GenomeGenerate.nf'
-include AlignReads from './NextflowModules/STAR/2.7.3a/AlignReads.nf'
+include AlignReads from './NextflowModules/STAR/2.7.3a/AlignReads.nf' params(optional: '--outReadsUnmapped Fastx', single_end: false)
 include Index from './NextflowModules/Sambamba/0.7.0/Index.nf'
 include Flagstat as Flagstat_raw from './NextflowModules/Sambamba/0.7.0/Flagstat.nf'
+include BWAMapping from './NextflowModules/BWA-Mapping/bwa-0.7.17_samtools-1.9/Mapping.nf' params(
+    genome_fasta: "$params.genome_fasta", optional: '-c 100 -M'
+)
 
 // After mapping QC
 include RSeQC from './NextflowModules/RSeQC/3.0.1/RSeQC.nf' params( single_end: false)
@@ -41,11 +44,48 @@ include UmiAwareMarkDuplicatesWithMateCigar as PICARD_UmiAwareMarkDuplicatesWith
 include Qualimap from './NextflowModules/qualimap-2.2.2d.1.nf' 
 include FastqScreen from './NextflowModules/Fastq-screen-0.15.3.nf'
 
+// WES
+
+// IndelRealignment modules
+include RealignerTargetCreator as GATK_RealignerTargetCreator from './NextflowModules/GATK/3.8-1-0-gf15c1c3ef/RealignerTargetCreator.nf' params(
+    gatk_path: "$params.gatk_path", genome: "$params.genome_fasta", optional: "$params.gatk_rtc_options"
+)
+include IndelRealigner as GATK_IndelRealigner from './NextflowModules/GATK/3.8-1-0-gf15c1c3ef/IndelRealigner.nf' params(
+    gatk_path: "$params.gatk_path", genome: "$params.genome_fasta", optional: ""
+)
+include ViewUnmapped as Sambamba_ViewUnmapped from './NextflowModules/Sambamba/0.7.0/ViewUnmapped.nf'
+include Merge as Sambamba_Merge from './NextflowModules/Sambamba/0.7.0/Merge.nf'
+
+// HaplotypeCaller modules
+include IntervalListTools as PICARD_IntervalListTools from './NextflowModules/Picard/2.22.0/IntervalListTools.nf' params(
+    scatter_count: "500", optional: ""
+)
+include HaplotypeCaller as GATK_HaplotypeCaller from './NextflowModules/GATK/3.8-1-0-gf15c1c3ef/HaplotypeCaller.nf' params(
+    gatk_path: "$params.gatk_path", genome: "$params.genome_fasta", optional: "$params.gatk_hc_options"
+)
+include VariantFiltrationSnpIndel as GATK_VariantFiltration from './NextflowModules/GATK/3.8-1-0-gf15c1c3ef/VariantFiltration.nf' params(
+    gatk_path: "$params.gatk_path", genome: "$params.genome_fasta", snp_filter: "$params.gatk_snp_filter",
+    snp_cluster: "$params.gatk_snp_cluster", indel_filter: "$params.gatk_indel_filter"
+)
+include CombineVariants as GATK_CombineVariants from './NextflowModules/GATK/3.8-1-0-gf15c1c3ef/CombineVariants.nf' params(
+    gatk_path: "$params.gatk_path", genome: "$params.genome_fasta", optional: "--assumeIdenticalSamples"
+)
+include SelectVariantsSample as GATK_SingleSampleVCF from './NextflowModules/GATK/3.8-1-0-gf15c1c3ef/SelectVariants.nf' params(
+    gatk_path: "$params.gatk_path", genome: "$params.genome_fasta"
+)
+include Tabix from './NextflowModules/Tabix.nf'
+
 // DROP
 include DROP from './NextflowModules/drop-1.2.4.nf'
 
 def analysis_id = params.outdir.split('/')[-1]
 def fastq_files = extractFastqPairFromDir(params.fastq_path)
+def wes_files = extractFastqPairFromDir(params.wes_path)
+
+// Define chromosomes used to scatter GATK_RealignerTargetCreator
+def chromosomes = Channel.fromPath(params.genome_fasta.replace('fasta', 'dict'))
+    .splitCsv(sep:'\t', skip:1)
+    .map{type, chr, chr_len, md5, file -> [chr.minus('SN:')]}
 
 workflow {
     // Use bam files if bam is set true
@@ -93,17 +133,22 @@ workflow {
         AlignReads( final_fastqs, star_index.collect(), genome_gtf.collect() )
         Index( AlignReads.out.bam_file.map {sample_id, rg_id, bam ->
                                            [sample_id, bam] })
-        Flagstat_raw( AlignReads.out.bam_file.join(Index.out).map {sample_id, rg_id, bam, bai ->
-                                           [sample_id, bam, bai] } )
         bam_files = AlignReads.out.bam_file.map {sample_id, rg_id, bam ->
                                            [sample_id, bam] }
         bam_files = bam_files.join(Index.out)
+        bam_files.groupTuple().view()
+
+        //Sambamba_Merge(bam_files.groupTuple())
+        //Flagstat_raw( AlignReads.out.bam_file.join(Index.out).map {sample_id, rg_id, bam, bai ->
+        //                                   [sample_id, bam, bai] } )
+        Flagstat_raw(bam_files)
         star_logs = AlignReads.out.log.mix(AlignReads.out.final_log)
         flagstat_logs = Flagstat_raw.out
     }
     else{
         bam_files = extractBamFromDir(params.fastq_path)
     }
+    /*
     // Remove duplicates with Picard and stats
     PICARD_CollectMultipleMetrics(bam_files)
     PICARD_EstimateLibraryComplexity(bam_files)
@@ -142,8 +187,30 @@ workflow {
         qc_files = Channel.empty().mix(PICARD_CollectMultipleMetrics.out, PICARD_EstimateLibraryComplexity.out, RSeQC.out, LCExtrap.out, Qualimap.out, FastqScreen.out).collect()
     }
     MultiQC_post(analysis_id, qc_files)
-
+    */
+ 
     // WES data
+    BWAMapping(wes_files)
+    wes_bam = BWAMapping.out.map{
+            sample_id, rg_id, bam_file, bai_file -> [sample_id, bam_file, bai_file]}.groupTuple()
+
+    GATK_RealignerTargetCreator(wes_bam.combine(chromosomes))
+    GATK_IndelRealigner(wes_bam.combine(GATK_RealignerTargetCreator.out, by: 0))
+    Sambamba_ViewUnmapped(wes_bam)
+    Sambamba_Merge(GATK_IndelRealigner.out.mix(Sambamba_ViewUnmapped.out).groupTuple())
+
+    PICARD_IntervalListTools(Channel.fromPath("$params.gatk_hc_interval_list"))
+    GATK_HaplotypeCaller(
+        Sambamba_Merge.out.map{sample_id, bam_file, bai_file -> [analysis_id, bam_file, bai_file]}
+            .groupTuple()
+            .combine(PICARD_IntervalListTools.out.flatten())
+    )
+    GATK_VariantFiltration(GATK_HaplotypeCaller.out)
+    GATK_CombineVariants(GATK_VariantFiltration.out.groupTuple())
+    GATK_SingleSampleVCF(GATK_CombineVariants.out.combine(
+        Sambamba_Merge.out.map{sample_id, bam_file, bai_file -> [sample_id]})
+    )
+    Tabix(GATK_SingleSampleVCF.out)
 
     // DROP
     //DROP("/hpc/diaggen/projects/RNAseq_Jade/drop/Data", "/hpc/diaggen/projects/RNAseq_Jade/drop/Scripts", "/hpc/diaggen/projects/RNAseq_Jade/drop/.drop", "/hpc/diaggen/projects/RNAseq_Jade/drop/Snakefile", "/hpc/diaggen/projects/RNAseq_Jade/drop/config.yaml", "/hpc/diaggen/projects/RNAseq_Jade/drop/R_lib", "/hpc/diaggen/projects/RNAseq_Jade/drop/readme.md")
