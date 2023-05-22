@@ -98,8 +98,8 @@ workflow {
                                            [sample_id, bam] }
         bam_files = bam_files.join(Index.out)
 
-        Sambamba_Merge(bam_files.groupTuple())
-        bam_files = Sambamba_Merge.out
+        //Sambamba_Merge(bam_files.groupTuple())
+        //bam_files = Sambamba_Merge.out
 
         Flagstat_raw(bam_files)
         star_logs = AlignReads.out.log.mix(AlignReads.out.final_log)
