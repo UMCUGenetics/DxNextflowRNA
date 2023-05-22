@@ -26,6 +26,8 @@ include Flagstat as Flagstat_raw from './NextflowModules/Sambamba/0.7.0/Flagstat
 include BWAMapping from './NextflowModules/BWA-Mapping/bwa-0.7.17_samtools-1.9/Mapping.nf' params(
     genome_fasta: "$params.genome_fasta", optional: '-c 100 -M'
 )
+include Merge as Sambamba_Merge_RNA from './NextflowModules/Sambamba/0.7.0/Merge.nf'
+include Merge as Sambamba_Merge_WES from './NextflowModules/Sambamba/0.7.0/Merge.nf'
 
 // After mapping QC
 include RSeQC from './NextflowModules/RSeQC/3.0.1/RSeQC.nf' params( single_end: false)
@@ -41,7 +43,7 @@ include EstimateLibraryComplexity as PICARD_EstimateLibraryComplexity from './Ne
 )
 include FixMateInformation as PICARD_FixMateInformation from './NextflowModules/Picard/2.22.0/FixMateInformation.nf' params(optional: '')
 include UmiAwareMarkDuplicatesWithMateCigar as PICARD_UmiAwareMarkDuplicatesWithMateCigar from './NextflowModules/Picard/2.22.0/UmiAwareMarkDuplicatesWithMateCigar.nf' params(optional:'')
-include Qualimap from './NextflowModules/qualimap-2.2.2d.1.nf' 
+//include Qualimap from './NextflowModules/qualimap-2.2.2d.1.nf' 
 include FastqScreen from './NextflowModules/Fastq-screen-0.15.3.nf'
 
 // WES
@@ -136,11 +138,10 @@ workflow {
         bam_files = AlignReads.out.bam_file.map {sample_id, rg_id, bam ->
                                            [sample_id, bam] }
         bam_files = bam_files.join(Index.out)
-        bam_files.groupTuple().view()
+        
+        //Sambamba_Merge_RNA(bam_files.groupTuple())
+        //bam_files = Sambamba_Merge.out
 
-        //Sambamba_Merge(bam_files.groupTuple())
-        //Flagstat_raw( AlignReads.out.bam_file.join(Index.out).map {sample_id, rg_id, bam, bai ->
-        //                                   [sample_id, bam, bai] } )
         Flagstat_raw(bam_files)
         star_logs = AlignReads.out.log.mix(AlignReads.out.final_log)
         flagstat_logs = Flagstat_raw.out
@@ -148,7 +149,7 @@ workflow {
     else{
         bam_files = extractBamFromDir(params.fastq_path)
     }
-    /*
+
     // Remove duplicates with Picard and stats
     PICARD_CollectMultipleMetrics(bam_files)
     PICARD_EstimateLibraryComplexity(bam_files)
@@ -175,20 +176,20 @@ workflow {
     LCExtrap(bam_files)
 
     // Qualimap
-    Qualimap(bam_files, genome_gtf)
+    //Qualimap(bam_files, genome_gtf)
 
     // MultiQC
+    
     if (!params.bam) {
         FastqScreen(final_fastqs, params.fastq_screen_config)
-        qc_files = Channel.empty().mix(TrimGalore.out.trimming_report, TrimGalore.out.fastqc_report, SortMeRNA.out.qc_report, star_logs, flagstat_logs, RSeQC.out, LCExtrap.out, Qualimap.out, PICARD_CollectMultipleMetrics.out, PICARD_EstimateLibraryComplexity.out, FastqScreen.out).collect()
+        qc_files = Channel.empty().mix(TrimGalore.out.trimming_report, TrimGalore.out.fastqc_report, SortMeRNA.out.qc_report, star_logs, flagstat_logs, RSeQC.out, LCExtrap.out, PICARD_CollectMultipleMetrics.out, PICARD_EstimateLibraryComplexity.out, FastqScreen.out).collect()
     }
     else{
         FastqScreen(fastq_files, params.fastq_screen_config)
-        qc_files = Channel.empty().mix(PICARD_CollectMultipleMetrics.out, PICARD_EstimateLibraryComplexity.out, RSeQC.out, LCExtrap.out, Qualimap.out, FastqScreen.out).collect()
+        qc_files = Channel.empty().mix(PICARD_CollectMultipleMetrics.out, PICARD_EstimateLibraryComplexity.out, RSeQC.out, LCExtrap.out, FastqScreen.out).collect()
     }
     MultiQC_post(analysis_id, qc_files)
-    */
- 
+
     // WES data
     BWAMapping(wes_files)
     wes_bam = BWAMapping.out.map{
@@ -197,7 +198,7 @@ workflow {
     GATK_RealignerTargetCreator(wes_bam.combine(chromosomes))
     GATK_IndelRealigner(wes_bam.combine(GATK_RealignerTargetCreator.out, by: 0))
     Sambamba_ViewUnmapped(wes_bam)
-    Sambamba_Merge(GATK_IndelRealigner.out.mix(Sambamba_ViewUnmapped.out).groupTuple())
+    Sambamba_Merge_WES(GATK_IndelRealigner.out.mix(Sambamba_ViewUnmapped.out).groupTuple())
 
     PICARD_IntervalListTools(Channel.fromPath("$params.gatk_hc_interval_list"))
     GATK_HaplotypeCaller(
