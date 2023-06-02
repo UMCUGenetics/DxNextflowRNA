@@ -56,7 +56,6 @@ include IndelRealigner as GATK_IndelRealigner from './NextflowModules/GATK/3.8-1
     gatk_path: "$params.gatk_path", genome: "$params.genome_fasta", optional: ""
 )
 include ViewUnmapped as Sambamba_ViewUnmapped from './NextflowModules/Sambamba/0.7.0/ViewUnmapped.nf'
-include Merge as Sambamba_Merge from './NextflowModules/Sambamba/0.7.0/Merge.nf'
 
 // HaplotypeCaller modules
 include IntervalListTools as PICARD_IntervalListTools from './NextflowModules/Picard/2.22.0/IntervalListTools.nf' params(
@@ -138,9 +137,9 @@ workflow {
         bam_files = AlignReads.out.bam_file.map {sample_id, rg_id, bam ->
                                            [sample_id, bam] }
         bam_files = bam_files.join(Index.out)
-        
-        //Sambamba_Merge_RNA(bam_files.groupTuple())
-        //bam_files = Sambamba_Merge.out
+         
+        Sambamba_Merge_RNA(bam_files.groupTuple())
+        bam_files = Sambamba_Merge_RNA.out
 
         Flagstat_raw(bam_files)
         star_logs = AlignReads.out.log.mix(AlignReads.out.final_log)
@@ -191,6 +190,7 @@ workflow {
     MultiQC_post(analysis_id, qc_files)
 
     // WES data
+/*
     BWAMapping(wes_files)
     wes_bam = BWAMapping.out.map{
             sample_id, rg_id, bam_file, bai_file -> [sample_id, bam_file, bai_file]}.groupTuple()
@@ -202,17 +202,17 @@ workflow {
 
     PICARD_IntervalListTools(Channel.fromPath("$params.gatk_hc_interval_list"))
     GATK_HaplotypeCaller(
-        Sambamba_Merge.out.map{sample_id, bam_file, bai_file -> [analysis_id, bam_file, bai_file]}
+        Sambamba_Merge_WES.out.map{sample_id, bam_file, bai_file -> [analysis_id, bam_file, bai_file]}
             .groupTuple()
             .combine(PICARD_IntervalListTools.out.flatten())
     )
     GATK_VariantFiltration(GATK_HaplotypeCaller.out)
     GATK_CombineVariants(GATK_VariantFiltration.out.groupTuple())
     GATK_SingleSampleVCF(GATK_CombineVariants.out.combine(
-        Sambamba_Merge.out.map{sample_id, bam_file, bai_file -> [sample_id]})
+        Sambamba_Merge_WES.out.map{sample_id, bam_file, bai_file -> [sample_id]})
     )
     Tabix(GATK_SingleSampleVCF.out)
-
+*/
     // DROP
     //DROP("/hpc/diaggen/projects/RNAseq_Jade/drop/Data", "/hpc/diaggen/projects/RNAseq_Jade/drop/Scripts", "/hpc/diaggen/projects/RNAseq_Jade/drop/.drop", "/hpc/diaggen/projects/RNAseq_Jade/drop/Snakefile", "/hpc/diaggen/projects/RNAseq_Jade/drop/config.yaml", "/hpc/diaggen/projects/RNAseq_Jade/drop/R_lib", "/hpc/diaggen/projects/RNAseq_Jade/drop/readme.md")
 
