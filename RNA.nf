@@ -43,8 +43,8 @@ include EstimateLibraryComplexity as PICARD_EstimateLibraryComplexity from './Ne
 )
 include FixMateInformation as PICARD_FixMateInformation from './NextflowModules/Picard/2.22.0/FixMateInformation.nf' params(optional: '')
 include UmiAwareMarkDuplicatesWithMateCigar as PICARD_UmiAwareMarkDuplicatesWithMateCigar from './NextflowModules/Picard/2.22.0/UmiAwareMarkDuplicatesWithMateCigar.nf' params(optional:'')
-//include Qualimap from './NextflowModules/qualimap-2.2.2d.1.nf' 
 include FastqScreen from './NextflowModules/Fastq-screen-0.15.3.nf'
+include RNASeQC from './NextflowModules/RNASeQC-latest.nf' params(downsampled_gtf: "$params.downsampled_gtf")
 
 // WES
 
@@ -173,12 +173,9 @@ workflow {
     }
     RSeQC(bam_files, genome_bed.collect())
     LCExtrap(bam_files)
+    RNASeQC(bam_files)
 
-    // Qualimap
-    //Qualimap(bam_files, genome_gtf)
-
-    // MultiQC
-    
+    // MultiQC    
     if (!params.bam) {
         FastqScreen(final_fastqs, params.fastq_screen_config)
         qc_files = Channel.empty().mix(TrimGalore.out.trimming_report, TrimGalore.out.fastqc_report, SortMeRNA.out.qc_report, star_logs, flagstat_logs, RSeQC.out, LCExtrap.out, PICARD_CollectMultipleMetrics.out, PICARD_EstimateLibraryComplexity.out, FastqScreen.out).collect()
@@ -190,7 +187,6 @@ workflow {
     MultiQC_post(analysis_id, qc_files)
 
     // WES data
-/*
     BWAMapping(wes_files)
     wes_bam = BWAMapping.out.map{
             sample_id, rg_id, bam_file, bai_file -> [sample_id, bam_file, bai_file]}.groupTuple()
@@ -212,7 +208,7 @@ workflow {
         Sambamba_Merge_WES.out.map{sample_id, bam_file, bai_file -> [sample_id]})
     )
     Tabix(GATK_SingleSampleVCF.out)
-*/
+
     // DROP
     //DROP("/hpc/diaggen/projects/RNAseq_Jade/drop/Data", "/hpc/diaggen/projects/RNAseq_Jade/drop/Scripts", "/hpc/diaggen/projects/RNAseq_Jade/drop/.drop", "/hpc/diaggen/projects/RNAseq_Jade/drop/Snakefile", "/hpc/diaggen/projects/RNAseq_Jade/drop/config.yaml", "/hpc/diaggen/projects/RNAseq_Jade/drop/R_lib", "/hpc/diaggen/projects/RNAseq_Jade/drop/readme.md")
 

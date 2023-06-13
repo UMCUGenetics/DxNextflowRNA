@@ -70,6 +70,62 @@ ERR188024	/hpc/diaggen/projects/RNAseq_Jade/data/geuvadis/RNAseq_bams/ERR188024_
 
 This file has to contain at least 10 samples before DROP will run, but will then also probably crash at the statistics. 
 
+
+When running MAE, make sure that it has at least 2 samples. Otherwise it will give the following error:
+
+```
+[Wed Jun  7 10:03:05 2023]
+rule MonoallelicExpression_pipeline_QC_DNA_RNA_matrix_plot_R:
+    input: /hpc/diaggen/projects/RNAseq_Jade/dropOutput/processed_results/mae/mae/dna_rna_qc_matrix.Rds, Scripts/MonoallelicExpression/pipeline/QC/DNA_RNA_matrix_plot.R
+    output: /hpc/diaggen/projects/RNAseq_Jade/dropOutput/html/MonoallelicExpression/QC/mae.html
+    log: /hpc/diaggen/projects/RNAseq_Jade/drop/.drop/tmp/MAE/mae/QC_matrix_plot.Rds
+    jobid: 10
+    reason: Missing output files: /hpc/diaggen/projects/RNAseq_Jade/dropOutput/html/MonoallelicExpression/QC/mae.html
+    wildcards: dataset=mae
+    resources: tmpdir=/scratch/559075
+
+Loading required package: knitr
+Loading required package: rmarkdown
+[1] TRUE
+
+
+processing file: /scratch/559075/RtmpLUfeNG/file208be27b76950f/DNA_RNA_matrix_plot.spin.Rmd
+  |.........                                                                                                     |   8%
+  ordinary text without R code
+
+  |..................                                                                                            |  17%
+label: unnamed-chunk-1 (with options) 
+List of 1
+ $ echo: logi FALSE
+
+  |............................                                                                                  |  25%
+  ordinary text without R code
+
+  |.....................................                                                                         |  33%
+label: unnamed-chunk-2
+Quitting from lines 44-55 (/scratch/559075/RtmpLUfeNG/file208be27b76950f/DNA_RNA_matrix_plot.spin.Rmd) 
+Error in setnames(x, value) : 
+  Can't assign 2 names to a 1 column data.table
+Calls: render ... colnames<- -> names<- -> names<-.data.table -> setnames
+
+Execution halted
+[Wed Jun  7 10:03:08 2023]
+Error in rule MonoallelicExpression_pipeline_QC_DNA_RNA_matrix_plot_R:
+    jobid: 10
+    input: /hpc/diaggen/projects/RNAseq_Jade/dropOutput/processed_results/mae/mae/dna_rna_qc_matrix.Rds, Scripts/MonoallelicExpression/pipeline/QC/DNA_RNA_matrix_plot.R
+    output: /hpc/diaggen/projects/RNAseq_Jade/dropOutput/html/MonoallelicExpression/QC/mae.html
+    log: /hpc/diaggen/projects/RNAseq_Jade/drop/.drop/tmp/MAE/mae/QC_matrix_plot.Rds (check log file(s) for error message)
+
+RuleException:
+CalledProcessError in line 292 of /scratch/559075/tmp4yj08xlb:
+Command 'set -euo pipefail;  Rscript --vanilla /hpc/diaggen/projects/RNAseq_Jade/drop/.snakemake/scripts/tmpgm8cnke3.wBRender.R' returned non-zero exit status 1.
+  File "/scratch/559075/tmp4yj08xlb", line 292, in __rule_MonoallelicExpression_pipeline_QC_DNA_RNA_matrix_plot_R
+  File "/usr/local/lib/python3.11/concurrent/futures/thread.py", line 58, in run
+Shutting down, this might take some time.
+Exiting because a job execution failed. Look above for error message
+Complete log: .snakemake/log/2023-06-07T100302.079293.snakemake.log
+```
+
 ## To do:
 
 - Automatically creating a sample annotation so that DROP can be run inside the workflow
