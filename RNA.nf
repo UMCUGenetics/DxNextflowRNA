@@ -175,11 +175,14 @@ workflow {
     // MultiQC    
     if (!params.bam) {
         FastqScreen(final_fastqs, params.fastq_screen_config)
-        qc_files = Channel.empty().mix(TrimGalore.out.trimming_report, TrimGalore.out.fastqc_report, SortMeRNA.out.qc_report, star_logs, flagstat_logs, RSeQC.out, LCExtrap.out, PICARD_CollectMultipleMetrics.out, PICARD_EstimateLibraryComplexity.out, FastqScreen.out).collect()
+        qc_files = Channel.empty().mix(TrimGalore.out.trimming_report, TrimGalore.out.fastqc_report, \
+            SortMeRNA.out.qc_report, star_logs, flagstat_logs, RSeQC.out, LCExtrap.out, \
+            PICARD_CollectMultipleMetrics.out, PICARD_EstimateLibraryComplexity.out, FastqScreen.out).collect()
     }
     else{
         FastqScreen(fastq_files, params.fastq_screen_config)
-        qc_files = Channel.empty().mix(PICARD_CollectMultipleMetrics.out, PICARD_EstimateLibraryComplexity.out, RSeQC.out, LCExtrap.out, FastqScreen.out).collect()
+        qc_files = Channel.empty().mix(PICARD_CollectMultipleMetrics.out, PICARD_EstimateLibraryComplexity.out, \
+            RSeQC.out, LCExtrap.out, FastqScreen.out).collect()
     }
     MultiQC_post(analysis_id, qc_files)
 

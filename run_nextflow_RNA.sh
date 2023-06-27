@@ -5,9 +5,10 @@ workflow_path='/hpc/diaggen/projects/RNAseq_Jade/DxNextflowRNA/'
 
 # Set input and output dirs
 input=`realpath -e $1`
-input_WES=`realpath -e $2`
-output=`realpath $3`
-email=$4
+bam=$2
+input_WES=`realpath -e $3`
+output=`realpath $4`
+email=$5
 mkdir -p $output && cd $output
 mkdir -p log
 
@@ -33,6 +34,7 @@ module load Java/1.8.0_60
 /hpc/diaggen/software/tools/nextflow run $workflow_path/RNA.nf \
 -c $workflow_path/nextflow.config \
 --fastq_path $input \
+--bams $bam
 --wes_path $input_WES \
 --outdir $output \
 --email $email \
