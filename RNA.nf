@@ -1,83 +1,80 @@
-#!/usr/bin/env nextflow
-nextflow.preview.dsl=2
-
 // fastq module
-include extractFastqPairFromDir from './NextflowModules/Utils/fastq.nf'
+include { extractFastqPairFromDir } from './NextflowModules/Utils/fastq.nf'
 
 // bam module
-include extractBamFromDir from './NextflowModules/Utils/bam.nf'
+include { extractBamFromDir } from './NextflowModules/Utils/bam.nf'
 
 // QC modules
-include FastQC from './NextflowModules/FastQC/0.11.8/FastQC.nf' params(optional:'')
-include MultiQC as MultiQC_pre from './NextflowModules/MultiQC/1.10/MultiQC.nf' params(optional:'-o preQC')
-include MultiQC as MultiQC_post from './NextflowModules/MultiQC/1.10/MultiQC.nf' params(optional:'-o postQC')
+include { FastQC } from './NextflowModules/FastQC/0.11.8/FastQC.nf' params(optional:'')
+include { MultiQC as MultiQC_pre } from './NextflowModules/MultiQC/1.10/MultiQC.nf' params(optional:'-o preQC')
+include { MultiQC as MultiQC_post } from './NextflowModules/MultiQC/1.10/MultiQC.nf' params(optional:'-o postQC')
 
 // Trimming module
-include TrimGalore from './NextflowModules/TrimGalore/0.6.5/TrimGalore.nf' params(optional: '--fastqc', single_end: false)
+include { TrimGalore } from './NextflowModules/TrimGalore/0.6.5/TrimGalore.nf' params(optional: '--fastqc', single_end: false)
 
 // rRNA removal module
-include SortMeRNA from './NextflowModules/SortMeRNA/4.3.3/SortMeRNA.nf' params( single_end: false )
+include { SortMeRNA } from './NextflowModules/SortMeRNA/4.3.3/SortMeRNA.nf' params( single_end: false )
 
 // Mapping modules
-include GenomeGenerate from './NextflowModules/STAR/2.7.3a/GenomeGenerate.nf'
-include AlignReads from './NextflowModules/STAR/2.7.3a/AlignReads.nf' params(optional: '--outReadsUnmapped Fastx', single_end: false)
-include Index from './NextflowModules/Sambamba/0.7.0/Index.nf'
-include Flagstat as Flagstat_raw from './NextflowModules/Sambamba/0.7.0/Flagstat.nf'
-include BWAMapping from './NextflowModules/BWA-Mapping/bwa-0.7.17_samtools-1.9/Mapping.nf' params(
+include { GenomeGenerate } from './NextflowModules/STAR/2.7.3a/GenomeGenerate.nf'
+include { AlignReads } from './NextflowModules/STAR/2.7.3a/AlignReads.nf' params(optional: '--outReadsUnmapped Fastx', single_end: false)
+include { Index } from './NextflowModules/Sambamba/0.7.0/Index.nf'
+include { Flagstat as Flagstat_raw } from './NextflowModules/Sambamba/0.7.0/Flagstat.nf'
+include { BWAMapping } from './NextflowModules/BWA-Mapping/bwa-0.7.17_samtools-1.9/Mapping.nf' params(
     genome_fasta: "$params.genome_fasta", optional: '-c 100 -M'
 )
-include Merge as Sambamba_Merge_RNA from './NextflowModules/Sambamba/0.7.0/Merge.nf'
-include Merge as Sambamba_Merge_WES from './NextflowModules/Sambamba/0.7.0/Merge.nf'
+include { Merge } as Sambamba_Merge_RNA from './NextflowModules/Sambamba/0.7.0/Merge.nf'
+include { Merge } as Sambamba_Merge_WES from './NextflowModules/Sambamba/0.7.0/Merge.nf'
 
 // After mapping QC
-include RSeQC from './NextflowModules/RSeQC/3.0.1/RSeQC.nf' params( single_end: false)
-include LCExtrap from './NextflowModules/Preseq/2.0.3/LCExtrap.nf' params( optional:'-v -B -D')
-include GtfToGenePred from './NextflowModules/UCSC/377/GtfToGenePred.nf'
-include GenePredToBed from './NextflowModules/UCSC/377/GenePredToBed.nf'
-include CollectMultipleMetrics as PICARD_CollectMultipleMetrics from './NextflowModules/Picard/2.22.0/CollectMultipleMetrics.nf' params(
+include { RSeQC } from './NextflowModules/RSeQC/3.0.1/RSeQC.nf' params( single_end: false)
+include { LCExtrap } from './NextflowModules/Preseq/2.0.3/LCExtrap.nf' params( optional:'-v -B -D')
+include { GtfToGenePred } from './NextflowModules/UCSC/377/GtfToGenePred.nf'
+include { GenePredToBed } from './NextflowModules/UCSC/377/GenePredToBed.nf'
+include { CollectMultipleMetrics as PICARD_CollectMultipleMetrics } from './NextflowModules/Picard/2.22.0/CollectMultipleMetrics.nf' params(
     genome: "$params.genome_fasta",
     optional: "PROGRAM=null PROGRAM=CollectAlignmentSummaryMetrics PROGRAM=CollectInsertSizeMetrics METRIC_ACCUMULATION_LEVEL=null METRIC_ACCUMULATION_LEVEL=SAMPLE"
 )
-include EstimateLibraryComplexity as PICARD_EstimateLibraryComplexity from './NextflowModules/Picard/2.22.0/EstimateLibraryComplexity.nf' params(
+include { EstimateLibraryComplexity as PICARD_EstimateLibraryComplexity } from './NextflowModules/Picard/2.22.0/EstimateLibraryComplexity.nf' params(
     optional: "OPTICAL_DUPLICATE_PIXEL_DISTANCE=2500"
 )
-include FixMateInformation as PICARD_FixMateInformation from './NextflowModules/Picard/2.22.0/FixMateInformation.nf' params(optional: '')
-include UmiAwareMarkDuplicatesWithMateCigar as PICARD_UmiAwareMarkDuplicatesWithMateCigar from './NextflowModules/Picard/2.22.0/UmiAwareMarkDuplicatesWithMateCigar.nf' params(optional:'')
-include FastqScreen from './NextflowModules/Fastq-screen-0.15.3.nf'
-include RNASeQC from './NextflowModules/RNASeQC-latest.nf' params(downsampled_gtf: "$params.downsampled_gtf")
+include { FixMateInformation as PICARD_FixMateInformation } from './NextflowModules/Picard/2.22.0/FixMateInformation.nf' params(optional: '')
+include { UmiAwareMarkDuplicatesWithMateCigar as PICARD_UmiAwareMarkDuplicatesWithMateCigar } from './NextflowModules/Picard/2.22.0/UmiAwareMarkDuplicatesWithMateCigar.nf' params(optional:'')
+include { FastqScreen } from './NextflowModules/Fastq-screen-0.15.3.nf'
+include { RNASeQC } from './NextflowModules/RNASeQC-latest.nf' params(downsampled_gtf: "$params.downsampled_gtf")
 
 // WES
 
 // IndelRealignment modules
-include RealignerTargetCreator as GATK_RealignerTargetCreator from './NextflowModules/GATK/3.8-1-0-gf15c1c3ef/RealignerTargetCreator.nf' params(
+include { RealignerTargetCreator as GATK_RealignerTargetCreator } from './NextflowModules/GATK/3.8-1-0-gf15c1c3ef/RealignerTargetCreator.nf' params(
     gatk_path: "$params.gatk_path", genome: "$params.genome_fasta", optional: "$params.gatk_rtc_options"
 )
-include IndelRealigner as GATK_IndelRealigner from './NextflowModules/GATK/3.8-1-0-gf15c1c3ef/IndelRealigner.nf' params(
+include { IndelRealigner as GATK_IndelRealigner } from './NextflowModules/GATK/3.8-1-0-gf15c1c3ef/IndelRealigner.nf' params(
     gatk_path: "$params.gatk_path", genome: "$params.genome_fasta", optional: ""
 )
-include ViewUnmapped as Sambamba_ViewUnmapped from './NextflowModules/Sambamba/0.7.0/ViewUnmapped.nf'
+include { ViewUnmapped as Sambamba_ViewUnmapped } from './NextflowModules/Sambamba/0.7.0/ViewUnmapped.nf'
 
 // HaplotypeCaller modules
-include IntervalListTools as PICARD_IntervalListTools from './NextflowModules/Picard/2.22.0/IntervalListTools.nf' params(
+include { IntervalListTools as PICARD_IntervalListTools } from './NextflowModules/Picard/2.22.0/IntervalListTools.nf' params(
     scatter_count: "500", optional: ""
 )
-include HaplotypeCaller as GATK_HaplotypeCaller from './NextflowModules/GATK/3.8-1-0-gf15c1c3ef/HaplotypeCaller.nf' params(
+include { HaplotypeCaller as GATK_HaplotypeCaller } from './NextflowModules/GATK/3.8-1-0-gf15c1c3ef/HaplotypeCaller.nf' params(
     gatk_path: "$params.gatk_path", genome: "$params.genome_fasta", optional: "$params.gatk_hc_options"
 )
-include VariantFiltrationSnpIndel as GATK_VariantFiltration from './NextflowModules/GATK/3.8-1-0-gf15c1c3ef/VariantFiltration.nf' params(
+include { VariantFiltrationSnpIndel as GATK_VariantFiltration } from './NextflowModules/GATK/3.8-1-0-gf15c1c3ef/VariantFiltration.nf' params(
     gatk_path: "$params.gatk_path", genome: "$params.genome_fasta", snp_filter: "$params.gatk_snp_filter",
     snp_cluster: "$params.gatk_snp_cluster", indel_filter: "$params.gatk_indel_filter"
 )
-include CombineVariants as GATK_CombineVariants from './NextflowModules/GATK/3.8-1-0-gf15c1c3ef/CombineVariants.nf' params(
+include { CombineVariants as GATK_CombineVariants } from './NextflowModules/GATK/3.8-1-0-gf15c1c3ef/CombineVariants.nf' params(
     gatk_path: "$params.gatk_path", genome: "$params.genome_fasta", optional: "--assumeIdenticalSamples"
 )
-include SelectVariantsSample as GATK_SingleSampleVCF from './NextflowModules/GATK/3.8-1-0-gf15c1c3ef/SelectVariants.nf' params(
+include { SelectVariantsSample as GATK_SingleSampleVCF } from './NextflowModules/GATK/3.8-1-0-gf15c1c3ef/SelectVariants.nf' params(
     gatk_path: "$params.gatk_path", genome: "$params.genome_fasta"
 )
-include Tabix from './NextflowModules/Tabix.nf'
+include { Tabix } from './NextflowModules/Tabix.nf'
 
 // DROP
-include DROP from './NextflowModules/drop-1.2.4.nf'
+include { DROP } from './NextflowModules/drop-1.2.4.nf'
 
 def analysis_id = params.outdir.split('/')[-1]
 def fastq_files = extractFastqPairFromDir(params.fastq_path)
