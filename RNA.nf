@@ -77,7 +77,7 @@ include { Tabix } from './NextflowModules/Tabix.nf'
 include { DROP } from './NextflowModules/drop-1.2.4.nf'
 
 def analysis_id = params.outdir.split('/')[-1]
-def fastq_files = extractFastqPairFromDir(params.fastq_path)
+def rna_files = extractFastqPairFromDir(params.rna_path)
 def wes_files = extractFastqPairFromDir(params.wes_path)
 
 // Define chromosomes used to scatter GATK_RealignerTargetCreator
@@ -89,14 +89,14 @@ workflow {
     // Use bam files if bam is set true
     if (!params.bam) {
         // FASTQC
-        FastQC(fastq_files)
+        FastQC(rna_files)
 
         // MultiQC pre trimming
         pre_QC = Channel.empty().mix(FastQC.out).collect()
         MultiQC_pre(analysis_id, pre_QC)
 
         // TrimGalore
-        TrimGalore(fastq_files)
+        TrimGalore(rna_files)
         trimmed_fastqs = TrimGalore.out.fastqs_trimmed
 
         //Remove rRNA with SortMeRNA
@@ -180,7 +180,7 @@ workflow {
             PICARD_CollectMultipleMetrics.out, PICARD_EstimateLibraryComplexity.out, FastqScreen.out).collect()
     }
     else{
-        FastqScreen(fastq_files, params.fastq_screen_config)
+        FastqScreen(rna_files, params.fastq_screen_config)
         qc_files = Channel.empty().mix(PICARD_CollectMultipleMetrics.out, PICARD_EstimateLibraryComplexity.out, \
             RSeQC.out, LCExtrap.out, FastqScreen.out).collect()
     }

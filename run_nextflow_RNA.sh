@@ -4,8 +4,8 @@ set -euo pipefail
 workflow_path='/hpc/diaggen/projects/RNAseq_Jade/DxNextflowRNA/'
 
 # Set input and output dirs
-input=`realpath -e $1`
-bam=$2
+input_RNA=`realpath -e $1`
+bam_boolean=$2
 input_WES=`realpath -e $3`
 output=`realpath $4`
 email=$5
@@ -33,8 +33,8 @@ module load Java/1.8.0_60
 
 /hpc/diaggen/software/tools/nextflow run $workflow_path/RNA.nf \
 -c $workflow_path/nextflow.config \
---fastq_path $input \
---bams $bam
+--rna_path $input_RNA \
+--bam $bam_boolean
 --wes_path $input_WES \
 --outdir $output \
 --email $email \
