@@ -17,7 +17,7 @@ touch workflow.running
 
 sbatch <<EOT
 #!/bin/bash
-#SBATCH --time=48:00:00
+#SBATCH --time=96:00:00
 #SBATCH --nodes=1
 #SBATCH --mem 5G
 #SBATCH --gres=tmpspace:10G
@@ -34,7 +34,7 @@ module load Java/1.8.0_60
 /hpc/diaggen/software/tools/nextflow run $workflow_path/RNA.nf \
 -c $workflow_path/nextflow.config \
 --rna_path $input_RNA \
---bam $bam_boolean
+--bam $bam_boolean \
 --wes_path $input_WES \
 --outdir $output \
 --email $email \

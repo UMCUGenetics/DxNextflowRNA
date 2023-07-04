@@ -1,11 +1,11 @@
 # UMCUGenetics-DxNextflowRNA
 To run the workflow please use the following command:
 
-`<path to nextflow bash script> <path to fastq directory> <path to WES directory> <path to output directory> <email adress>`
+`<path to nextflow bash script> <path to RNA-seq directory> <true/false> <path to WES directory> <path to output directory> <email adress>`
 
 This project contains a Nextflow workflow for analyzing RNA-seq data to detect deviate RNA.
 
-When the workflow is run with `bam=true` in `nextflow.config` then there should be bam files in the fastq directory as well as fastq files. 
+When the workflow is run with `true` in the command line then there should be bam files in the fastq directory as well as fastq files. 
  
 ## How to install DROP
 

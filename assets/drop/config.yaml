@@ -1,0 +1,57 @@
+projectTitle: Detection of RNA Outlier Pipeline
+htmlOutputPath: /hpc/diaggen/projects/RNAseq_Jade/dropOutput/html
+indexWithFolderName: true
+root: /hpc/diaggen/projects/RNAseq_Jade/dropOutput
+sampleAnnotation: /hpc/diaggen/projects/RNAseq_Jade/sample_annotation_all.tsv
+geneAnnotation:
+  v43: /hpc/diaggen/projects/RNAseq_Jade/data/hg38/gencode.v43.annotation.gtf
+genomeAssembly: hg38
+genome: /hpc/diaggen/projects/RNAseq_Jade/data/hg38/GCA_000001405.15_GRCh38_no_alt_plus_hs38d1_analysis_set.fasta
+hpoFile: null
+random_seed: true
+aberrantExpression:
+  run: true
+  groups:
+  - blood
+  fpkmCutoff: 1
+  implementation: autoencoder
+  padjCutoff: 1
+  zScoreCutoff: 0
+  maxTestedDimensionProportion: 3
+  dassie:
+    tssWindow: 500
+    pasWindow: 1000
+  yieldSize: 2000000
+aberrantSplicing:
+  run: true
+  groups:
+  - blood
+  recount: true
+  longRead: false
+  keepNonStandardChrs: false
+  filter: true
+  minExpressionInOneSample: 20
+  minDeltaPsi: 0.05
+  implementation: PCA
+  padjCutoff: 1
+  zScoreCutoff: 0
+  deltaPsiCutoff: 0.3
+  maxTestedDimensionProportion: 6
+mae:
+  run: true
+  groups:
+  - mae
+  gatkIgnoreHeaderCheck: true
+  padjCutoff: 0.05
+  allelicRatioCutoff: 0.8
+  addAF: false
+  maxAF: 0.001
+  maxVarFreqCohort: 0.05
+  qcVcf: /hpc/diaggen/projects/RNAseq_Jade/data/hg38/qc_vcf_1000G_GRCh38.vcf.gz
+  qcGroups:
+  - mae
+  dnaRnaMatchCutoff: 0.85
+tools:
+  gatkCmd: gatk
+  bcftoolsCmd: bcftools
+  samtoolsCmd: samtools

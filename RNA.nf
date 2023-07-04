@@ -1,3 +1,6 @@
+#!/usr/bin/env nextflow
+nextflow.preview.dsl=2
+
 // fastq module
 include { extractFastqPairFromDir } from './NextflowModules/Utils/fastq.nf'
 
@@ -23,8 +26,8 @@ include { Flagstat as Flagstat_raw } from './NextflowModules/Sambamba/0.7.0/Flag
 include { BWAMapping } from './NextflowModules/BWA-Mapping/bwa-0.7.17_samtools-1.9/Mapping.nf' params(
     genome_fasta: "$params.genome_fasta", optional: '-c 100 -M'
 )
-include { Merge } as Sambamba_Merge_RNA from './NextflowModules/Sambamba/0.7.0/Merge.nf'
-include { Merge } as Sambamba_Merge_WES from './NextflowModules/Sambamba/0.7.0/Merge.nf'
+include { Merge as Sambamba_Merge_RNA } from './NextflowModules/Sambamba/0.7.0/Merge.nf'
+include { Merge as Sambamba_Merge_WES } from './NextflowModules/Sambamba/0.7.0/Merge.nf'
 
 // After mapping QC
 include { RSeQC } from './NextflowModules/RSeQC/3.0.1/RSeQC.nf' params( single_end: false)
@@ -87,7 +90,7 @@ def chromosomes = Channel.fromPath(params.genome_fasta.replace('fasta', 'dict'))
 
 workflow {
     // Use bam files if bam is set true
-    if (!params.bam) {
+/*    if (!params.bam) {
         // FASTQC
         FastQC(rna_files)
 
@@ -143,7 +146,7 @@ workflow {
         flagstat_logs = Flagstat_raw.out
     }
     else{
-        bam_files = extractBamFromDir(params.fastq_path)
+        bam_files = extractBamFromDir(params.rna_path)
     }
 
     // Remove duplicates with Picard and stats
@@ -208,9 +211,9 @@ workflow {
         Sambamba_Merge_WES.out.map{sample_id, bam_file, bai_file -> [sample_id]})
     )
     Tabix(GATK_SingleSampleVCF.out)
-
+*/
     // DROP
-    //DROP("/hpc/diaggen/projects/RNAseq_Jade/drop/Data", "/hpc/diaggen/projects/RNAseq_Jade/drop/Scripts", "/hpc/diaggen/projects/RNAseq_Jade/drop/.drop", "/hpc/diaggen/projects/RNAseq_Jade/drop/Snakefile", "/hpc/diaggen/projects/RNAseq_Jade/drop/config.yaml", "/hpc/diaggen/projects/RNAseq_Jade/drop/R_lib", "/hpc/diaggen/projects/RNAseq_Jade/drop/readme.md")
+    DROP("/hpc/diaggen/projects/RNAseq_Jade/DxNextflowRNA/assets/drop/Data", "/hpc/diaggen/projects/RNAseq_Jade/DxNextflowRNA/assets/drop/Scripts", "/hpc/diaggen/projects/RNAseq_Jade/DxNextflowRNA/assets/drop/.drop", "/hpc/diaggen/projects/RNAseq_Jade/DxNextflowRNA/assets/drop/Snakefile", "/hpc/diaggen/projects/RNAseq_Jade/DxNextflowRNA/assets/drop/config.yaml", "/hpc/diaggen/projects/RNAseq_Jade/DxNextflowRNA/assets/drop/R_lib", "/hpc/diaggen/projects/RNAseq_Jade/DxNextflowRNA/assets/drop/readme.md")
 
     // rMATS
 }
@@ -228,14 +231,23 @@ workflow.onComplete {
 
     // Send email
     if (workflow.success) {
-        def subject = "RNAseq Workflow Successful: ${analysis_id}"
-        sendMail(
-            to: params.email.trim(),
-            subject: subject,
-            body: email_html,
-            attach: ["${params.outdir}/QC/preQC/${analysis_id}_multiqc_report.html","${params.outdir}/QC/postQC/${analysis_id}_multiqc_report.html"]
-        )
-
+        if (!params.bam) {
+            def subject = "RNAseq Workflow Successful: ${analysis_id}"
+            sendMail(
+                to: params.email.trim(),
+                subject: subject,
+                body: email_html,
+                attach: ["${params.outdir}/QC/postQC/${analysis_id}_multiqc_report.html"]
+            )
+        } else {
+            def subject = "RNAseq Workflow Successful: ${analysis_id}"
+            sendMail(
+                to: params.email.trim(),
+                subject: subject,
+                body: email_html,
+                attach: ["${params.outdir}/QC/preQC/${analysis_id}_multiqc_report.html","${params.outdir}/QC/postQC/${analysis_id}_multiqc_report.html"]
+            )
+        }
     } else {
         def subject = "RNAseq Workflow Failed: ${analysis_id}"
         sendMail(to: params.email.trim(), subject: subject, body: email_html)
