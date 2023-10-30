@@ -5,7 +5,9 @@ name: nf-core linting
 on:
   push:
     branches:
-      - dev
+      - main
+      - develop
+      - feature/*
   pull_request:
   release:
     types: [published]
