@@ -1,0 +1,17 @@
+{
+  "name": "UMCUGenetics/DxNextflowRNA",
+  "homePage": "https://github.com/UMCUGenetics/DxNextflowRNA",
+  "repos": {
+    "https://github.com/nf-core/modules.git": {
+      "modules": {
+        "nf-core": {
+          "fastqc": {
+            "branch": "master",
+            "git_sha": "516189e968feb4ebdd9921806988b4c12b4ac2dc",
+            "installed_by": ["modules"]
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "https://raw.githubusercontent.com/UMCUGenetics/DxNextflowRNA/master/nextflow_schema.json",
+  "title": "UMCUGenetics/DxNextflowRNA pipeline parameters",
+  "description": "UMCU Genetics RNA Workflow",
+  "type": "object",
+  "definitions": {
+    "reference_genome_options": {
+      "title": "Reference genome options",
+      "type": "object",
+      "fa_icon": "fas fa-dna",
+      "description": "Reference genome related files and options required for the workflow.",
+      "properties": {
+        "genome": {
+          "type": "string",
+          "description": "Path of genome reference.",
+          "fa_icon": "fas fa-book",
+          "help_text": ""
+        }
+      }
+    }
+  },
+  "allOf": [
+    {
+      "$ref": "#/definitions/reference_genome_options"
+    }
+  ]
+}
