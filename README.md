@@ -8,6 +8,7 @@
 [![Launch on Nextflow Tower](https://img.shields.io/badge/Launch%20%F0%9F%9A%80-Nextflow%20Tower-%234256e7)](https://tower.nf/launch?pipeline=https://github.com/UMCUGenetics/dxnextflowrna)
 
 ## Introduction
+
 UMCU Genetics Nextflow RNA workflow - **UMCUGenetics/DxNextflowRNA** is a bioinformatics pipeline that ...
 
 <!-- TODO nf-core:
