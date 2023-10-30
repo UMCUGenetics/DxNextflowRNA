@@ -1,7 +1,7 @@
 {
     "$schema": "http://json-schema.org/draft-07/schema",
-    "$id": "https://raw.githubusercontent.com/dx/rna/master/assets/schema_input.json",
-    "title": "dx/rna pipeline - params.input schema",
+    "$id": "https://raw.githubusercontent.com/UMCUGenetics/dxnextflowrna/master/assets/schema_input.json",
+    "title": "UMCUGenetics/dxnextflowrna pipeline - params.input schema",
     "description": "Schema for the file provided with params.input",
     "type": "array",
     "items": {

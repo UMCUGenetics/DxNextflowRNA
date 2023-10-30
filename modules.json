@@ -1,6 +1,6 @@
 {
-    "name": "dx/rna",
-    "homePage": "https://github.com/dx/rna",
+    "name": "UMCUGenetics/dxnextflowrna",
+    "homePage": "https://github.com/UMCUGenetics/dxnextflowrna",
     "repos": {
         "https://github.com/nf-core/modules.git": {
             "modules": {

@@ -1,9 +1,9 @@
 lint:
   files_exist:
   - CODE_OF_CONDUCT.md
-  - assets/nf-core-rna_logo_light.png
-  - docs/images/nf-core-rna_logo_light.png
-  - docs/images/nf-core-rna_logo_dark.png
+  - assets/nf-core-dxnextflowrna_logo_light.png
+  - docs/images/nf-core-dxnextflowrna_logo_light.png
+  - docs/images/nf-core-dxnextflowrna_logo_dark.png
   - .github/ISSUE_TEMPLATE/config.yml
   - .github/workflows/awstest.yml
   - .github/workflows/awsfulltest.yml
@@ -11,9 +11,9 @@ lint:
   - conf/igenomes.config
   files_unchanged:
   - CODE_OF_CONDUCT.md
-  - assets/nf-core-rna_logo_light.png
-  - docs/images/nf-core-rna_logo_light.png
-  - docs/images/nf-core-rna_logo_dark.png
+  - assets/nf-core-dxnextflowrna_logo_light.png
+  - docs/images/nf-core-dxnextflowrna_logo_light.png
+  - docs/images/nf-core-dxnextflowrna_logo_dark.png
   - .github/ISSUE_TEMPLATE/bug_report.yml
   multiqc_config:
   - report_comment
@@ -26,7 +26,7 @@ lint:
   - custom_config
 repository_type: pipeline
 template:
-  prefix: dx
+  prefix: UMCUGenetics
   skip:
   - igenomes
   - nf_core_configs

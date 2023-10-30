@@ -17,7 +17,7 @@ process SAMPLESHEET_CHECK {
     when:
     task.ext.when == null || task.ext.when
 
-    script: // This script is bundled with the pipeline, in dx/rna/bin/
+    script: // This script is bundled with the pipeline, in UMCUGenetics/dxnextflowrna/bin/
     """
     check_samplesheet.py \\
         $samplesheet \\

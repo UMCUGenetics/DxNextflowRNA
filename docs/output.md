@@ -1,4 +1,4 @@
-# dx/rna: Output
+# UMCUGenetics/dxnextflowrna: Output
 
 ## Introduction
 

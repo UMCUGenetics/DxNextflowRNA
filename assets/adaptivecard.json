@@ -17,7 +17,7 @@
                         "size": "Large",
                         "weight": "Bolder",
                         "color": "<% if (success) { %>Good<% } else { %>Attention<%} %>",
-                        "text": "dx/rna v${version} - ${runName}",
+                        "text": "UMCUGenetics/dxnextflowrna v${version} - ${runName}",
                         "wrap": true
                     },
                     {

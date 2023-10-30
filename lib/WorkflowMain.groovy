@@ -1,5 +1,5 @@
 //
-// This file holds several functions specific to the main.nf workflow in the dx/rna pipeline
+// This file holds several functions specific to the main.nf workflow in the UMCUGenetics/dxnextflowrna pipeline
 //
 
 import nextflow.Nextflow

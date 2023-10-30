@@ -1,9 +1,9 @@
 #!/usr/bin/env nextflow
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    dx/rna
+    UMCUGenetics/dxnextflowrna
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    Github : https://github.com/dx/rna
+    Github : https://github.com/UMCUGenetics/dxnextflowrna
 ----------------------------------------------------------------------------------------
 */
 
@@ -39,13 +39,13 @@ WorkflowMain.initialise(workflow, params, log)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-include { RNA } from './workflows/rna'
+include { DXNEXTFLOWRNA } from './workflows/dxnextflowrna'
 
 //
-// WORKFLOW: Run main dx/rna analysis pipeline
+// WORKFLOW: Run main UMCUGenetics/dxnextflowrna analysis pipeline
 //
-workflow DX_RNA {
-    RNA ()
+workflow UMCUGENETICS_DXNEXTFLOWRNA {
+    DXNEXTFLOWRNA ()
 }
 
 /*
@@ -59,7 +59,7 @@ workflow DX_RNA {
 // See: https://github.com/nf-core/rnaseq/issues/619
 //
 workflow {
-    DX_RNA ()
+    UMCUGENETICS_DXNEXTFLOWRNA ()
 }
 
 /*

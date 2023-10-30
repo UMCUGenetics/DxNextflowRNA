@@ -1,11 +1,11 @@
 //
-// This file holds several functions specific to the workflow/rna.nf in the dx/rna pipeline
+// This file holds several functions specific to the workflow/dxnextflowrna.nf in the UMCUGenetics/dxnextflowrna pipeline
 //
 
 import nextflow.Nextflow
 import groovy.text.SimpleTemplateEngine
 
-class WorkflowRna {
+class WorkflowDxnextflowrna {
 
     //
     // Check and validate parameters
