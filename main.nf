@@ -33,7 +33,20 @@ include { FASTQC } from './modules/nf-core/fastqc/main'
 */
 
 workflow {
-    fastq_ch = Channel.fromFilePairs("$params.input/*_R{1,2}_001.fastq.gz").view()
+    ch_fastq = Channel.fromFilePairs("$params.input/*_R{1,2}_001.fastq.gz")
+        .map {
+            meta, fastq ->
+            def fmeta = [:]
+            // Set meta.id
+            fmeta.id = meta
+            // Set meta.single_end
+            if (fastq.size() == 1) {
+                fmeta.single_end = true
+            } else {
+                fmeta.single_end = false
+            }
+            [ fmeta, fastq ]
+        }
 
     FASTQC(fastq_ch)
 }
