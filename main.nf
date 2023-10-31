@@ -25,6 +25,7 @@ validateParameters()
 */
 
 include { FASTQC } from './modules/nf-core/fastqc/main'
+include { STAR_ALIGN } from './modules/nf-core/star/align/main'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -49,4 +50,15 @@ workflow {
         }
 
     FASTQC(ch_fastq)
+
+    STAR_ALIGN (
+            ch_fastq,
+            '/hpc/diaggen/projects/RNAseq_Jade/results/230825_A00295_0757_AHH7KWDSX7_RNASeq_SE9117/reference_resources/STAR/GCA_000001405.15_GRCh38_no_alt_plus_hs38d1_analysis_set/SAindex',
+            '/hpc/diaggen/projects/RNAseq_Jade/data/hg38/gencode.v43.annotation.gtf',
+            false,
+            'illumina',
+            'UMC Utrecht'
+            false,
+            '/hpc/diaggen/projects/RNAseq_Jade/data/hg38/GCA_000001405.15_GRCh38_no_alt_plus_hs38d1_analysis_set.fasta'
+        )
 }
