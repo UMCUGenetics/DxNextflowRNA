@@ -10,7 +10,8 @@ UMCU Genetics Nextflow RNA workflow
 ## Usage
 
 ```bash
-nextflow run ...
+export NXF_JAVA_HOME='/hpc/diaggen/projects/woc/rna/tools/jdk-18.0.2.1'
+/hpc/diaggen/projects/woc/rna/tools/nextflow run DxNextflowRNA --input /hpc/diaggen/projects/woc/rna/testdata/fastq --outdir ...
 ```
 
 ## Citations
