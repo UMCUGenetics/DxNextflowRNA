@@ -48,5 +48,5 @@ workflow {
             [ fmeta, fastq ]
         }
 
-    FASTQC(fastq_ch)
+    FASTQC(ch_fastq)
 }
