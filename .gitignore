@@ -1,0 +1,6 @@
+# Nextflow
+.nextflow*
+work/
+
+# MacOS
+.DS_Store
