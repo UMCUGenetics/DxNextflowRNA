@@ -33,5 +33,7 @@ include { FASTQC } from './modules/nf-core/fastqc/main'
 */
 
 workflow {
+    fastq_ch = Channel.fromFilePairs("$params.input/*_R{1,2}_001.fastq.gz").view()
 
+    FASTQC(fastq_ch)
 }
