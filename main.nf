@@ -95,7 +95,7 @@ workflow {
 
     SAMTOOLS_INDEX ( SAMTOOLS_MERGE.out.bam )
 
-    SAMTOOLS_SORT.out.bam
+    SAMTOOLS_MERGE.out.bam
         .join(SAMTOOLS_INDEX.out.bai)
         .set { ch_bam_bai }
 
