@@ -82,13 +82,13 @@ workflow {
 
     STAR_ALIGN (
         ch_fastq,
-        ch_star_index,
-        ch_gtf,
+        ch_star_index.first(),
+        ch_gtf.first(),
         false,
         'illumina',
         'UMCU Genetics'
     )
-   
+
     SAMTOOLS_INDEX ( STAR_ALIGN.out.bam_sorted )
     STAR_ALIGN.out.bam_sorted
         .join(SAMTOOLS_INDEX.out.bai)
