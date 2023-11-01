@@ -32,6 +32,7 @@ include { BAM_DEDUP_STATS_SAMTOOLS_UMITOOLS } from './subworkflows/nf-core/bam_d
 include { SUBREAD_FEATURECOUNTS } from './modules/nf-core/subread/featurecounts/main'
 include { MULTIQC } from './modules/nf-core/multiqc/main'
 include { STAR_ALIGN } from './modules/nf-core/star/align/main'
+include { SAMTOOLS_SORT } from './modules/nf-core/samtools/sort/main'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -89,8 +90,11 @@ workflow {
         'UMCU Genetics'
     )
 
-    SAMTOOLS_INDEX ( STAR_ALIGN.out.bam_sorted )
-    STAR_ALIGN.out.bam_sorted
+    SAMTOOLS_SORT(STAR_ALIGN.out.bam)
+
+    SAMTOOLS_INDEX ( SAMTOOLS_SORT.out.bam )
+
+    SAMTOOLS_SORT.out.bam
         .join(SAMTOOLS_INDEX.out.bai)
         .set { ch_bam_bai }
 
@@ -99,6 +103,10 @@ workflow {
         true
     )
 
-    SUBREAD_FEATURECOUNTS(BAM_DEDUP_STATS_SAMTOOLS_UMITOOLS.out.bam.map{ meta, bam -> [ meta, bam, params.genome ]})
+    SUBREAD_FEATURECOUNTS(
+        BAM_DEDUP_STATS_SAMTOOLS_UMITOOLS.out.bam.map{
+        meta, bam -> [ meta, bam, params.genome ]
+        }
+    )
 
 }
