@@ -25,6 +25,11 @@ validateParameters()
 */
 
 include { FASTQC } from './modules/nf-core/fastqc/main'
+include { SAMTOOLS_INDEX } from '../modules/nf-core/samtools/index/main'
+
+include { BAM_DEDUP_STATS_SAMTOOLS_UMITOOLS } from '../subworkflows/nf-core/bam_dedup_stats_samtools_umitools/main'
+
+include { SUBREAD_FEATURECOUNTS } from '../modules/nf-core/subread/featurecounts/main' 
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -48,5 +53,17 @@ workflow {
             [ fmeta, fastq ]
         }
 
+    //TRIMGALORE
+
     FASTQC(ch_fastq)
+
+    SAMTOOLS_INDEX ( STAR.out.bam_sorted )
+    STAR.out.bam_sorted
+        .join(SAMTOOLS_INDEX.out.bai)
+        .set { ch_bam_bai }
+
+    BAM_DEDUP_STATS_SAMTOOLS_UMITOOLS( ch_bam_bai )
+
+    SUBREAD_FEATURECOUNTS(BAM_DEDUP_STATS_SAMTOOLS_UMITOOLS.out.bam.map{ meta, bam -> [ meta, bam, params.genome ]})
+
 }
