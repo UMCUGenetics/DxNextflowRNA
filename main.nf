@@ -91,7 +91,11 @@ workflow {
         'UMCU Genetics'
     )
 
-    SAMTOOLS_MERGE( STAR_ALIGN.out.bam_sorted )
+    SAMTOOLS_MERGE(
+        STAR_ALIGN.out.bam_sorted
+        Channel.empty().toList(),
+        Channel.empty().toList()
+    )
 
     SAMTOOLS_INDEX ( SAMTOOLS_MERGE.out.bam )
 
