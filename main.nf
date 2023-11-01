@@ -70,20 +70,20 @@ workflow {
         Channel.empty().toList()
     )
 
-    ch_star_index = Channel.fromPath('/hpc/diaggen/data/databases/STAR_ref_genome_index/GCA_000001405.15_GRCh38_no_alt_plus_hs38d1_analysis_set_2.7.9a')
+    ch_star_index = file('/hpc/diaggen/data/databases/STAR_ref_genome_index/GCA_000001405.15_GRCh38_no_alt_plus_hs38d1_analysis_set_2.7.9a')
     ch_star_index = ch_star_index.map {
-        index -> ['38', index]
+        star_index -> [star_index.getSimpleName(), star_index]
     }
 
-    ch_gtf = Channel.fromPath('/hpc/diaggen/data/databases/gencode/gencode.v44.primary_assembly.basic.annotation.gtf')
+    ch_gtf = file('/hpc/diaggen/data/databases/gencode/gencode.v44.primary_assembly.basic.annotation.gtf')
     ch_gtf = ch_gtf.map {
-        index -> ['gencode.v43', index]
+        gtf -> [gtf.getSimpleName(), gtf]
     }
 
     STAR_ALIGN (
         ch_fastq,
-        ch_star_index.first(),
-        ch_gtf.first(),
+        ch_star_index,
+        ch_gtf,
         false,
         'illumina',
         'UMCU Genetics'
