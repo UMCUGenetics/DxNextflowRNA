@@ -2,5 +2,8 @@
 .nextflow*
 work/
 
+#JetBrains
+.idea/
+
 # MacOS
 .DS_Store
