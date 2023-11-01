@@ -77,8 +77,8 @@ workflow {
                 new_id = meta.id.split('_')[0]
                 [ meta + [id: new_id], bam ]
         }.groupTuple(),
-        Channel.empty(),
-        Channel.empty()
+        [ [ id:'null' ], []],
+        [ [ id:'null' ], []],
     )
 
     SAMTOOLS_INDEX ( SAMTOOLS_MERGE.out.bam )
