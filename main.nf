@@ -82,7 +82,7 @@ workflow {
         gtf -> [gtf.getSimpleName(), gtf]
     }
 
-    STAR_ALIGN (
+    STAR_ALIGN(
         ch_fastq,
         ch_star_index,
         ch_gtf,
