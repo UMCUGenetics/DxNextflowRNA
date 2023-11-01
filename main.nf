@@ -93,8 +93,8 @@ workflow {
 
     SAMTOOLS_MERGE(
         STAR_ALIGN.out.bam_sorted
-        Channel.empty().toList(),
-        Channel.empty().toList()
+        Channel.empty(),
+        Channel.empty()
     )
 
     SAMTOOLS_INDEX ( SAMTOOLS_MERGE.out.bam )
