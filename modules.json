@@ -30,9 +30,9 @@
             "git_sha": "8fc1d24c710ebe1d5de0f2447ec9439fd3d9d66a",
             "installed_by": ["bam_dedup_stats_samtools_umitools"]
           },
-          "samtools/sort": {
+          "samtools/merge": {
             "branch": "master",
-            "git_sha": "8fc1d24c710ebe1d5de0f2447ec9439fd3d9d66a",
+            "git_sha": "e7ce60acc8a33fa17429e966364657a63016e870",
             "installed_by": ["modules"]
           },
           "samtools/stats": {
