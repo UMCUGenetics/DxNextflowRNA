@@ -10,6 +10,11 @@
             "git_sha": "516189e968feb4ebdd9921806988b4c12b4ac2dc",
             "installed_by": ["modules"]
           },
+          "multiqc": {
+            "branch": "master",
+            "git_sha": "8fc1d24c710ebe1d5de0f2447ec9439fd3d9d66a",
+            "installed_by": ["modules"]
+          },
           "samtools/flagstat": {
             "branch": "master",
             "git_sha": "8fc1d24c710ebe1d5de0f2447ec9439fd3d9d66a",
@@ -23,12 +28,17 @@
           "samtools/index": {
             "branch": "master",
             "git_sha": "8fc1d24c710ebe1d5de0f2447ec9439fd3d9d66a",
-            "installed_by": ["modules", "bam_dedup_stats_samtools_umitools"]
+            "installed_by": ["bam_dedup_stats_samtools_umitools"]
           },
           "samtools/stats": {
             "branch": "master",
             "git_sha": "8fc1d24c710ebe1d5de0f2447ec9439fd3d9d66a",
             "installed_by": ["bam_stats_samtools"]
+          },
+          "star/align": {
+            "branch": "master",
+            "git_sha": "8fc1d24c710ebe1d5de0f2447ec9439fd3d9d66a",
+            "installed_by": ["modules"]
           },
           "subread/featurecounts": {
             "branch": "master",

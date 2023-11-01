@@ -30,6 +30,8 @@ include { SAMTOOLS_INDEX } from '../modules/nf-core/samtools/index/main'
 include { BAM_DEDUP_STATS_SAMTOOLS_UMITOOLS } from '../subworkflows/nf-core/bam_dedup_stats_samtools_umitools/main'
 
 include { SUBREAD_FEATURECOUNTS } from '../modules/nf-core/subread/featurecounts/main' 
+include { MULTIQC } from './modules/nf-core/multiqc/main'
+include { STAR_ALIGN } from './modules/nf-core/star/align/main'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -57,6 +59,36 @@ workflow {
 
     FASTQC(ch_fastq)
 
+    // MultiQC
+    ch_multiqc_files = Channel.empty()
+    ch_multiqc_files = ch_multiqc_files.mix(FASTQC.out.zip.collect{it[1]}.ifEmpty([]))
+    ch_multiqc_config = Channel.fromPath("$projectDir/assets/multiqc_config.yml", checkIfExists: true)
+    MULTIQC(
+        ch_multiqc_files.collect(),
+        ch_multiqc_config.toList(),
+        Channel.empty().toList(),
+        Channel.empty().toList()
+    )
+
+    ch_star_index = Channel.fromPath('/hpc/diaggen/data/databases/STAR_ref_genome_index/GCA_000001405.15_GRCh38_no_alt_plus_hs38d1_analysis_set_2.7.9a')
+    ch_star_index = ch_star_index.map {
+        index -> ['38', index]
+    }
+
+    ch_gtf = Channel.fromPath('/hpc/diaggen/data/databases/gencode/gencode.v44.primary_assembly.basic.annotation.gtf')
+    ch_gtf = ch_gtf.map {
+        index -> ['gencode.v43', index]
+    }
+
+    STAR_ALIGN (
+        ch_fastq,
+        ch_star_index,
+        ch_gtf,
+        false,
+        'illumina',
+        'UMCU Genetics'
+    )
+   
     SAMTOOLS_INDEX ( STAR.out.bam_sorted )
     STAR.out.bam_sorted
         .join(SAMTOOLS_INDEX.out.bai)
