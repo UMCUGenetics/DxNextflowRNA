@@ -69,7 +69,7 @@ workflow {
             '/hpc/diaggen/projects/RNAseq_Jade/data/hg38/gencode.v43.annotation.gtf',
             false,
             'illumina',
-            'UMC Utrecht'
+            'UMC Utrecht',
             false,
             '/hpc/diaggen/projects/RNAseq_Jade/data/hg38/GCA_000001405.15_GRCh38_no_alt_plus_hs38d1_analysis_set.fasta'
         )
