@@ -25,11 +25,11 @@ validateParameters()
 */
 
 include { FASTQC } from './modules/nf-core/fastqc/main'
-include { SAMTOOLS_INDEX } from '../modules/nf-core/samtools/index/main'
+include { SAMTOOLS_INDEX } from './modules/nf-core/samtools/index/main'
 
-include { BAM_DEDUP_STATS_SAMTOOLS_UMITOOLS } from '../subworkflows/nf-core/bam_dedup_stats_samtools_umitools/main'
+include { BAM_DEDUP_STATS_SAMTOOLS_UMITOOLS } from './subworkflows/nf-core/bam_dedup_stats_samtools_umitools/main'
 
-include { SUBREAD_FEATURECOUNTS } from '../modules/nf-core/subread/featurecounts/main' 
+include { SUBREAD_FEATURECOUNTS } from './modules/nf-core/subread/featurecounts/main'
 include { MULTIQC } from './modules/nf-core/multiqc/main'
 include { STAR_ALIGN } from './modules/nf-core/star/align/main'
 
