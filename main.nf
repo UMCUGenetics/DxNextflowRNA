@@ -89,8 +89,8 @@ workflow {
         'UMCU Genetics'
     )
    
-    SAMTOOLS_INDEX ( STAR.out.bam_sorted )
-    STAR.out.bam_sorted
+    SAMTOOLS_INDEX ( STAR_ALIGN.out.bam_sorted )
+    STAR_ALIGN.out.bam_sorted
         .join(SAMTOOLS_INDEX.out.bai)
         .set { ch_bam_bai }
 
