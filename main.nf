@@ -91,23 +91,23 @@ workflow {
         'UMCU Genetics'
     )
 
-    SAMTOOLS_MERGE( STAR_ALIGN.out.bam_sorted )
+    // SAMTOOLS_MERGE( STAR_ALIGN.out.bam_sorted )
 
-    SAMTOOLS_INDEX ( SAMTOOLS_MERGE.out.bam )
+    // SAMTOOLS_INDEX ( SAMTOOLS_MERGE.out.bam )
 
-    SAMTOOLS_MERGE.out.bam
-        .join(SAMTOOLS_INDEX.out.bai)
-        .set { ch_bam_bai }
+    // SAMTOOLS_MERGE.out.bam
+    //     .join(SAMTOOLS_INDEX.out.bai)
+    //     .set { ch_bam_bai }
 
-    BAM_DEDUP_STATS_SAMTOOLS_UMITOOLS(
-        ch_bam_bai,
-        true
-    )
+    // BAM_DEDUP_STATS_SAMTOOLS_UMITOOLS(
+    //     ch_bam_bai,
+    //     true
+    // )
 
-    SUBREAD_FEATURECOUNTS(
-        BAM_DEDUP_STATS_SAMTOOLS_UMITOOLS.out.bam.map{
-        meta, bam -> [ meta, bam, params.genome ]
-        }
-    )
+    // SUBREAD_FEATURECOUNTS(
+    //     BAM_DEDUP_STATS_SAMTOOLS_UMITOOLS.out.bam.map{
+    //     meta, bam -> [ meta, bam, params.genome ]
+    //     }
+    // )
 
 }
