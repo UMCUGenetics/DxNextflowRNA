@@ -68,7 +68,7 @@ workflow {
         index -> ['38', index]
     }
 
-    ch_gtf = Channel.fromPath('/hpc/diaggen/projects/RNAseq_Jade/data/hg38/gencode.v43.annotation.gtf')
+    ch_gtf = Channel.fromPath('/hpc/diaggen/data/databases/gencode/gencode.v44.primary_assembly.basic.annotation.gtf')
     ch_gtf = ch_gtf.map {
         index -> ['gencode.v43', index]
     }
