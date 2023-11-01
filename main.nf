@@ -63,14 +63,22 @@ workflow {
         Channel.empty().toList()
     )
 
+    ch_star_index = Channel.fromPath('/hpc/diaggen/data/databases/STAR_ref_genome_index/GCA_000001405.15_GRCh38_no_alt_plus_hs38d1_analysis_set_2.7.9a')
+    ch_star_index = ch_star_index.map {
+        index -> ['38', index]
+    }
+
+    ch_gtf = Channel.fromPath('/hpc/diaggen/projects/RNAseq_Jade/data/hg38/gencode.v43.annotation.gtf')
+    ch_gtf = ch_gtf.map {
+        index -> ['gencode.v43', index]
+    }
+
     STAR_ALIGN (
-            ch_fastq,
-            '/hpc/diaggen/projects/RNAseq_Jade/results/230825_A00295_0757_AHH7KWDSX7_RNASeq_SE9117/reference_resources/STAR/GCA_000001405.15_GRCh38_no_alt_plus_hs38d1_analysis_set/SAindex',
-            '/hpc/diaggen/projects/RNAseq_Jade/data/hg38/gencode.v43.annotation.gtf',
-            false,
-            'illumina',
-            'UMC Utrecht',
-            false,
-            '/hpc/diaggen/projects/RNAseq_Jade/data/hg38/GCA_000001405.15_GRCh38_no_alt_plus_hs38d1_analysis_set.fasta'
-        )
+        ch_fastq,
+        ch_star_index,
+        ch_gtf,
+        false,
+        'illumina',
+        'UMCU Genetics'
+    )
 }
