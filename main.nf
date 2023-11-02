@@ -94,7 +94,7 @@ workflow {
 
     SUBREAD_FEATURECOUNTS(
         BAM_DEDUP_STATS_SAMTOOLS_UMITOOLS.out.bam.map{
-        meta, bam -> [ meta, bam, params.genome ]
+        meta, bam -> [ meta, bam, params.gtf ]
         }
     )
 
