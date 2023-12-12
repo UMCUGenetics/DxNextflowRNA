@@ -17,6 +17,9 @@ mkdir -p log
 if ! { [ -f 'workflow.running' ] || [ -f 'workflow.done' ] || [ -f 'workflow.failed' ]; }; then
 touch workflow.running
 
+export JAVA_HOME='/hpc/diaggen/software/tools/jdk-18.0.2.1/'  # change java version
+export NXF_JAVA_HOME='/hpc/diaggen/software/tools/jdk-18.0.2.1/'  # change java vesion of nextflow
+
 sbatch <<EOT
 #!/bin/bash
 #SBATCH --time=00:10:00
