@@ -2,10 +2,10 @@
 .nextflow*
 work/
 
-#JetBrains
+# JetBrains
 .idea/
 
-#VisualStudioCode
+# VisualStudioCode
 .vscode/*
 !.vscode/settings.json
 !.vscode/tasks.json
@@ -27,7 +27,6 @@ work/
 
 # Icon must end with two \r
 Icon
-
 
 # Thumbnails
 ._*
