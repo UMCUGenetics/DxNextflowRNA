@@ -1,7 +1,7 @@
 #!/bin/bash
 set -euo pipefail
 
-//workflow_path='/hpc/diaggen/software/production/DxNextflowWES'
+#workflow_path='/hpc/diaggen/software/production/DxNextflowWES'
 workflow_path='/hpc/diaggen/users/lonneke/github/DxNextflowRNA'
 
 # Set input and output dirs
@@ -48,15 +48,15 @@ if [ \$? -eq 0 ]; then
     echo "Remove work directory"
     rm -r work
 
-//    echo "Creating md5sum"
-//    find -type f -not -iname 'md5sum.txt' -exec md5sum {} \; > md5sum.txt
+#    echo "Creating md5sum"
+#    find -type f -not -iname 'md5sum.txt' -exec md5sum {} \; > md5sum.txt
 
     echo "RNA Trimgalore test workflow completed successfully."
     rm workflow.running
     touch workflow.done
 
-//    echo "Change permissions"
-//    chmod 775 -R $output
+#    echo "Change permissions"
+#    chmod 775 -R $output
 
     exit 0
 else
@@ -64,8 +64,8 @@ else
     rm workflow.running
     touch workflow.failed
 
-//    echo "Change permissions"
-//    chmod 775 -R $output
+#    echo "Change permissions"
+#    chmod 775 -R $output
 
     exit 1
 fi
