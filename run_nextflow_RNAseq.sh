@@ -32,7 +32,7 @@ sbatch <<EOT
 
 /hpc/diaggen/software/tools/nextflow run $workflow_path/hello.nf \
 -c $workflow_path/nextflow.config \
---fastq_path $input \
+--input $input \
 --outdir $output \
 --email $email \
 -profile slurm \
