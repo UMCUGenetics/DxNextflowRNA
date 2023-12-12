@@ -5,7 +5,8 @@ set -euo pipefail
 workflow_path='/hpc/diaggen/users/lonneke/github/DxNextflowRNA'
 
 # Set input and output dirs
-input=`realpath -e $1`
+#input=`realpath -e $1`
+input=`realpath $1`
 output=`realpath $2`
 email=$3
 optional_params=( "${@:4}" )
