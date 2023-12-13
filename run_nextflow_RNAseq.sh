@@ -34,7 +34,7 @@ sbatch <<EOT
 export JAVA_HOME='/hpc/diaggen/software/tools/jdk-18.0.2.1/'  # change java version
 export NXF_JAVA_HOME='/hpc/diaggen/software/tools/jdk-18.0.2.1/'  # change java vesion of nextflow
 
-/hpc/diaggen/software/tools/nextflow run $workflow_path/hello.nf \
+/hpc/diaggen/software/development/DxNextflowRNA/tools/nextflow run $workflow_path/hello.nf \
 -c $workflow_path/nextflow.config \
 --input $input \
 --outdir $output \
