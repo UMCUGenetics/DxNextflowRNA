@@ -44,8 +44,25 @@
           "description": "Path of genome reference.",
           "fa_icon": "fas fa-book",
           "help_text": ""
-        }
+        },
+        "gtf": {
+          "type": "string",
+          "format": "file-path",
+          "exists": true,
+          "mimetype": "text/plain",
+          "pattern": "^\\S+\\.gtf(\\.gz)?$",
+          "description": "Path to GTF annotation file.",
+          "fa_icon": "fas fa-code-branch",
+          "help_text": "This parameter is *mandatory* if `--genome` is not specified."
+        },      
+        "star_index": {
+          "type": "string",
+          "format": "path",
+          "exists": true,
+          "fa_icon": "fas fa-bezier-curve",
+          "description": "Path to directory or tar.gz archive for pre-built STAR index."
       }
+     }
     },
     "generic_options": {
       "title": "Generic options",
