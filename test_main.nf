@@ -76,7 +76,7 @@ workflow {
         'illumina',
         'UMCU Genetics'
     )
-/*
+
     SAMTOOLS_MERGE(
         STAR_ALIGN.out.bam_sorted.map {
             meta, bam ->
@@ -117,5 +117,5 @@ workflow {
         Channel.empty().toList(),
         Channel.empty().toList()
     )
-*/
+
 }
