@@ -24,14 +24,14 @@ sbatch <<EOT
 #SBATCH --nodes=1
 #SBATCH --mem 10G
 #SBATCH --gres=tmpspace:10G
-#SBATCH --job-name Nextflow_WES
-#SBATCH -o log/slurm_nextflow_wes.%j.out
-#SBATCH -e log/slurm_nextflow_wes.%j.err
+#SBATCH --job-name Nextflow_RNASeq
+#SBATCH -o log/slurm_nextflow_rnaseq.%j.out
+#SBATCH -e log/slurm_nextflow_rnaseq.%j.err
 #SBATCH --mail-user $email
 #SBATCH --mail-type FAIL
 #SBATCH --account=diaggen
 
-/hpc/diaggen/software/development/DxNextflowRNA/tools/nextflow run /hpc/diaggen/users/lonneke/github/DxNextflowRNA/test_main.nf  \
+/hpc/diaggen/software/development/DxNextflowRNA/tools/nextflow run /hpc/diaggen/users/lonneke/github/DxNextflowRNA/main.nf  \
 -c /hpc/diaggen/users/lonneke/github/DxNextflowRNA/nextflow.config -resume -ansi-log false -profile slurm \
 --input $input \
 --outdir $output \
