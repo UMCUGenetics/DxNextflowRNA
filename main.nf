@@ -34,7 +34,7 @@ include { STAR_ALIGN } from './modules/nf-core/star/align/main'
 include { SUBREAD_FEATURECOUNTS } from './modules/nf-core/subread/featurecounts/main'
 
 */
-include { OUTRIDER } from './NextflowModules/outrider/1.20.0/main'
+include { OUTRIDER } from './subworkflows/nf-core/outrider/1.20.0/main'
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     Main workflow
