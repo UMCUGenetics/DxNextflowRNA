@@ -16,7 +16,7 @@ touch workflow.running
 echo "check directory for output: ${output}"
 
 export JAVA_HOME='/hpc/diaggen/software/tools/jdk-18.0.2.1/'  # change java version 
-export NXF_JAVA_HOME='/hpc/diaggen/software/tools/jdk-18.0.2.1/'  # change java vesion of nextflow
+export NXF_JAVA_HOME='/hpc/diaggen/software/tools/jdk-18.0.2.1/'  # change java version of nextflow
 
 sbatch <<EOT
 #!/bin/bash
@@ -40,7 +40,7 @@ sbatch <<EOT
 if [ \$? -eq 0 ]; then
     echo "Nextflow done."
 
-    echo "RNA Trimgalore test workflow completed successfully."
+    echo "DxNexflowRNA add_outrider test workflow completed successfully."
     rm workflow.running
     touch workflow.done
 
