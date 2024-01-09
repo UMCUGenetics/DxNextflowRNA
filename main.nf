@@ -33,8 +33,10 @@ include { SAMTOOLS_MERGE } from './modules/nf-core/samtools/merge/main'
 include { STAR_ALIGN } from './modules/nf-core/star/align/main'
 include { SUBREAD_FEATURECOUNTS } from './modules/nf-core/subread/featurecounts/main'
 
+
+include { OUTRIDER } from './subworkflows/nf-core/Outrider/main'
 */
-include { OUTRIDER } from './subworkflows/nf-core/outrider/1.20.0/main'
+include { OUTRIDER } from './NextflowModules/Outrider/1.20.0/main'
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     Main workflow
@@ -109,7 +111,7 @@ workflow {
     // MultiQC
     ch_multiqc_files = Channel.empty()
     ch_multiqc_files = ch_multiqc_files.mix(FASTQC.out.zip.collect{it[1]}.ifEmpty([]))
-    ch_multiqc_config = Channel.fromPath("$projectDir/assets/multiqc_config.yml", checkIfExists: true)
+	    ch_multiqc_config = Channel.fromPath("$projectDir/assets/multiqc_config.yml", checkIfExists: true)
     MULTIQC(
         ch_multiqc_files.collect(),
         ch_multiqc_config.toList(),
@@ -120,7 +122,13 @@ workflow {
     // Input channel
     ch_outrider_in = Channel.fromPath("$params.input/feature_counts/*CHX*.txt")
     ch_outrider_ref = Channel.fromPath("$params.input/feature_counts/*Cntrl*.txt")
-
+/*  ch_outrider_in = Channel.fromPath("$params.input/feature_counts/2023-803CHX.featureCounts.txt").map{
+        meta, outrider_in ->
+	def fmeta = [:]
+	fmeta.id = "test_meta"
+        [ fmeta, outrider_in ]
+    }.view()
+*/
     //Outrider
     OUTRIDER(
         ch_outrider_in,
