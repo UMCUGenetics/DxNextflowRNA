@@ -1,12 +1,13 @@
 #!/bin/bash
 set -euo pipefail
 
-workflow_path='/hpc/diaggen/users/lonneke/github/DxNextflowRNA'
+workflow_path='/hpc/diaggen/users/lonneke/github/DxNextflowRNA/'
 
 # Set input and output dirs
 input=`realpath $1`
 output=`realpath $2`
 email=$3
+optional_params=( "${@:4}" )
 
 mkdir -p $output && cd $output
 mkdir -p log
@@ -31,16 +32,19 @@ sbatch <<EOT
 #SBATCH --mail-type FAIL
 #SBATCH --account=diaggen
 
-/hpc/diaggen/software/development/DxNextflowRNA/tools/nextflow run /hpc/diaggen/users/lonneke/github/DxNextflowRNA/main.nf  \
--c /hpc/diaggen/users/lonneke/github/DxNextflowRNA/nextflow.config -resume -ansi-log false -profile slurm \
+/hpc/diaggen/software/development/DxNextflowRNA/tools/nextflow run $workflow_path/main.nf  \
+-c $workflow_path/nextflow.config \
 --input $input \
 --outdir $output \
---email $email
+--email $email \
+-profile slurm \
+-resume -ansi-log false \
+${optional_params[@]:-""}
  
 if [ \$? -eq 0 ]; then
     echo "Nextflow done."
 
-    echo "RNA Trimgalore test workflow completed successfully."
+    echo "RNA RNA workflow completed successfull."
     rm workflow.running
     touch workflow.done
 
