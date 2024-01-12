@@ -44,7 +44,7 @@ ${optional_params[@]:-""}
 if [ \$? -eq 0 ]; then
     echo "Nextflow done."
 
-    echo "RNA RNA workflow completed successfull."
+    echo "RNA workflow completed successfull."
     rm workflow.running
     touch workflow.done
 
