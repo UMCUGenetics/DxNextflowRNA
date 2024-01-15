@@ -59,14 +59,11 @@ workflow {
             }
             [ fmeta, fastq ]
         }
-        .view ()
 
     // Trim, Alignment, FeatureCounts
     TRIMGALORE(
         ch_fastq
     )
-
-    TRIMGALORE.out.reads.view()
     
     STAR_ALIGN(
         TRIMGALORE.out.reads,
