@@ -7,6 +7,7 @@ workflow_path='/hpc/diaggen/users/lonneke/github/DxNextflowRNA'
 input=`realpath $1`
 output=`realpath $2`
 email=$3
+optional_params=( "${@:4}" )
 
 mkdir -p $output && cd $output
 mkdir -p log
@@ -14,8 +15,9 @@ mkdir -p log
 if ! { [ -f 'workflow.running' ] || [ -f 'workflow.done' ] || [ -f 'workflow.failed' ]; }; then
 touch workflow.running
 echo "check directory for output: ${output}"
+echo "{}"
 
-export JAVA_HOME='/hpc/diaggen/software/tools/jdk-18.0.2.1/'  # change java version 
+#export JAVA_HOME='/hpc/diaggen/software/tools/jdk-18.0.2.1/'  # change java version 
 export NXF_JAVA_HOME='/hpc/diaggen/software/tools/jdk-18.0.2.1/'  # change java version of nextflow
 
 sbatch <<EOT
@@ -31,11 +33,16 @@ sbatch <<EOT
 #SBATCH --mail-type FAIL
 #SBATCH --account=diaggen
 
-/hpc/diaggen/software/development/DxNextflowRNA/tools/nextflow run /hpc/diaggen/users/lonneke/github/DxNextflowRNA/main.nf  \
--c /hpc/diaggen/users/lonneke/github/DxNextflowRNA/nextflow.config -resume -ansi-log false -profile slurm \
+/hpc/diaggen/software/development/DxNextflowRNA/tools/nextflow run \ 
+$workflow_path/main.nf  \
+-c $workflow_path/nextflow.config \
 --input $input \
 --outdir $output \
---email $email
+--email $email \
+-profile slurm \
+-resume \
+-ansi-log false \
+${optional_params[@]:-""}
  
 if [ \$? -eq 0 ]; then
     echo "Nextflow done."
