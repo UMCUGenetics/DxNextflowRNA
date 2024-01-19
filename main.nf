@@ -109,7 +109,10 @@ workflow {
 
     // MultiQC
     ch_multiqc_files = Channel.empty()
-    ch_multiqc_files = ch_multiqc_files.mix(FASTQC.out.zip.collect{it[1]}.ifEmpty([]))
+    ch_multiqc_files = ch_multiqc_files.mix(
+        FASTQC.out.zip.collect{it[1]}.ifEmpty([]),
+        TRIMGALORE.out.log.collect{it[1]}.ifEmpty([])
+    ).collect()
     ch_multiqc_config = Channel.fromPath("$projectDir/assets/multiqc_config.yml", checkIfExists: true)
     MULTIQC(
         ch_multiqc_files.collect(),
