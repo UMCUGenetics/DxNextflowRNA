@@ -21,7 +21,7 @@ export NXF_JAVA_HOME='/hpc/diaggen/software/tools/jdk-18.0.2.1/'  # change java 
 
 sbatch <<EOT
 #!/bin/bash
-#SBATCH --time=04:00:00
+#SBATCH --time=06:00:00
 #SBATCH --nodes=1
 #SBATCH --mem 10G
 #SBATCH --gres=tmpspace:10G
