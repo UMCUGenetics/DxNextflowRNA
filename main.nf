@@ -120,6 +120,8 @@ workflow {
     )
 */
     // Input channel
+    //ch_outrider_in = Channel.fromPath("$params.input/feature_counts/*CHX.exon_id*.txt")
+    //ch_outrider_ref = Channel.fromPath("$params.input/feature_counts/*Cntrl.exon_id*.txt")
     ch_outrider_in = Channel.fromPath("$params.input/feature_counts/*CHX*.txt")
     ch_outrider_ref = Channel.fromPath("$params.input/feature_counts/*Cntrl*.txt")
 /*  ch_outrider_in = Channel.fromPath("$params.input/feature_counts/2023-803CHX.featureCounts.txt").map{
