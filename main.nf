@@ -60,7 +60,7 @@ workflow {
             [ fmeta, fastq ]
         }
 
-    // Trim, Alignment, FeatureCounts
+    // Trim, Alignment, UMI dedup, FeatureCounts
     TRIMGALORE(
         ch_fastq
     )
