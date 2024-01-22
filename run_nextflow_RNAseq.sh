@@ -46,9 +46,21 @@ ${optional_params[@]:-""}
 if [ \$? -eq 0 ]; then
     echo "Nextflow done."
 
+    echo "Zip work directory"
+    find work -type f | egrep "\.(command|exitcode)" | zip -@ -q work.zip
+
+    echo "Remove work directory"
+    rm -r work
+
+    echo "Creating md5sum"
+    find -type f -not -iname 'md5sum.txt' -exec md5sum {} \; > md5sum.txt
+
     echo "RNA workflow completed successfull."
     rm workflow.running
     touch workflow.done
+
+    echo "Change permissions"
+    chmod 775 -R $output
 
     exit 0
 else
