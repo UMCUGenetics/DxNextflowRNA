@@ -92,7 +92,7 @@ workflow {
 
     BAM_DEDUP_STATS_SAMTOOLS_UMITOOLS(
         ch_bam_bai,
-        true
+        false
     )
 
     SUBREAD_FEATURECOUNTS(
