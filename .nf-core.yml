@@ -1,0 +1,66 @@
+lint:
+  files_exist:
+    - .gitattributes
+    - .editorconfig
+    - .prettierignore
+    - .prettierrc.yml
+    - .github/CONTRIBUTING.md
+    - .github/ISSUE_TEMPLATE/bug_report.yml
+    - .github/ISSUE_TEMPLATE/config.yml
+    - .github/ISSUE_TEMPLATE/feature_request.yml
+    - .github/PULL_REQUEST_TEMPLATE.md
+    - .github/.dockstore.yml
+    - .github/workflows/ci.yml
+    - .github/workflows/awstest.yml
+    - .github/workflows/awsfulltest.yml
+    - .github/workflows/branch.yml
+    - .github/workflows/linting_comment.yml
+    - .github/workflows/linting.yml
+    - CODE_OF_CONDUCT.md
+    - CHANGELOG.md
+    - CITATIONS.md
+    - assets/email_template.html
+    - assets/email_template.txt
+    - assets/sendmail_template.txt
+    - assets/nf-core-DxNextflowRNA_logo_light.png
+    - assets/nf-core-dxnextflowrna_logo_light.png
+    - conf/igenomes.config
+    - conf/modules.config
+    - conf/test.config
+    - conf/test_full.config
+    - docs/images/nf-core-DxNextflowRNA_logo_light.png
+    - docs/images/nf-core-DxNextflowRNA_logo_dark.png
+    - docs/output.md
+    - docs/README.md
+    - docs/README.md
+    - docs/usage.md
+    - lib/nfcore_external_java_deps.jar
+    - lib/NfcoreTemplate.groovy
+    - lib/Utils.groovy
+    - lib/WorkflowMain.groovy
+    - lib/WorkflowDxNextflowRNA.groovy
+    - pyproject.toml
+  files_unchanged:
+    - .github/ISSUE_TEMPLATE/bug_report.yml
+    - .github/workflows/linting.yml
+    - .gitignore
+    - CODE_OF_CONDUCT.md
+    - assets/nf-core-dxnextflowrna_logo_light.png
+    - docs/images/nf-core-dxnextflowrna_logo_light.png
+    - docs/images/nf-core-dxnextflowrna_logo_dark.png
+  multiqc_config:
+    - report_comment
+  nextflow_config:
+    - dag.enabled
+    - dag.file
+    - manifest.name
+    - manifest.homePage
+    - params.outdir
+    - params.input
+    - params.validationShowHiddenParams
+    - params.validationSchemaIgnoreParams
+    - process.cpus
+    - process.memory
+    - process.time
+    - custom_config
+repository_type: pipeline
