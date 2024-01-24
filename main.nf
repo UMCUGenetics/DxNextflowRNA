@@ -23,20 +23,17 @@ validateParameters()
     Import modules/subworkflows
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
-/*include { BAM_DEDUP_STATS_SAMTOOLS_UMITOOLS } from './subworkflows/nf-core/bam_dedup_stats_samtools_umitools/main'
+include { BAM_DEDUP_STATS_SAMTOOLS_UMITOOLS } from './subworkflows/nf-core/bam_dedup_stats_samtools_umitools/main'
 
-include { TRIMGALORE } from './modules/nf-core/trimgalore/main'
 include { FASTQC } from './modules/nf-core/fastqc/main'
 include { MULTIQC } from './modules/nf-core/multiqc/main'
+include { OUTRIDER } from './NextflowModules/Outrider/1.20.0/main'
 include { SAMTOOLS_INDEX } from './modules/nf-core/samtools/index/main'
 include { SAMTOOLS_MERGE } from './modules/nf-core/samtools/merge/main'
 include { STAR_ALIGN } from './modules/nf-core/star/align/main'
 include { SUBREAD_FEATURECOUNTS } from './modules/nf-core/subread/featurecounts/main'
+include { TRIMGALORE } from './modules/nf-core/trimgalore/main'
 
-
-include { OUTRIDER } from './subworkflows/nf-core/Outrider/main'
-*/
-include { OUTRIDER } from './NextflowModules/Outrider/1.20.0/main'
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     Main workflow
@@ -45,7 +42,7 @@ include { OUTRIDER } from './NextflowModules/Outrider/1.20.0/main'
 
 workflow {
     // Reference file channels
-/*    ch_star_index = Channel.fromPath(params.star_index).map {star_index -> [star_index.getSimpleName(), star_index] }
+    ch_star_index = Channel.fromPath(params.star_index).map {star_index -> [star_index.getSimpleName(), star_index] }
     ch_gtf = Channel.fromPath(params.gtf).map { gtf -> [gtf.getSimpleName(), gtf] }
 
     // Input channel
@@ -105,35 +102,35 @@ workflow {
         }
     )
 
+    //ch_outrider_in = Channel.fromPath("$params.input/feature_counts/*CHX.exon_id*.txt")
+    //ch_outrider_ref = Channel.fromPath("$params.input/feature_counts/*Cntrl.exon_id*.txt")
+    ch_outrider_in = Channel.fromPath("$params.input/feature_counts/*CHX*.txt")
+    ch_outrider_ref = Channel.fromPath("$params.input/feature_counts/*Cntrl*.txt")
+    /*  ch_outrider_in = Channel.fromPath("$params.input/feature_counts/2023-803CHX.featureCounts.txt").map{
+            meta, outrider_in ->
+            def fmeta = [:]
+            fmeta.id = "test_meta"
+                [ fmeta, outrider_in ]
+        }.view()
+    */
+    //Outrider
+    OUTRIDER(
+        ch_outrider_in,
+        ch_outrider_ref
+    )
+
     // QC
     FASTQC(ch_fastq)
 
     // MultiQC
     ch_multiqc_files = Channel.empty()
     ch_multiqc_files = ch_multiqc_files.mix(FASTQC.out.zip.collect{it[1]}.ifEmpty([]))
-	    ch_multiqc_config = Channel.fromPath("$projectDir/assets/multiqc_config.yml", checkIfExists: true)
+    ch_multiqc_config = Channel.fromPath("$projectDir/assets/multiqc_config.yml", checkIfExists: true)
     MULTIQC(
         ch_multiqc_files.collect(),
         ch_multiqc_config.toList(),
         Channel.empty().toList(),
         Channel.empty().toList()
     )
-*/
-    // Input channel
-    //ch_outrider_in = Channel.fromPath("$params.input/feature_counts/*CHX.exon_id*.txt")
-    //ch_outrider_ref = Channel.fromPath("$params.input/feature_counts/*Cntrl.exon_id*.txt")
-    ch_outrider_in = Channel.fromPath("$params.input/feature_counts/*CHX*.txt")
-    ch_outrider_ref = Channel.fromPath("$params.input/feature_counts/*Cntrl*.txt")
-/*  ch_outrider_in = Channel.fromPath("$params.input/feature_counts/2023-803CHX.featureCounts.txt").map{
-        meta, outrider_in ->
-	def fmeta = [:]
-	fmeta.id = "test_meta"
-        [ fmeta, outrider_in ]
-    }.view()
-*/
-    //Outrider
-    OUTRIDER(
-        ch_outrider_in,
-        ch_outrider_ref
-    )
+
 }
