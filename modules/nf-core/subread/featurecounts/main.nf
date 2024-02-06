@@ -8,7 +8,7 @@ process SUBREAD_FEATURECOUNTS {
         'biocontainers/subread:2.0.1--hed695b0_0' }"
 
     input:
-    tuple val(meta), path(bams), path(annotation)
+    tuple val(meta), path(bams), path(annotation), val(feature)
 
     output:
     tuple val(meta), path("*featureCounts.txt")        , emit: counts
@@ -22,6 +22,7 @@ process SUBREAD_FEATURECOUNTS {
     def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
     def paired_end = meta.single_end ? '' : '-p'
+    def perfeat = ("${feature}"=='gene_id') ? '' : '-f'
 
     def strandedness = 0
     if (meta.strandedness == 'forward') {
@@ -36,7 +37,9 @@ process SUBREAD_FEATURECOUNTS {
         -T $task.cpus \\
         -a $annotation \\
         -s $strandedness \\
-        -o ${prefix}.featureCounts.txt \\
+        -o ${prefix}.${feature}.featureCounts.txt \\
+        -g ${feature} \\
+        ${perfeat} \\
         ${bams.join(' ')}
 
     cat <<-END_VERSIONS > versions.yml
