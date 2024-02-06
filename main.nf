@@ -23,8 +23,6 @@ validateParameters()
     Import modules/subworkflows
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
-include { BAM_DEDUP_STATS_SAMTOOLS_UMITOOLS } from './subworkflows/nf-core/bam_dedup_stats_samtools_umitools/main'
-
 include { FASTQC } from './modules/nf-core/fastqc/main'
 include { MULTIQC } from './modules/nf-core/multiqc/main'
 include { OUTRIDER } from './NextflowModules/Outrider/1.20.0/main'
@@ -61,11 +59,12 @@ workflow {
             [ fmeta, fastq ]
         }
 
-    // Trim, Alignment, FeatureCounts
+    // Trimgalore
     TRIMGALORE(
         ch_fastq
     )
     
+    //Star Align
     STAR_ALIGN(
         TRIMGALORE.out.reads,
         ch_star_index.first(),
@@ -75,6 +74,7 @@ workflow {
         'UMCU Genetics'
     )
 
+    //Samtools
     SAMTOOLS_MERGE(
         STAR_ALIGN.out.bam_sorted.map {
             meta, bam ->
@@ -91,28 +91,16 @@ workflow {
         .join(SAMTOOLS_INDEX.out.bai)
         .set { ch_bam_bai }
 
-    BAM_DEDUP_STATS_SAMTOOLS_UMITOOLS(
-        ch_bam_bai,
-        true
-    )
-
+    //Featurecounts
     SUBREAD_FEATURECOUNTS(
-        BAM_DEDUP_STATS_SAMTOOLS_UMITOOLS.out.bam.map{
+        SAMTOOLS_MERGE.out.bam.map{
         meta, bam -> [ meta, bam, params.gtf ]
         }
     )
 
-    //ch_outrider_in = Channel.fromPath("$params.input/feature_counts/*CHX.exon_id*.txt")
-    //ch_outrider_ref = Channel.fromPath("$params.input/feature_counts/*Cntrl.exon_id*.txt")
     ch_outrider_in = Channel.fromPath("$params.input/feature_counts/*CHX*.txt")
     ch_outrider_ref = Channel.fromPath("$params.input/feature_counts/*Cntrl*.txt")
-    /*  ch_outrider_in = Channel.fromPath("$params.input/feature_counts/2023-803CHX.featureCounts.txt").map{
-            meta, outrider_in ->
-            def fmeta = [:]
-            fmeta.id = "test_meta"
-                [ fmeta, outrider_in ]
-        }.view()
-    */
+
     //Outrider
     OUTRIDER(
         ch_outrider_in,
