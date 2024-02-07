@@ -22,7 +22,7 @@ process SUBREAD_FEATURECOUNTS {
     def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
     def paired_end = meta.single_end ? '' : '-p'
-    def perfeat = ("${feature}"=='gene_id') ? '' : '-f'
+    //def perfeat = ("${feature}"=='gene_id') ? '' : '-f'
 
     def strandedness = 0
     if (meta.strandedness == 'forward') {
@@ -39,7 +39,7 @@ process SUBREAD_FEATURECOUNTS {
         -s $strandedness \\
         -o ${prefix}.${feature}.featureCounts.txt \\
         -g ${feature} \\
-        ${perfeat} \\
+        -J \\
         ${bams.join(' ')}
 
     cat <<-END_VERSIONS > versions.yml
