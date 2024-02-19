@@ -12,8 +12,8 @@ optional_params=( "${@:4}" )
 mkdir -p $output && cd $output
 mkdir -p log
 
-if ! { [ -f 'workflow.running' ] || [ -f 'workflow.done' ] || [ -f 'workflow.failed' ]; }; then
-touch workflow.running
+if ! { [ -f 'rna_workflow.running' ] || [ -f 'rna_workflow.done' ] || [ -f 'rna_workflow.failed' ]; }; then
+touch rna_workflow.running
 echo "check directory for output: ${output}"
 
 #export JAVA_HOME='/hpc/diaggen/software/tools/jdk-18.0.2.1/'  # change java version 
@@ -47,14 +47,14 @@ if [ \$? -eq 0 ]; then
     echo "Nextflow done."
 
     echo "RNA workflow completed successfull."
-    rm workflow.running
-    touch workflow.done
+    rm rna_workflow.running
+    touch rna_workflow.done
 
     exit 0
 else
     echo "Nextflow failed"
-    rm workflow.running
-    touch workflow.failed
+    rm rna_workflow.running
+    touch rna_workflow.failed
 
     exit 1
 fi
