@@ -1,8 +1,8 @@
 #!/usr/bin/env nextflow
 /*
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     UMCUGenetics/DxNextflowRNA
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     Github : https://github.com/UMCUGenetics/DxNextflowRNA
 ----------------------------------------------------------------------------------------
 */
@@ -10,49 +10,42 @@
 nextflow.enable.dsl = 2
 
 /*
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     Validate parameters
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
 include { validateParameters; } from 'plugin/nf-validation'
 validateParameters()
 
 /*
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     Import modules/subworkflows
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 include { FASTQC } from './modules/nf-core/fastqc/main'
 include { MULTIQC } from './modules/nf-core/multiqc/main'
-include { OUTRIDER as OUTRIDER_EXON } from './NextflowModules/Outrider/1.20.0/main'
-include { OUTRIDER as OUTRIDER_GENE } from './NextflowModules/Outrider/1.20.0/main'
+include { OUTRIDER } from './NextflowModules/Outrider/1.20.0/main'
 include { SAMTOOLS_INDEX } from './modules/nf-core/samtools/index/main'
 include { SAMTOOLS_MERGE } from './modules/nf-core/samtools/merge/main'
 include { STAR_ALIGN } from './modules/nf-core/star/align/main'
-include { SUBREAD_FEATURECOUNTS as SUBREAD_FEATURECOUNTS_EXON } from './modules/nf-core/subread/featurecounts/main'
-include { SUBREAD_FEATURECOUNTS as SUBREAD_FEATURECOUNTS_GENE } from './modules/nf-core/subread/featurecounts/main'
+include { SUBREAD_FEATURECOUNTS } from './modules/nf-core/subread/featurecounts/main'
 include { TRIMGALORE } from './modules/nf-core/trimgalore/main'
 
 /*
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     Main workflow
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
 workflow {
-    // Reference file channels
-    ch_star_index = Channel.fromPath(params.star_index).map {star_index -> [star_index.getSimpleName(), star_index] }
-    ch_gtf = Channel.fromPath(params.gtf).map { gtf -> [gtf.getSimpleName(), gtf] }
-
-    // Input channel
     ch_fastq = Channel.fromFilePairs("$params.input/*_R{1,2}_001.fastq.gz")
         .map {
             meta, fastq ->
             def fmeta = [:]
             // Set meta.id
             fmeta.id = meta
-            // Set meta.single_end
+	    // Set meta.single_end
             if (fastq.size() == 1) {
                 fmeta.single_end = true
             } else {
@@ -61,12 +54,24 @@ workflow {
             [ fmeta, fastq ]
         }
 
-    // Trimgalore
+    fastq_to_bam(ch_fastq)
+    featurecounts(fastq_to_bam.out)
+    outrider(featurecounts.out)
+    QC(ch_fastq)
+}
+
+
+workflow fastq_to_bam{
+    take: ch_fastq
+    main:
+    // Reference file channels
+    ch_star_index = Channel.fromPath(params.star_index).map {star_index -> [star_index.getSimpleName(), star_index] }
+    ch_gtf = Channel.fromPath(params.gtf).map { gtf -> [gtf.getSimpleName(), gtf] }
+    
     TRIMGALORE(
         ch_fastq
     )
     
-    //Star Align
     STAR_ALIGN(
         TRIMGALORE.out.reads,
         ch_star_index.first(),
@@ -76,7 +81,6 @@ workflow {
         'UMCU Genetics'
     )
 
-    //Samtools
     SAMTOOLS_MERGE(
         STAR_ALIGN.out.bam_sorted.map {
             meta, bam ->
@@ -93,36 +97,61 @@ workflow {
         .join(SAMTOOLS_INDEX.out.bai)
         .set { ch_bam_bai }
 
-    //Featurecounts
-     SUBREAD_FEATURECOUNTS_GENE(
-        SAMTOOLS_MERGE.out.bam.map{
-            meta, bam -> [ meta, bam, params.gtf, 'gene_id' ]
-        }
+    emit:
+	SAMTOOLS_MERGE.out.bam
+}
+
+
+workflow featurecounts{
+    take: 
+	samtools_merge_bam
+    main: 
+    samtools_merge_bam_gene = samtools_merge_bam.map { meta, bam -> [meta, bam, params.gtf, "gene"] }
+    samtools_merge_bam_exon = samtools_merge_bam.map { meta, bam -> [meta, bam, params.gtf, "exon"] }
+
+    SUBREAD_FEATURECOUNTS(
+	samtools_merge_bam_gene.concat(samtools_merge_bam_exon)
     )
 
-    SUBREAD_FEATURECOUNTS_EXON(
-        SAMTOOLS_MERGE.out.bam.map{
-            meta, bam -> [ meta, bam, params.gtf, 'exon_id' ]
-        }
-    )
+    emit: 
+	SUBREAD_FEATURECOUNTS.out.counts
+}
 
-    ch_outrider_ref_gene = params.refgene.contains(",") ? Channel.fromPath(params.refgene?.split(',') as List).view() : Channel.fromPath("$params.refgene/*.txt").view()
-    ch_outrider_ref_exon = params.refexon.contains(",") ? Channel.fromPath(params.refexon?.split(',') as List).view() : Channel.fromPath("$params.refexon/*.txt").view()
 
-    // Outrider Gene
-    OUTRIDER_GENE(
-        SUBREAD_FEATURECOUNTS_GENE.out.counts,
+workflow outrider{
+    take: 
+        featurecounts
+
+    main:
+    ch_outrider_ref_gene = params.refgene.contains(",") ? Channel.fromPath(params.refgene?.split(',') as List).view() : Channel.fromPath("$params.refgene").view()
+    ch_outrider_ref_exon = params.refexon.contains(",") ? Channel.fromPath(params.refexon?.split(',') as List).view() : Channel.fromPath("$params.refexon").view()
+
+    OUTRIDER(
+        featurecounts,
         ch_outrider_ref_gene.collect(),
-        'gene'
+        ch_outrider_ref_exon.collect()
     )
+}
 
-    // Outrider Gene
-    OUTRIDER_EXON(
-        SUBREAD_FEATURECOUNTS_EXON.out.counts,
-        ch_outrider_ref_exon.toList(),
-        'exon'
-    )
 
+workflow featurecounts_entry{
+    samtools_merge_bam = Channel.fromPath("$params.outdir/bam_files/*.bam").map { bam -> [[id:bam.getSimpleName()], bam] }
+
+    featurecounts(samtools_merge_bam)
+}
+
+
+workflow outrider_entry{
+    featurecounts_gene = Channel.fromPath("$params.outdir/feature_counts/*gene*.txt").map { counts -> [[id:counts.getSimpleName()], counts, "gene"] }
+    featurecounts_exon = Channel.fromPath("$params.outdir/feature_counts/*exon*.txt").map { counts -> [[id:counts.getSimpleName()], counts, "exon"] }
+
+    outrider(featurecounts_gene.concat(featurecounts_exon))
+}
+
+
+workflow QC{
+    take: ch_fastq
+    main:
     // QC
     FASTQC(ch_fastq)
 
