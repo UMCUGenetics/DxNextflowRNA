@@ -33,6 +33,8 @@ include { SAMTOOLS_MERGE } from './modules/nf-core/samtools/merge/main'
 include { STAR_ALIGN } from './modules/nf-core/star/align/main'
 include { SUBREAD_FEATURECOUNTS } from './modules/nf-core/subread/featurecounts/main'
 
+include { PRESEQ_LCEXTRAP } from './modules/nf-core/preseq/lcextrap/main'
+
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     Main workflow
@@ -104,6 +106,12 @@ workflow {
         }
     )
 
+    // PreSeq LCExtrap
+    PRESEQ_LCEXTRAP(
+        // STAR_ALIGN.out.bam_sorted
+        SAMTOOLS_MERGE.out.bam
+    )
+
     // QC
     FASTQC(ch_fastq)
 
@@ -111,7 +119,8 @@ workflow {
     ch_multiqc_files = Channel.empty()
     ch_multiqc_files = ch_multiqc_files.mix(
         FASTQC.out.zip.collect{it[1]}.ifEmpty([]),
-        TRIMGALORE.out.log.collect{it[1]}.ifEmpty([])
+        TRIMGALORE.out.log.collect{it[1]}.ifEmpty([]),
+        PRESEQ_LCEXTRAP.out.lc_extrap.collect{it[1]}.ifEmpty([])
     ).collect()
     ch_multiqc_config = Channel.fromPath("$projectDir/assets/multiqc_config.yml", checkIfExists: true)
     MULTIQC(

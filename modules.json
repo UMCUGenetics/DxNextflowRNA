@@ -15,6 +15,11 @@
             "git_sha": "8fc1d24c710ebe1d5de0f2447ec9439fd3d9d66a",
             "installed_by": ["modules"]
           },
+          "preseq/lcextrap": {
+            "branch": "master",
+            "git_sha": "9a88058962c0ee1715f2ad0e017c37e0cd75e532",
+            "installed_by": ["modules"]
+          },
           "samtools/flagstat": {
             "branch": "master",
             "git_sha": "8fc1d24c710ebe1d5de0f2447ec9439fd3d9d66a",
@@ -35,6 +40,11 @@
             "git_sha": "e7ce60acc8a33fa17429e966364657a63016e870",
             "installed_by": ["modules"]
           },
+          "samtools/sort": {
+            "branch": "master",
+            "git_sha": "f4596fe0bdc096cf53ec4497e83defdb3a94ff62",
+            "installed_by": ["modules"]
+          },
           "samtools/stats": {
             "branch": "master",
             "git_sha": "8fc1d24c710ebe1d5de0f2447ec9439fd3d9d66a",
@@ -48,6 +58,11 @@
           "subread/featurecounts": {
             "branch": "master",
             "git_sha": "8fc1d24c710ebe1d5de0f2447ec9439fd3d9d66a",
+            "installed_by": ["modules"]
+          },
+          "trimgalore": {
+            "branch": "master",
+            "git_sha": "2e6c468e0ad43b23df71d7a7f130d5c0e0aa89e3",
             "installed_by": ["modules"]
           },
           "umitools/dedup": {
