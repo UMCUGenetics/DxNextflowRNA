@@ -60,5 +60,5 @@ else
 fi
 EOT
 else
-echo "Workflow job not submitted, please check $output for 'workflow.status' files."
+echo "Workflow job not submitted, please check $output for 'rna_workflow.status' files."
 fi
