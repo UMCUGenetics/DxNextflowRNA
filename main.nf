@@ -34,6 +34,7 @@ include { STAR_ALIGN } from './modules/nf-core/star/align/main'
 include { SUBREAD_FEATURECOUNTS } from './modules/nf-core/subread/featurecounts/main'
 
 include { PRESEQ_LCEXTRAP } from './modules/nf-core/preseq/lcextrap/main'
+include { SAMTOOLS_SORT } from './modules/nf-core/samtools/sort/main'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -63,13 +64,14 @@ workflow {
         }
         .view ()
 
-    // Trim, Alignment, FeatureCounts
+    // apply trimming to fastq files  
     TRIMGALORE(
         ch_fastq
     )
 
     TRIMGALORE.out.reads.view()
     
+    // align reads to reference genome
     STAR_ALIGN(
         TRIMGALORE.out.reads,
         ch_star_index.first(),
@@ -79,6 +81,7 @@ workflow {
         'UMCU Genetics'
     )
 
+    // merge all lanes for a sample
     SAMTOOLS_MERGE(
         STAR_ALIGN.out.bam_sorted.map {
             meta, bam ->
@@ -89,11 +92,29 @@ workflow {
         [ [ id:'null' ], []],
     )
 
+    // generate bai file
     SAMTOOLS_INDEX ( SAMTOOLS_MERGE.out.bam )
 
+    // joint bam and bai file
     SAMTOOLS_MERGE.out.bam
         .join(SAMTOOLS_INDEX.out.bai)
         .set { ch_bam_bai }
+
+    // sort bam file by position
+    SAMTOOLS_SORT(
+        // STAR_ALIGN.out.bam
+        ch_bam_bai
+    )
+
+    // get statistics on bam file for preseq
+    SAMTOOLS_STATS(
+        ch_bam_bai
+    )
+
+    // get statistics on sorted bam file for preseq
+    SAMTOOLS_STATS(
+        SAMTOOLS_SORT.out.bam
+    )
 
     BAM_DEDUP_STATS_SAMTOOLS_UMITOOLS(
         ch_bam_bai,
@@ -106,10 +127,11 @@ workflow {
         }
     )
 
-    // PreSeq LCExtrap
+    // PreSeq LCExtrap generate library complexity plot
     PRESEQ_LCEXTRAP(
         // STAR_ALIGN.out.bam_sorted
-        SAMTOOLS_MERGE.out.bam
+        // SAMTOOLS_MERGE.out.bam
+        SAMTOOLS_SORT.out.bam
     )
 
     // QC
