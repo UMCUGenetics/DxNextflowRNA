@@ -23,8 +23,6 @@ validateParameters()
     Import modules/subworkflows
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
-include { BAM_DEDUP_STATS_SAMTOOLS_UMITOOLS } from './subworkflows/nf-core/bam_dedup_stats_samtools_umitools/main'
-
 include { TRIMGALORE } from './modules/nf-core/trimgalore/main'
 include { FASTQC } from './modules/nf-core/fastqc/main'
 include { MULTIQC } from './modules/nf-core/multiqc/main'
@@ -116,16 +114,6 @@ workflow {
         SAMTOOLS_SORT.out.bam
     )
 
-    BAM_DEDUP_STATS_SAMTOOLS_UMITOOLS(
-        ch_bam_bai,
-        true
-    )
-
-    SUBREAD_FEATURECOUNTS(
-        BAM_DEDUP_STATS_SAMTOOLS_UMITOOLS.out.bam.map{
-        meta, bam -> [ meta, bam, params.gtf ]
-        }
-    )
 
     // PreSeq LCExtrap generate library complexity plot
     PRESEQ_LCEXTRAP(
