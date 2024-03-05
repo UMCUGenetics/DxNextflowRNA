@@ -32,7 +32,7 @@ include { STAR_ALIGN } from './modules/nf-core/star/align/main'
 include { SUBREAD_FEATURECOUNTS } from './modules/nf-core/subread/featurecounts/main'
 
 include { PRESEQ_LCEXTRAP } from './modules/nf-core/preseq/lcextrap/main'
-include { SAMTOOLS_SORT } from './modules/nf-core/samtools/sort/main'
+include { BAM_RSEQC } from './subworkflows/nf-core/bam_rseqc/main'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -125,6 +125,13 @@ workflow {
 
     // QC
     FASTQC(ch_fastq)
+
+    // TODO: replace bed file with gene_bed created on GTF.
+    BAM_RSEQC(
+        ch_bam_bai,
+	    Channel.fromPath("/hpc/diaggen/users/ellen/rnaseq_rseqc/2023-803CHX.bed").first(),
+        ['bam_stat']
+    )
 
     // MultiQC
     ch_multiqc_files = Channel.empty()
