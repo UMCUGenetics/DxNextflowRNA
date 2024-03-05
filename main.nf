@@ -33,6 +33,7 @@ include { SUBREAD_FEATURECOUNTS } from './modules/nf-core/subread/featurecounts/
 
 include { PRESEQ_LCEXTRAP } from './modules/nf-core/preseq/lcextrap/main'
 include { BAM_RSEQC } from './subworkflows/nf-core/bam_rseqc/main'
+include { BAM_SORT_STATS_SAMTOOLS } from './subworkflows/nf-core/bam_sort_stats_samtools/main'                                                                                                                               
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -92,7 +93,7 @@ workflow {
     )
 
     // generate bai file
-    SAMTOOLS_INDEX ( SAMTOOLS_MERGE.out.bam )
+    BAM_SORT_STATS_SAMTOOLS(SAMTOOLS_MERGE.out.bam, ch_genome_fasta)
 
     // joint bam and bai file
     SAMTOOLS_MERGE.out.bam
