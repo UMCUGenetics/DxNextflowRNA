@@ -65,14 +65,9 @@ workflow {
             }
             [ fmeta, fastq ]
         }
-        .view ()
-
+    
     // apply trimming to fastq files  
-    TRIMGALORE(
-        ch_fastq
-    )
-
-    TRIMGALORE.out.reads.view()
+    TRIMGALORE(ch_fastq)
     
     // align reads to reference genome
     STAR_ALIGN(
