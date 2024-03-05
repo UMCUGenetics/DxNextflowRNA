@@ -42,14 +42,20 @@ include { BAM_SORT_STATS_SAMTOOLS } from './subworkflows/nf-core/bam_sort_stats_
 */
 
 workflow {
+    def create_meta_with_id_name = {file -> [[id: file.getSimpleName()], file]}
+
     // Reference path channels as value channels
     ch_star_index = Channel.fromPath(params.star_index)
-        .map { star_index -> [star_index.getSimpleName(), star_index] }
+        .map(create_meta_with_id_name)
         .first()
 
     ch_gtf = Channel.fromPath(params.gtf)
-        .map{ gtf -> [gtf.getSimpleName(), gtf] }
-        .first
+        .map(create_meta_with_id_name)
+        .first()
+    
+    ch_genome_fasta = Channel.fromPath(params.genome)
+        .map(create_meta_with_id_name)
+        .first()
 
     // Input channel
     ch_fastq = Channel.fromFilePairs("$params.input/*_R{1,2}_001.fastq.gz")
@@ -73,8 +79,8 @@ workflow {
     // align reads to reference genome
     STAR_ALIGN(
         TRIMGALORE.out.reads,
-        ch_star_index.first(),
-        ch_gtf.first(),
+        ch_star_index,
+        ch_gtf,
         false,
         'illumina',
         'UMCU Genetics'
