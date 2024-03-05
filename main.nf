@@ -80,6 +80,7 @@ workflow {
     )
 
     // merge all lanes for a sample
+    // TODO: replace input with fasta and fai instead of empty.
     SAMTOOLS_MERGE(
         STAR_ALIGN.out.bam_sorted.map {
             meta, bam ->
