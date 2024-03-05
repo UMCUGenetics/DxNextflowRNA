@@ -41,9 +41,14 @@ include { SAMTOOLS_SORT } from './modules/nf-core/samtools/sort/main'
 */
 
 workflow {
-    // Reference file channels
-    ch_star_index = Channel.fromPath(params.star_index).map {star_index -> [star_index.getSimpleName(), star_index] }
-    ch_gtf = Channel.fromPath(params.gtf).map { gtf -> [gtf.getSimpleName(), gtf] }
+    // Reference path channels as value channels
+    ch_star_index = Channel.fromPath(params.star_index)
+        .map { star_index -> [star_index.getSimpleName(), star_index] }
+        .first()
+
+    ch_gtf = Channel.fromPath(params.gtf)
+        .map{ gtf -> [gtf.getSimpleName(), gtf] }
+        .first
 
     // Input channel
     ch_fastq = Channel.fromFilePairs("$params.input/*_R{1,2}_001.fastq.gz")
