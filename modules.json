@@ -60,6 +60,16 @@
             "git_sha": "6c7d8f1d6247655e4bc4d97f37b68b2461f645f6",
             "installed_by": ["bam_rseqc"]
           },
+          "samtools/flagstat": {
+            "branch": "master",
+            "git_sha": "f4596fe0bdc096cf53ec4497e83defdb3a94ff62",
+            "installed_by": ["bam_stats_samtools"]
+          },
+          "samtools/idxstats": {
+            "branch": "master",
+            "git_sha": "f4596fe0bdc096cf53ec4497e83defdb3a94ff62",
+            "installed_by": ["bam_stats_samtools"]
+          },
           "samtools/merge": {
             "branch": "master",
             "git_sha": "e7ce60acc8a33fa17429e966364657a63016e870",
@@ -69,6 +79,11 @@
             "branch": "master",
             "git_sha": "f4596fe0bdc096cf53ec4497e83defdb3a94ff62",
             "installed_by": ["modules"]
+          },
+          "samtools/stats": {
+            "branch": "master",
+            "git_sha": "f4596fe0bdc096cf53ec4497e83defdb3a94ff62",
+            "installed_by": ["bam_stats_samtools"]
           },
           "star/align": {
             "branch": "master",
@@ -92,6 +107,11 @@
           "bam_rseqc": {
             "branch": "master",
             "git_sha": "9eb22e4d3f28c274b7c498a1564581377349a242",
+            "installed_by": ["subworkflows"]
+          },
+          "bam_stats_samtools": {
+            "branch": "master",
+            "git_sha": "f4596fe0bdc096cf53ec4497e83defdb3a94ff62",
             "installed_by": ["subworkflows"]
           }
         }
