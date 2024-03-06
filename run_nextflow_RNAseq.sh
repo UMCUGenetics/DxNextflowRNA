@@ -32,7 +32,7 @@ sbatch <<EOT
 #SBATCH --account=diaggen
 
 /hpc/diaggen/software/development/DxNextflowRNA/tools/nextflow run $workflow_path/main.nf  \
--c /hpc/diaggen/users/mia/DxNextflowRNA_MultiQC/nextflow.config -resume -ansi-log false -profile slurm \
+-c $workflow_path/nextflow.config -resume -ansi-log false -profile slurm \
 --input $input \
 --outdir $output \
 --email $email
