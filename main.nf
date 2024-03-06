@@ -89,7 +89,7 @@ workflow {
     // merge all lanes for a sample
     // TODO: replace input with fasta and fai instead of empty.
     SAMTOOLS_MERGE(
-        STAR_ALIGN.out.bam_sorted.map {
+        STAR_ALIGN.out.bam.map {
             meta, bam ->
                 new_id = meta.id.split('_')[0]
                 [ meta + [id: new_id], bam ]
