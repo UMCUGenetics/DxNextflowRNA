@@ -101,34 +101,13 @@ workflow {
     // generate bai file
     BAM_SORT_STATS_SAMTOOLS(SAMTOOLS_MERGE.out.bam, ch_genome_fasta)
 
-    // joint bam and bai file
-    SAMTOOLS_MERGE.out.bam
-        .join(SAMTOOLS_INDEX.out.bai)
+    // ch_bam_bai channel: [ val(meta), [ bam, bai ] ]
+    BAM_SORT_STATS_SAMTOOLS.out.bam.join(BAM_SORT_STATS_SAMTOOLS.out.bai)
         .set { ch_bam_bai }
-
-    // sort bam file by position
-    SAMTOOLS_SORT(
-        // STAR_ALIGN.out.bam
-        ch_bam_bai
-    )
-
-    // get statistics on bam file for preseq
-    SAMTOOLS_STATS(
-        ch_bam_bai
-    )
-
-    // get statistics on sorted bam file for preseq
-    SAMTOOLS_STATS(
-        SAMTOOLS_SORT.out.bam
-    )
-
+    
 
     // PreSeq LCExtrap generate library complexity plot
-    PRESEQ_LCEXTRAP(
-        // STAR_ALIGN.out.bam_sorted
-        // SAMTOOLS_MERGE.out.bam
-        SAMTOOLS_SORT.out.bam
-    )
+    PRESEQ_LCEXTRAP(BAM_SORT_STATS_SAMTOOLS.out.bam)
 
     // QC
     FASTQC(ch_fastq)
