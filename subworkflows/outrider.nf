@@ -1,37 +1,40 @@
 #!/usr/bin/env nextflow
-
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     Import modules
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
-include { OUTRIDER } from '../NextflowModules/Outrider/1.20.0/main'
+include { OUTRIDER as OUTRIDER_GENE } from '../NextflowModules/Outrider/1.20.0/main'
+include { OUTRIDER as OUTRIDER_EXON } from '../NextflowModules/Outrider/1.20.0/main'
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    Outrider (sub)workflows
+    Outrider subworkflows
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
 
 workflow outrider {
     take:
-	featurecounts
+	    featurecounts_gene
+	    featurecounts_exon
 
     main:
-        ch_outrider_ref_gene = params.refgene.contains(",") ? Channel.fromPath(params.refgene?.split(',') as List).view() : Channel.fromPath("$params.refgene").view()
-        ch_outrider_ref_exon = params.refexon.contains(",") ? Channel.fromPath(params.refexon?.split(',') as List).view() : Channel.fromPath("$params.refexon").view()
+        ch_outrider_ref_gene = params.refgene.contains(",") ? Channel.fromPath(params.refgene?.split(',') as List) : Channel.fromPath("$params.refgene")
+        ch_outrider_ref_exon = params.refexon.contains(",") ? Channel.fromPath(params.refexon?.split(',') as List) : Channel.fromPath("$params.refexon")
 
-        OUTRIDER(
-	    featurecounts,
+        OUTRIDER_GENE(
+	        featurecounts_gene,
             ch_outrider_ref_gene.collect(),
-            ch_outrider_ref_exon.collect()
+        )
+        OUTRIDER_EXON(
+            featurecounts_exon,
+            ch_outrider_ref_exon.collect(),
         )
 }
 
 
 workflow outrider_entry {
-    featurecounts_gene = Channel.fromPath("$params.outdir/feature_counts/*gene*.txt").map { counts -> [[id:counts.getSimpleName()], counts, "gene"] }
-    featurecounts_exon = Channel.fromPath("$params.outdir/feature_counts/*exon*.txt").map { counts -> [[id:counts.getSimpleName()], counts, "exon"] }
-
-    outrider(featurecounts_gene.concat(featurecounts_exon))
+    featurecounts_gene = Channel.fromPath("$params.inputgene").map { counts -> [[id:counts.getSimpleName()], counts] }
+    featurecounts_exon = Channel.fromPath("$params.inputexon").map { counts -> [[id:counts.getSimpleName()], counts] }
+    outrider(featurecounts_gene, featurecounts_exon)
 }
