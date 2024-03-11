@@ -53,6 +53,10 @@ workflow {
         .map(create_meta_with_id_name)
         .first()
     
+    ch_bed = Channel.fromPath(params.bed_file)
+        .map(create_meta_with_id_name)
+        .first()
+
     ch_genome_fasta = Channel.fromPath(params.genome)
         .map(create_meta_with_id_name)
         .first()
@@ -112,11 +116,11 @@ workflow {
     // QC
     FASTQC(ch_fastq)
 
-    // TODO: replace bed file with gene_bed created on GTF.
+    // bed file with with gene_bed created on GTF.
     BAM_RSEQC(
         ch_bam_bai,
-	    Channel.fromPath("/hpc/diaggen/users/ellen/rnaseq_rseqc/2023-803CHX.bed").first(),
-        ['bam_stat']
+        ch_bed,
+        ['bam_stat', 'inferexperiment', 'innerdistance', 'junctionannotation', 'junctionsaturation', 'readdistribution', 'readduplication'] // 'tin'
     )
 
     // MultiQC
