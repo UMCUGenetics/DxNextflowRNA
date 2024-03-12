@@ -118,8 +118,8 @@ workflow {
     BAM_RSEQC(
         ch_bam_bai, ch_bed,
         [
-            'bam_stat', 'infer_experiment', 'inner_distance', 'junction_annotation', 'junction_saturation', 'read_distribution', 
-            'read_duplication'
+            'bam_stat', 'infer_experiment', 'inner_distance', 'junction_annotation', 'junction_saturation',
+            'read_distribution', 'read_duplication'
         ]
     )
 
