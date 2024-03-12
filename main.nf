@@ -134,6 +134,8 @@ workflow {
         BAM_RSEQC.out.bamstat_txt.collect{it[1]}.ifEmpty([]),
         BAM_RSEQC.out.inferexperiment_txt.collect{it[1]}.ifEmpty([]),
         BAM_RSEQC.out.innerdistance_freq.collect{it[1]}.ifEmpty([]),
+        BAM_RSEQC.out.junctionannotation_all.collect{it[1]}.ifEmpty([]),
+        BAM_RSEQC.out.junctionsaturation_rscript.collect{it[1]}.ifEmpty([]),
         BAM_RSEQC.out.readdistribution_txt.collect{it[1]}.ifEmpty([]),
         BAM_RSEQC.out.readduplication_pos_xls.collect{it[1]}.ifEmpty([]),
         BAM_RSEQC.out.versions
