@@ -13,7 +13,6 @@ mkdir -p log
 
 if ! { [ -f 'workflow.running' ] || [ -f 'workflow.done' ] || [ -f 'workflow.failed' ]; }; then
 touch workflow.running
-echo "check directory for output: ${output}"
 
 export NXF_JAVA_HOME='/hpc/diaggen/software/tools/jdk-18.0.2.1/'  # change java vesion of nextflow
 
