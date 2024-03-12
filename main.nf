@@ -135,8 +135,8 @@ workflow {
         BAM_RSEQC.out.inferexperiment_txt.collect{it[1]}.ifEmpty([]),
         BAM_RSEQC.out.innerdistance_freq.collect{it[1]}.ifEmpty([]),
         BAM_RSEQC.out.readdistribution_txt.collect{it[1]}.ifEmpty([]),
-        BAM_RSEQC.out.readduplication.collect{it[1]}.ifEmpty([]),
-        BAM_RSEQC.out.tin_txt.collect{it[1]}.ifEmpty([])
+        BAM_RSEQC.out.readduplication_pos_xls.collect{it[1]}.ifEmpty([]),
+        BAM_RSEQC.out.tin_txt.collect{it[1]}.ifEmpty([]),
         BAM_RSEQC.out.versions
     ).collect()
     ch_multiqc_config = Channel.fromPath("$projectDir/assets/multiqc_config.yml", checkIfExists: true)
