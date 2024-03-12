@@ -26,7 +26,6 @@ validateParameters()
 include { TRIMGALORE } from './modules/nf-core/trimgalore/main'
 include { FASTQC } from './modules/nf-core/fastqc/main'
 include { MULTIQC } from './modules/nf-core/multiqc/main'
-include { SAMTOOLS_INDEX } from './modules/nf-core/samtools/index/main'
 include { SAMTOOLS_MERGE } from './modules/nf-core/samtools/merge/main'
 include { STAR_ALIGN } from './modules/nf-core/star/align/main'
 include { SUBREAD_FEATURECOUNTS } from './modules/nf-core/subread/featurecounts/main'
@@ -54,7 +53,6 @@ workflow {
         .first()
     
     ch_bed = Channel.fromPath(params.bed_file)
-        .map(create_meta_with_id_name)
         .first()
 
     ch_genome_fasta = Channel.fromPath(params.genome)
@@ -118,21 +116,32 @@ workflow {
 
     // bed file with with gene_bed created on GTF.
     BAM_RSEQC(
-        ch_bam_bai,
-        ch_bed,
-        ['bam_stat', 'inferexperiment', 'innerdistance', 'junctionannotation', 'junctionsaturation', 'readdistribution', 'readduplication'] // 'tin'
+        ch_bam_bai, ch_bed,
+        [
+            'bam_stat', 'inferexperiment', 'innerdistance', 'junctionannotation', 'junctionsaturation', 'readdistribution', 
+            'readduplication', 'tin'
+        ]
     )
 
     // MultiQC
-    ch_multiqc_files = Channel.empty()
-    ch_multiqc_files = ch_multiqc_files.mix(
+    ch_multiqc_files = Channel.empty().mix(
         FASTQC.out.zip.collect{it[1]}.ifEmpty([]),
+	    FASTQC.out.versions,
         TRIMGALORE.out.log.collect{it[1]}.ifEmpty([]),
-        PRESEQ_LCEXTRAP.out.lc_extrap.collect{it[1]}.ifEmpty([])
+        TRIMGALORE.out.versions,
+        PRESEQ_LCEXTRAP.out.lc_extrap.collect{it[1]}.ifEmpty([]),
+	    PRESEQ_LCEXTRAP.out.versions,
+        BAM_RSEQC.out.bamstat_txt.collect{it[1]}.ifEmpty([]),
+        BAM_RSEQC.out.inferexperiment_txt.collect{it[1]}.ifEmpty([]),
+        BAM_RSEQC.out.innerdistance_freq.collect{it[1]}.ifEmpty([]),
+        BAM_RSEQC.out.readdistribution_txt.collect{it[1]}.ifEmpty([]),
+        BAM_RSEQC.out.readduplication.collect{it[1]}.ifEmpty([]),
+        BAM_RSEQC.out.tin_txt.collect{it[1]}.ifEmpty([])
+        BAM_RSEQC.out.versions
     ).collect()
     ch_multiqc_config = Channel.fromPath("$projectDir/assets/multiqc_config.yml", checkIfExists: true)
     MULTIQC(
-        ch_multiqc_files.collect(),
+        ch_multiqc_files,
         ch_multiqc_config.toList(),
         Channel.empty().toList(),
         Channel.empty().toList()
