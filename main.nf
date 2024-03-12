@@ -126,11 +126,11 @@ workflow {
     // MultiQC
     ch_multiqc_files = Channel.empty().mix(
         FASTQC.out.zip.collect{it[1]}.ifEmpty([]),
-	    FASTQC.out.versions,
+        FASTQC.out.versions,
         TRIMGALORE.out.log.collect{it[1]}.ifEmpty([]),
         TRIMGALORE.out.versions,
         PRESEQ_LCEXTRAP.out.lc_extrap.collect{it[1]}.ifEmpty([]),
-	    PRESEQ_LCEXTRAP.out.versions,
+        PRESEQ_LCEXTRAP.out.versions,
         BAM_RSEQC.out.bamstat_txt.collect{it[1]}.ifEmpty([]),
         BAM_RSEQC.out.inferexperiment_txt.collect{it[1]}.ifEmpty([]),
         BAM_RSEQC.out.innerdistance_freq.collect{it[1]}.ifEmpty([]),
