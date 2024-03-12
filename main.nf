@@ -26,11 +26,11 @@ validateParameters()
 include { TRIMGALORE } from './modules/nf-core/trimgalore/main'
 include { FASTQC } from './modules/nf-core/fastqc/main'
 include { MULTIQC } from './modules/nf-core/multiqc/main'
+include { PRESEQ_LCEXTRAP } from './modules/nf-core/preseq/lcextrap/main'
 include { SAMTOOLS_MERGE } from './modules/nf-core/samtools/merge/main'
 include { STAR_ALIGN } from './modules/nf-core/star/align/main'
 include { SUBREAD_FEATURECOUNTS } from './modules/nf-core/subread/featurecounts/main'
 
-include { PRESEQ_LCEXTRAP } from './modules/nf-core/preseq/lcextrap/main'
 include { BAM_RSEQC } from './subworkflows/nf-core/bam_rseqc/main'
 include { BAM_SORT_STATS_SAMTOOLS } from './subworkflows/nf-core/bam_sort_stats_samtools/main'                                                                                                                               
 
