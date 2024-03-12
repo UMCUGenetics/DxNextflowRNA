@@ -119,7 +119,7 @@ workflow {
         ch_bam_bai, ch_bed,
         [
             'bam_stat', 'infer_experiment', 'inner_distance', 'junction_annotation', 'junction_saturation', 'read_distribution', 
-            'read_duplication', 'tin'
+            'read_duplication'
         ]
     )
 
@@ -136,7 +136,6 @@ workflow {
         BAM_RSEQC.out.innerdistance_freq.collect{it[1]}.ifEmpty([]),
         BAM_RSEQC.out.readdistribution_txt.collect{it[1]}.ifEmpty([]),
         BAM_RSEQC.out.readduplication_pos_xls.collect{it[1]}.ifEmpty([]),
-        BAM_RSEQC.out.tin_txt.collect{it[1]}.ifEmpty([]),
         BAM_RSEQC.out.versions
     ).collect()
     ch_multiqc_config = Channel.fromPath("$projectDir/assets/multiqc_config.yml", checkIfExists: true)
