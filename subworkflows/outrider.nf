@@ -1,4 +1,3 @@
-#!/usr/bin/env nextflow
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     Import modules
@@ -19,17 +18,22 @@ workflow outrider {
 	    featurecounts_exon
 
     main:
-        ch_outrider_ref_gene = params.refgene.contains(",") ? Channel.fromPath(params.refgene?.split(',') as List) : Channel.fromPath("$params.refgene")
-        ch_outrider_ref_exon = params.refexon.contains(",") ? Channel.fromPath(params.refexon?.split(',') as List) : Channel.fromPath("$params.refexon")
+	if (params.refgene != null && params.inputgene != null){
+	    ch_outrider_ref_gene = params.refgene.contains(",") ? Channel.fromPath(params.refgene?.split(',') as List) : Channel.fromPath("$params.refgene")
 
-        OUTRIDER_GENE(
+            OUTRIDER_GENE(
 	        featurecounts_gene,
-            ch_outrider_ref_gene.collect(),
-        )
-        OUTRIDER_EXON(
-            featurecounts_exon,
-            ch_outrider_ref_exon.collect(),
-        )
+                ch_outrider_ref_gene.collect(),
+            )
+	}
+
+	if (params.refexon != null && params.inputexon != null){
+            ch_outrider_ref_exon = params.refexon.contains(",") ? Channel.fromPath(params.refexon?.split(',') as List) : Channel.fromPath("$params.refexon")
+            OUTRIDER_EXON(
+                featurecounts_exon,
+                ch_outrider_ref_exon.collect(),
+            )
+	}
 }
 
 
