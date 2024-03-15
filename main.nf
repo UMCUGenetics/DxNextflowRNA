@@ -1,55 +1,56 @@
 #!/usr/bin/env nextflow
-nextflow.preview.dsl=2
+/*
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    UMCUGenetics/DxNextflowRNA
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    Github : https://github.com/UMCUGenetics/DxNextflowRNA
+----------------------------------------------------------------------------------------
+*/
 
+nextflow.enable.dsl = 2
 
-params.reads = '/hpc/diaggen/users/Behzad/bam/PMABM000_fastq/*_r{1,2}.fastq'
-params.transcripts = '/hpc/diaggen/users/Behzad/bam/STAR/hg38_genome/gencode.v39.transcripts.fa'
+/*
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    Validate parameters
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+*/
 
+include { validateParameters; } from 'plugin/nf-validation'
+validateParameters()
 
-process INDEX {
-
-    input:
-    path fasta
-
-    output:
-    path 'index'
-
-    """
-    salmon index \\
-        -t "${fasta}" \\
-        -i index \\
-    """
-}
-
-
-transcriptome_ch = Channel.fromPath(params.transcripts)
-
-
-process QUANT {
-
-    input:
-    path index
-    tuple val(pair_id), path(reads)
-
-    output:
-    path (pair_id)
-
-    """
-    salmon quant \\
-        --index $index\\
-        --libType=U  \\
-        -1 ${reads[0]} \\
-        -2 ${reads[1]} \\
-        -o $pair_id
-    """
-}
-
-
-read_pairs_ch = Channel.fromFilePairs(params.reads, checkIfExists:true)
+/*
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    Import modules/subworkflows
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+*/
+include { fastq_to_bam } from './subworkflows/fastq_to_bam.nf'
+include { quality_control } from './subworkflows/quality_control.nf'
+include { featurecounts;featurecounts_entry } from './subworkflows/featurecounts.nf'
+include { outrider;outrider_entry } from './subworkflows/outrider.nf'
+/*
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    Main workflow
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+*/
 
 workflow {
+    ch_fastq = Channel.fromFilePairs("$params.input/*_R{1,2}_001.fastq.gz")
+        .map {
+            meta, fastq ->
+            def fmeta = [:]
+            // Set meta.id
+            fmeta.id = meta
+	    // Set meta.single_end
+            if (fastq.size() == 1) {
+                fmeta.single_end = true
+            } else {
+                fmeta.single_end = false
+            }
+            [ fmeta, fastq ]
+        }
 
-    index_ch=INDEX(transcriptome_ch)
-    quant_ch=QUANT(index_ch,read_pairs_ch)
-
+    fastq_to_bam(ch_fastq)
+    featurecounts(fastq_to_bam.out)
+    outrider(featurecounts.out)
+    quality_control(ch_fastq)
 }
