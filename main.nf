@@ -33,6 +33,7 @@ include { SUBREAD_FEATURECOUNTS } from './modules/nf-core/subread/featurecounts/
 
 include { BAM_RSEQC } from './subworkflows/nf-core/bam_rseqc/main'
 include { BAM_SORT_STATS_SAMTOOLS } from './subworkflows/nf-core/bam_sort_stats_samtools/main'                                                                                                                               
+include { PICARD_COLLECTRNASEQMETRICS } from './modules/nf-core/picard/collectrnaseqmetrics/main'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -55,6 +56,16 @@ workflow {
     ch_bed = Channel.fromPath(params.bed_file)
         .first()
 
+    ch_genepred = Channel.fromPath(params.genepred_file)
+        .first()
+
+    ch_ref_flat = Channel.fromPath(params.ref_flat_file)
+        .first()
+
+    ch_rrna_interval = Channel.fromPath(params.rrna_interval_file)
+        .first()
+
+    ch_genome_fasta = Channel.fromPath(params.genome)
     ch_genome_fasta = Channel.fromPath(params.genome)
         .map(create_meta_with_id_name)
         .first()
@@ -123,6 +134,14 @@ workflow {
         ]
     )
 
+    // Picard RNAseq QC tools
+    PICARD_COLLECTRNASEQMETRICS(
+        BAM_SORT_STATS_SAMTOOLS.out.bam.collect(),
+        ch_ref_flat,
+        Channel.fromPath(params.genome),
+        ch_rrna_interval
+    )
+
     // MultiQC
     ch_multiqc_files = Channel.empty().mix(
         FASTQC.out.zip.collect{it[1]}.ifEmpty([]),
@@ -138,7 +157,9 @@ workflow {
         BAM_RSEQC.out.junctionsaturation_rscript.collect{it[1]}.ifEmpty([]),
         BAM_RSEQC.out.readdistribution_txt.collect{it[1]}.ifEmpty([]),
         BAM_RSEQC.out.readduplication_pos_xls.collect{it[1]}.ifEmpty([]),
-        BAM_RSEQC.out.versions
+        BAM_RSEQC.out.versions,
+        PICARD_COLLECTRNASEQMETRICS.out.metrics.collect{it[1]}.ifEmpty([]),
+        PICARD_COLLECTRNASEQMETRICS.out.versions
     ).collect()
     ch_multiqc_config = Channel.fromPath("$projectDir/assets/multiqc_config.yml", checkIfExists: true)
     MULTIQC(

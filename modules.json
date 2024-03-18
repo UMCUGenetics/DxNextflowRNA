@@ -15,6 +15,11 @@
             "git_sha": "8fc1d24c710ebe1d5de0f2447ec9439fd3d9d66a",
             "installed_by": ["modules"]
           },
+          "picard/collectrnaseqmetrics": {
+            "branch": "master",
+            "git_sha": "20b0918591d4ba20047d7e13e5094bcceba81447",
+            "installed_by": ["modules"]
+          },
           "preseq/lcextrap": {
             "branch": "master",
             "git_sha": "9a88058962c0ee1715f2ad0e017c37e0cd75e532",
