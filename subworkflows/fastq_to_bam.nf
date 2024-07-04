@@ -31,7 +31,7 @@ workflow fastq_to_bam {
             ch_star_index,
             ch_gtf,
             false,
-	    params.seq_platform,
+	        params.seq_platform,
             params.seq_center
         )
 

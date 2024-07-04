@@ -27,6 +27,7 @@ include { fastq_to_bam } from './subworkflows/fastq_to_bam.nf'
 include { quality_control } from './subworkflows/quality_control.nf'
 include { featurecounts;featurecounts_entry } from './subworkflows/featurecounts.nf'
 include { outrider;outrider_entry } from './subworkflows/outrider.nf'
+include { fraser;fraser_entry } from './subworkflows/fraser.nf'
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     Main workflow
