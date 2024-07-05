@@ -1,55 +1,115 @@
 #!/usr/bin/env nextflow
-nextflow.preview.dsl=2
+/*
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    UMCUGenetics/DxNextflowRNA
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    Github : https://github.com/UMCUGenetics/DxNextflowRNA
+----------------------------------------------------------------------------------------
+*/
 
+nextflow.enable.dsl = 2
 
-params.reads = '/hpc/diaggen/users/Behzad/bam/PMABM000_fastq/*_r{1,2}.fastq'
-params.transcripts = '/hpc/diaggen/users/Behzad/bam/STAR/hg38_genome/gencode.v39.transcripts.fa'
+/*
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    Validate parameters
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+*/
 
+include { validateParameters; } from 'plugin/nf-validation'
+validateParameters()
 
-process INDEX {
+/*
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    Import modules/subworkflows
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+*/
+include { BAM_DEDUP_STATS_SAMTOOLS_UMITOOLS } from './subworkflows/nf-core/bam_dedup_stats_samtools_umitools/main'
 
-    input:
-    path fasta
+include { FASTQC } from './modules/nf-core/fastqc/main'
+include { MULTIQC } from './modules/nf-core/multiqc/main'
+include { SAMTOOLS_INDEX } from './modules/nf-core/samtools/index/main'
+include { SAMTOOLS_MERGE } from './modules/nf-core/samtools/merge/main'
+include { STAR_ALIGN } from './modules/nf-core/star/align/main'
+include { SUBREAD_FEATURECOUNTS } from './modules/nf-core/subread/featurecounts/main'
 
-    output:
-    path 'index'
-
-    """
-    salmon index \\
-        -t "${fasta}" \\
-        -i index \\
-    """
-}
-
-
-transcriptome_ch = Channel.fromPath(params.transcripts)
-
-
-process QUANT {
-
-    input:
-    path index
-    tuple val(pair_id), path(reads)
-
-    output:
-    path (pair_id)
-
-    """
-    salmon quant \\
-        --index $index\\
-        --libType=U  \\
-        -1 ${reads[0]} \\
-        -2 ${reads[1]} \\
-        -o $pair_id
-    """
-}
-
-
-read_pairs_ch = Channel.fromFilePairs(params.reads, checkIfExists:true)
+/*
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    Main workflow
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+*/
 
 workflow {
+    // Reference file channels
+    ch_star_index = Channel.fromPath(params.star_index).map {star_index -> [star_index.getSimpleName(), star_index] }
+    ch_gtf = Channel.fromPath(params.gtf).map { gtf -> [gtf.getSimpleName(), gtf] }
 
-    index_ch=INDEX(transcriptome_ch)
-    quant_ch=QUANT(index_ch,read_pairs_ch)
+    // Input channel
+    ch_fastq = Channel.fromFilePairs("$params.input/*_R{1,2}_001.fastq.gz")
+        .map {
+            meta, fastq ->
+            def fmeta = [:]
+            // Set meta.id
+            fmeta.id = meta
+            // Set meta.single_end
+            if (fastq.size() == 1) {
+                fmeta.single_end = true
+            } else {
+                fmeta.single_end = false
+            }
+            [ fmeta, fastq ]
+        }
+
+    // Trim, Alignment, FeatureCounts
+    // TRIMGALORE
+
+    STAR_ALIGN(
+        ch_fastq,
+        ch_star_index.first(),
+        ch_gtf.first(),
+        false,
+        'illumina',
+        'UMCU Genetics'
+    )
+
+    SAMTOOLS_MERGE(
+        STAR_ALIGN.out.bam_sorted.map {
+            meta, bam ->
+                new_id = meta.id.split('_')[0]
+                [ meta + [id: new_id], bam ]
+        }.groupTuple(),
+        [ [ id:'null' ], []],
+        [ [ id:'null' ], []],
+    )
+
+    SAMTOOLS_INDEX ( SAMTOOLS_MERGE.out.bam )
+
+    SAMTOOLS_MERGE.out.bam
+        .join(SAMTOOLS_INDEX.out.bai)
+        .set { ch_bam_bai }
+
+    BAM_DEDUP_STATS_SAMTOOLS_UMITOOLS(
+        ch_bam_bai,
+        true
+    )
+
+    SUBREAD_FEATURECOUNTS(
+        BAM_DEDUP_STATS_SAMTOOLS_UMITOOLS.out.bam.map{
+        meta, bam -> [ meta, bam, params.gtf ]
+        }
+    )
+
+    // QC
+    FASTQC(ch_fastq)
+
+    // MultiQC
+    ch_multiqc_files = Channel.empty()
+    ch_multiqc_files = ch_multiqc_files.mix(FASTQC.out.zip.collect{it[1]}.ifEmpty([]))
+    ch_multiqc_config = Channel.fromPath("$projectDir/assets/multiqc_config.yml", checkIfExists: true)
+    MULTIQC(
+        ch_multiqc_files.collect(),
+        ch_multiqc_config.toList(),
+        Channel.empty().toList(),
+        Channel.empty().toList()
+    )
 
 }
