@@ -23,13 +23,13 @@ workflow fastq_to_bam {
 
     main:
         // Create empty versions channel, and fill with each tools version
-        ch_versions = Channel.empty()
+        versions = Channel.empty()
 
         TRIMGALORE(ch_fastq)
-        ch_versions.mix(TRIMGALORE.out.versions.first())
+        versions.mix(TRIMGALORE.out.versions.first())
 
         STAR_ALIGN(TRIMGALORE.out.reads, ch_star_index, ch_gtf, false, params.seq_platform, params.seq_center)
-        ch_versions = ch_versions.mix(STAR_ALIGN.out.versions.first())
+        versions = versions.mix(STAR_ALIGN.out.versions.first())
 
         SAMTOOLS_MERGE(
             STAR_ALIGN.out.bam_sorted.map {
@@ -40,7 +40,7 @@ workflow fastq_to_bam {
             [[ id:'null' ], []],
             [[ id:'null' ], []],
         )
-        ch_versions.mix(SAMTOOLS_MERGE.out.versions.first())
+        versions.mix(SAMTOOLS_MERGE.out.versions.first())
 
     emit:
         TRIMGALORE.out.reads, emit: trim_reads  // channel: [ val(meta), path(fq.gz) ]
@@ -68,6 +68,6 @@ workflow fastq_to_bam {
         SAMTOOLS_MERGE.out.bam.join(SAMTOOLS_MERGE.out.csi), emit: ch_bam_bai  // channel: [ val(meta), path(bam), path(bai/csi) ]
         SAMTOOLS_MERGE.out.cram.join(SAMTOOLS_MERGE.out.crai), emit: ch_cram_crai  // channel: [ val(meta), path(cram), path(crai) ]
 
-        ch_versions
+        versions
 
 }
