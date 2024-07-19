@@ -15,8 +15,6 @@ mkdir -p log
 if ! { [ -f 'workflow.running' ] || [ -f 'workflow.done' ] || [ -f 'workflow.failed' ]; }; then
 touch workflow.running
 
-export NXF_JAVA_HOME='$workflow_path/tools/java/jdk'
-
 sbatch <<EOT
 #!/bin/bash
 #SBATCH --time=06:00:00
@@ -30,7 +28,9 @@ sbatch <<EOT
 #SBATCH --mail-type FAIL
 #SBATCH --account=diaggen
 
-${workflow_path}/tools/nextflow run \
+export NXF_JAVA_HOME='$workflow_path/tools/java/jdk'
+
+${workflow_path}/tools/nextflow/nextflow run \
 $workflow_path/main.nf  \
 -c $workflow_path/nextflow.config \
 --input $input \
