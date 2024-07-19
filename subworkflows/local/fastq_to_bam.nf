@@ -43,30 +43,30 @@ workflow fastq_to_bam {
         versions.mix(SAMTOOLS_MERGE.out.versions.first())
 
     emit:
-        TRIMGALORE.out.reads, emit: trim_reads  // channel: [ val(meta), path(fq.gz) ]
-        TRIMGALORE.out.unpaired, emit: trim_unpaired  // channel: [ val(meta), path(fq.gz) ]
-        TRIMGALORE.out.html, emit: trim_html  // channel: [ val(meta), path(html) ]
-        TRIMGALORE.out.zip, emit: trim_zip  // channel: [ val(meta), path(zip) ]
-        TRIMGALORE.out.log, emit: trim_log  // channel: [ val(meta), path(txt) ]
+        trim_reads= TRIMGALORE.out.reads  // channel: [ val(meta), path(fq.gz) ]
+        trim_unpaired= TRIMGALORE.out.unpaired  // channel: [ val(meta), path(fq.gz) ]
+        trim_html= TRIMGALORE.out.html  // channel: [ val(meta), path(html) ]
+        trim_zip= TRIMGALORE.out.zip  // channel: [ val(meta), path(zip) ]
+        trim_log= TRIMGALORE.out.log  // channel: [ val(meta), path(txt) ]
 
-        STAR_ALIGN.out.bam, emit: orig_bam	// channel: [ val(meta), path(bam) ]
-        STAR_ALIGN.out.bam_sorted, emit: orig_bam_sorted	// channel: [ val(meta), path(bam) ]
-        STAR_ALIGN.out.bam_unsorted, emit: orig_bam_unsorted	// channel: [ val(meta), path(bam) ]
-        STAR_ALIGN.out.bam_transcript, emit: orig_bam_transcript	// channel: [ val(meta), path(bam) ]
-        STAR_ALIGN.out.sam, emit: sam  // channel: [ val(meta), path(sam) ]
-        STAR_ALIGN.out.fastq, emit: fastq	// channel: [ val(meta), path(fastq) ]
-        STAR_ALIGN.out.tab, emit: tab	// channel: [ val(meta), path(tab) ]
-        STAR_ALIGN.out.spl_junc_tab, emit: spl_junc_tab  // channel: [ val(meta), path(spl_junc_tab) ]
-        STAR_ALIGN.out.read_per_gene_tab, emit: read_per_gene_tab  // channel: [ val(meta), path(read_per_gene_tab) ]
-        STAR_ALIGN.out.junction, emit: junction  // channel: [ val(meta), path(junction) ]
-        STAR_ALIGN.out.log_final, emit: log_final	// channel: [ val(meta), path(log_final) ]
-        STAR_ALIGN.out.log_out, emit: log_out	// channel: [ val(meta), path(log_out) ]
-        STAR_ALIGN.out.log_progress, emit: log_progress	// channel: [ val(meta), path(log_progress) ]
-        STAR_ALIGN.out.wig, emit: wig
-        STAR_ALIGN.out.bedgraph, emit: bedgraph
+        star_align_bam= STAR_ALIGN.out.bam  // channel: [ val(meta), path(bam) ]
+        star_align_bam_sorted= STAR_ALIGN.out.bam_sorted  // channel: [ val(meta), path(bam) ]
+        star_align_bam_unsorted= STAR_ALIGN.out.bam_unsorted  // channel: [ val(meta), path(bam) ]
+        star_align_bam_transcript= STAR_ALIGN.out.bam_transcript  // channel: [ val(meta), path(bam) ]
+        star_align_sam = STAR_ALIGN.out.sam  // channel: [ val(meta), path(sam) ]
+        star_align_fastq = STAR_ALIGN.out.fastq  // channel: [ val(meta), path(fastq) ]
+        star_align_tab = STAR_ALIGN.out.tab  // channel: [ val(meta), path(tab) ]
+        star_align_spl_junc_tab = STAR_ALIGN.out.spl_junc_tab  // channel: [ val(meta), path(spl_junc_tab) ]
+        star_align_read_per_gene_tab = STAR_ALIGN.out.read_per_gene_tab  // channel: [ val(meta), path(read_per_gene_tab) ]
+        star_align_junction = STAR_ALIGN.out.junction  // channel: [ val(meta), path(junction) ]
+        star_align_log_final = STAR_ALIGN.out.log_final  // channel: [ val(meta), path(log_final) ]
+        star_align_log_out = STAR_ALIGN.out.log_out  // channel: [ val(meta), path(log_out) ]
+        star_align_log_progress = STAR_ALIGN.out.log_progress  // channel: [ val(meta), path(log_progress) ]
+        star_align_wig = STAR_ALIGN.out.wig
+        star_align_bedgraph = STAR_ALIGN.out.bedgraph
 
-        SAMTOOLS_MERGE.out.bam.join(SAMTOOLS_MERGE.out.csi), emit: ch_bam_bai  // channel: [ val(meta), path(bam), path(bai/csi) ]
-        SAMTOOLS_MERGE.out.cram.join(SAMTOOLS_MERGE.out.crai), emit: ch_cram_crai  // channel: [ val(meta), path(cram), path(crai) ]
+        ch_bam_bai = SAMTOOLS_MERGE.out.bam.join(SAMTOOLS_MERGE.out.csi)  // channel: [ val(meta), path(bam), path(bai/csi) ]
+        ch_cram_crai = SAMTOOLS_MERGE.out.cram.join(SAMTOOLS_MERGE.out.crai)  // channel: [ val(meta), path(cram), path(crai) ]
 
         versions
 
