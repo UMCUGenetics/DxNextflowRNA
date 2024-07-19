@@ -1,7 +1,7 @@
 #!/bin/bash
 set -euo pipefail
 
-workflow_path='/hpc/diaggen/users/lonneke/github/DxNextflowRNA/'
+workflow_path='/hpc/diaggen/software/production/DxNextflowRNA/'
 
 # Set input and output dirs
 input=`realpath $1`
