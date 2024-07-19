@@ -57,7 +57,7 @@ workflow {
         }
 
     // Subworkflows
-    fastq_to_bam(ch_fastq, ch_star_index, ch_gtf)
+    fastq_to_bam(ch_fastq, ch_star_index, ch_gtf, false, params.seq_platform, params.seq_center)
 
     // MultiQC
     ch_multiqc_files = Channel.empty().mix(FASTQC.out.zip.collect{it[1]}.ifEmpty([]))

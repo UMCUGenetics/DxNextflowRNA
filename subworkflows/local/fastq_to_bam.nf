@@ -20,6 +20,9 @@ workflow fastq_to_bam {
         ch_fastq  // channel: [ val(meta), path(bam), path(bai/csi) ]
         ch_star_index  // channel: [ val(meta), path(index)]
         ch_gtf  // channel: [ val(meta), path(gtf)]
+        star_ignore_sjdbgtf  // boolean
+        seq_platform  // val(seq_center)
+        seq_center  // val(seq_center)
 
     main:
         // Create empty versions channel, and fill with each tools version
@@ -28,7 +31,7 @@ workflow fastq_to_bam {
         TRIMGALORE(ch_fastq)
         versions.mix(TRIMGALORE.out.versions.first())
 
-        STAR_ALIGN(TRIMGALORE.out.reads, ch_star_index, ch_gtf, false, params.seq_platform, params.seq_center)
+        STAR_ALIGN(TRIMGALORE.out.reads, ch_star_index, ch_gtf, star_ignore_sjdbgtf, seq_platform, seq_center)
         versions = versions.mix(STAR_ALIGN.out.versions.first())
 
         SAMTOOLS_MERGE(
