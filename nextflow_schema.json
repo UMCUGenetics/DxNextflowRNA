@@ -88,7 +88,17 @@
             "move"
           ],
           "hidden": true
-        }
+        },
+        "seq_platform": {
+          "type": "string",
+          "default": "Illumina",
+          "description": "Sequencing platform"
+        },
+        "seq_center": {
+          "type": "string",
+          "default": "UMCU Genetics",
+          "description": "Sequencing center"
+        }     
       }
     }
   },
