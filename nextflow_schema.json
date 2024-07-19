@@ -59,7 +59,7 @@
         },
         "star_index": {
           "type": "string",
-          "format": "path",
+          "format": "directory-path",
           "exists": true,
           "fa_icon": "fas fa-bezier-curve",
           "description": "Path to directory or tar.gz archive for pre-built STAR index.",
