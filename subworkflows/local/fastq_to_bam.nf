@@ -5,9 +5,9 @@
     Import modules
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
-include { SAMTOOLS_MERGE } from '../modules/nf-core/samtools/merge/main'
-include { STAR_ALIGN } from '../modules/nf-core/star/align/main'
-include { TRIMGALORE } from '../modules/nf-core/trimgalore/main'
+include { SAMTOOLS_MERGE } from '../../modules/nf-core/samtools/merge/main'
+include { STAR_ALIGN } from '../../modules/nf-core/star/align/main'
+include { TRIMGALORE } from '../../modules/nf-core/trimgalore/main'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
