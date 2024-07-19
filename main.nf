@@ -56,6 +56,7 @@ workflow {
             return [ fmeta, fastq ]
         }
 
+    // Subworkflows
     fastq_to_bam(ch_fastq, ch_star_index, ch_gtf)
 
     // MultiQC
@@ -67,5 +68,4 @@ workflow {
         Channel.empty().toList(),
         Channel.empty().toList()
     )
-
 }
