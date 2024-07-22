@@ -23,7 +23,7 @@ validateParameters()
     Import modules/subworkflows
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
-include { fastq_to_bam } from './subworkflows/local/fastq_to_bam.nf'
+include { FASTQ_TO_BAM } from './subworkflows/local/fastq_to_bam'
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     Main workflow
@@ -57,5 +57,5 @@ workflow {
         }
 
     // Subworkflows
-    fastq_to_bam(ch_fastq, ch_star_index, ch_gtf, false, params.seq_platform, params.seq_center)
+    FASTQ_TO_BAM(ch_fastq, ch_star_index, ch_gtf, false, params.seq_platform, params.seq_center)
 }
