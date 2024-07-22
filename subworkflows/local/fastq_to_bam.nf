@@ -33,7 +33,7 @@ workflow FASTQ_TO_BAM {
     ch_versions.mix(TRIMGALORE.out.versions.first())
 
     STAR_ALIGN(TRIMGALORE.out.reads, ch_star_index, ch_gtf, star_ignore_sjdbgtf, seq_platform, seq_center)
-    ch_versions = versions.mix(STAR_ALIGN.out.versions.first())
+    ch_versions.mix(STAR_ALIGN.out.versions.first())
 
     SAMTOOLS_MERGE(
         STAR_ALIGN.out.bam_sorted.map {
