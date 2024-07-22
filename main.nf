@@ -58,14 +58,4 @@ workflow {
 
     // Subworkflows
     fastq_to_bam(ch_fastq, ch_star_index, ch_gtf, false, params.seq_platform, params.seq_center)
-
-    // MultiQC
-    ch_multiqc_files = Channel.empty().mix(FASTQC.out.zip.collect{it[1]}.ifEmpty([]))
-    ch_multiqc_config = Channel.fromPath("$projectDir/assets/multiqc_config.yml", checkIfExists: true)
-    MULTIQC(
-        ch_multiqc_files.collect(),
-        ch_multiqc_config.toList(),
-        Channel.empty().toList(),
-        Channel.empty().toList()
-    )
 }
