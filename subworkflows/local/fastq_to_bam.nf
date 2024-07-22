@@ -5,6 +5,7 @@
     Import modules
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
+include { SAMTOOLS_INDEX } from '../../modules/nf-core/samtools/index/main'
 include { SAMTOOLS_MERGE } from '../../modules/nf-core/samtools/merge/main'
 include { STAR_ALIGN } from '../../modules/nf-core/star/align/main'
 include { TRIMGALORE } from '../../modules/nf-core/trimgalore/main'
@@ -44,6 +45,9 @@ workflow fastq_to_bam {
             [[ id:'null' ], []],
         )
         versions.mix(SAMTOOLS_MERGE.out.versions.first())
+        
+        SAMTOOLS_INDEX(SAMTOOLS_MERGE.out.bam)
+        versions.mix(SAMTOOLS_INDEX.out.versions.first())
 
     emit:
         trim_reads= TRIMGALORE.out.reads  // channel: [ val(meta), path(fq.gz) ]
@@ -68,8 +72,7 @@ workflow fastq_to_bam {
         star_align_wig = STAR_ALIGN.out.wig
         star_align_bedgraph = STAR_ALIGN.out.bedgraph
 
-        ch_bam_bai = SAMTOOLS_MERGE.out.bam.join(SAMTOOLS_MERGE.out.csi)  // channel: [ val(meta), path(bam), path(bai/csi) ]
-        ch_cram_crai = SAMTOOLS_MERGE.out.cram.join(SAMTOOLS_MERGE.out.crai)  // channel: [ val(meta), path(cram), path(crai) ]
+        ch_bam_bai = SAMTOOLS_MERGE.out.bam.join(SAMTOOLS_INDEX.out.bai)  // channel: [ val(meta), path(bam), path(bai/csi) ]
 
         versions
 
