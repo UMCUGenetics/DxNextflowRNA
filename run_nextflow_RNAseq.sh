@@ -36,7 +36,6 @@ $workflow_path/main.nf  \
 --input $input \
 --outdir $output \
 --email $email \
--profile slurm \
 -resume \
 -ansi-log false \
 ${optional_params[@]:-""}
