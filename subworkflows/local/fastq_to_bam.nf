@@ -18,12 +18,13 @@ include { TRIMGALORE } from '../../modules/nf-core/trimgalore/main'
 workflow FASTQ_TO_BAM {
 
     take:
-    ch_fastq  // channel: [ val(meta), path(bam), path(bai/csi) ]
-    ch_star_index  // channel: [ val(meta), path(index)]
-    ch_gtf  // channel: [ val(meta), path(gtf)]
-    star_ignore_sjdbgtf  // boolean
-    seq_platform  // val(seq_center)
+    ch_fasta_fai  // channel: [ val(meta), path(fa), path(fai) ]
+    ch_fastq  // channel: [ val(meta), [ path(fastq1), path(fastq2) ] ]
+    ch_gtf  // channel: [ val(meta), path(gtf) ]
+    ch_star_index  // channel: [ val(meta), path(star_index) ]
+    seq_platform  // val(seq_platform)
     seq_center  // val(seq_center)
+    star_ignore_sjdbgtf  // boolean
 
     main:
     // Create empty versions channel, and fill with each tools version
