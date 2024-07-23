@@ -23,7 +23,7 @@ validateParameters()
     Import modules/subworkflows
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
-include { FASTQ_TO_BAM } from './subworkflows/local/fastq_to_bam'
+include { FASTQ_TRIM_ALIGN_TRIMGALORE_STAR } from './subworkflows/local/fastq_trim_align_trimgalore_star'
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     Main workflow
@@ -63,5 +63,5 @@ workflow {
         }
 
     // Subworkflows
-    FASTQ_TO_BAM(ch_fasta_fai, ch_fastq, ch_gtf, ch_star_index, params.seq_platform, params.seq_center, false)
+    FASTQ_TRIM_ALIGN_TRIMGALORE_STAR(ch_fasta_fai, ch_fastq, ch_gtf, ch_star_index, params.seq_platform, params.seq_center, false)
 }
