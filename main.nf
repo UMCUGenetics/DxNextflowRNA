@@ -31,23 +31,20 @@ include { FASTQ_TO_BAM } from './subworkflows/local/fastq_to_bam'
 */
 
 workflow {
-    def createMetaWithIdName = {file -> [[id: file.name], file]}
+    def createMetaWithIdSimpleName = {file -> [[id: file.getSimpleName()], file]}
+
     // Reference file channels
     ch_star_index = Channel.fromPath(params.star_index)
-        .map{star_index -> [star_index.getSimpleName(), star_index]}
+        .map(createMetaWithIdSimpleName)
         .first()
 
     ch_gtf = Channel.fromPath(params.gtf)
-        .map{gtf -> [gtf.getSimpleName(), gtf]}
+        .map(createMetaWithIdSimpleName)
         .first()
 
-    ch_fasta = Channel.fromPath(params.fasta)
-        .map(createMetaWithIdName)
-        .first()
-    ch_fai = Channel.fromPath(params.fai)
-        .map(createMetaWithIdName)
-        .first()
-    ch_fasta_fai = ch_fasta.join(ch_fai)
+    ch_fasta_fai = Channel.fromPath(params.fasta)
+        .combine(Channel.fromPath(params.fai))
+        .map{fasta, fai -> [[id: fasta.getSimpleName()], fasta, file]}
     
     // Input channel 
     ch_fastq = Channel.fromFilePairs("$params.input/*_R{1,2}_001.fastq.gz")

@@ -86,5 +86,5 @@ workflow FASTQ_TO_BAM {
     ch_bam_bai = SAMTOOLS_MERGE.out.bam.join(SAMTOOLS_INDEX.out.bai)  // channel: [ val(meta), path(bam), path(bai/csi) ]
     ch_cram_crai = SAMTOOLS_CONVERT.out.cram.join(SAMTOOLS_CONVERT.out.crai)  // channel: [ val(meta), path(cram), path(bai/crai) ]
 
-    versions = ch_versions                     // channel: [ versions.yml ]
+    versions = ch_versions  // channel: [ versions.yml ]
 }
