@@ -39,13 +39,6 @@
       "fa_icon": "fas fa-dna",
       "description": "Reference genome related files and options required for the workflow.",
       "properties": {
-        "genome": {
-          "type": "string",
-          "description": "Path of genome reference.",
-          "fa_icon": "fas fa-book",
-          "help_text": "",
-          "default": "/hpc/diaggen/data/databases/ref_genomes/Homo_sapiens.GRCh37.GATK.illumina/Homo_sapiens.GRCh37.GATK.illumina.fasta"
-        },
         "gtf": {
           "type": "string",
           "format": "file-path",
@@ -55,7 +48,7 @@
           "description": "Path to GTF annotation file.",
           "fa_icon": "fas fa-code-branch",
           "help_text": "This parameter is *mandatory* if `--genome` is not specified.",
-          "default": "/hpc/diaggen/data/databases/gencode/gencode.v44.primary_assembly.basic.annotation.gtf"
+          "default": "/hpc/diaggen/users/ellen/references/GRCh38_gencode_v37_CTAT_lib_Mar012021.plug-n-play/ctat_genome_lib_build_dir//ref_annot.gtf"
         },
         "star_index": {
           "type": "string",
@@ -63,7 +56,7 @@
           "exists": true,
           "fa_icon": "fas fa-bezier-curve",
           "description": "Path to directory or tar.gz archive for pre-built STAR index.",
-          "default": "/hpc/diaggen/data/databases/STAR_ref_genome_index/GCA_000001405.15_GRCh38_no_alt_plus_hs38d1_analysis_set_2.7.9a"
+          "default": "/hpc/diaggen/users/ellen/references/GRCh38_gencode_v37_CTAT_lib_Mar012021.plug-n-play/ctat_genome_lib_build_dir//ref_genome.fa.star.idx"
         }
       }
     },
@@ -98,7 +91,7 @@
           "type": "string",
           "default": "UMCU Genetics",
           "description": "Sequencing center"
-        }     
+        }
       }
     }
   },
@@ -112,5 +105,19 @@
     {
       "$ref": "#/definitions/generic_options"
     }
-  ]
+  ],
+  "properties": {
+    "ctat_genome_lib_build_dir": {
+      "type": "string",
+      "default": "/hpc/diaggen/users/ellen/references/GRCh38_gencode_v37_CTAT_lib_Mar012021.plug-n-play/ctat_genome_lib_build_dir/"
+    },
+    "fasta": {
+      "type": "string",
+      "default": "/hpc/diaggen/users/ellen/references/GRCh38_gencode_v37_CTAT_lib_Mar012021.plug-n-play/ctat_genome_lib_build_dir//ref_genome.fa"
+    },
+    "fai": {
+      "type": "string",
+      "default": "/hpc/diaggen/users/ellen/references/GRCh38_gencode_v37_CTAT_lib_Mar012021.plug-n-play/ctat_genome_lib_build_dir//ref_genome.fa.fai"
+    }
+  }
 }
