@@ -52,16 +52,16 @@ workflow FASTQ_TO_BAM {
 
     emit:
     // TODO nf-core: edit emitted channels
-    trim_reads= TRIMGALORE.out.reads  // channel: [ val(meta), path(fq.gz) ]
-    trim_unpaired= TRIMGALORE.out.unpaired  // channel: [ val(meta), path(fq.gz) ]
-    trim_html= TRIMGALORE.out.html  // channel: [ val(meta), path(html) ]
-    trim_zip= TRIMGALORE.out.zip  // channel: [ val(meta), path(zip) ]
-    trim_log= TRIMGALORE.out.log  // channel: [ val(meta), path(txt) ]
+    trim_reads = TRIMGALORE.out.reads  // channel: [ val(meta), path(fq.gz) ]
+    trim_unpaired = TRIMGALORE.out.unpaired  // channel: [ val(meta), path(fq.gz) ]
+    trim_html = TRIMGALORE.out.html  // channel: [ val(meta), path(html) ]
+    trim_zip = TRIMGALORE.out.zip  // channel: [ val(meta), path(zip) ]
+    trim_log = TRIMGALORE.out.log  // channel: [ val(meta), path(txt) ]
 
-    star_align_bam= STAR_ALIGN.out.bam  // channel: [ val(meta), path(bam) ]
-    star_align_bam_sorted= STAR_ALIGN.out.bam_sorted  // channel: [ val(meta), path(bam) ]
-    star_align_bam_unsorted= STAR_ALIGN.out.bam_unsorted  // channel: [ val(meta), path(bam) ]
-    star_align_bam_transcript= STAR_ALIGN.out.bam_transcript  // channel: [ val(meta), path(bam) ]
+    star_align_bam = STAR_ALIGN.out.bam  // channel: [ val(meta), path(bam) ]
+    star_align_bam_sorted = STAR_ALIGN.out.bam_sorted  // channel: [ val(meta), path(bam) ]
+    star_align_bam_unsorted = STAR_ALIGN.out.bam_unsorted  // channel: [ val(meta), path(bam) ]
+    star_align_bam_transcript = STAR_ALIGN.out.bam_transcript  // channel: [ val(meta), path(bam) ]
     star_align_sam = STAR_ALIGN.out.sam  // channel: [ val(meta), path(sam) ]
     star_align_fastq = STAR_ALIGN.out.fastq  // channel: [ val(meta), path(fastq) ]
     star_align_tab = STAR_ALIGN.out.tab  // channel: [ val(meta), path(tab) ]
