@@ -23,7 +23,12 @@ validateParameters()
     Import modules/subworkflows
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
+
+include { MULTIQC } from './modules/nf-core/multiqc/main'
+
+include { FASTQ_BAM_QC } from './subworkflows/local/fastq_nam_qc'
 include { FASTQ_TRIM_ALIGN_TRIMGALORE_STAR } from './subworkflows/local/fastq_trim_align_trimgalore_star'
+
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     Main workflow
@@ -64,4 +69,16 @@ workflow {
 
     // Subworkflows
     FASTQ_TRIM_ALIGN_TRIMGALORE_STAR(ch_fasta_fai, ch_fastq, ch_gtf, ch_star_index, params.seq_platform, params.seq_center, false)
+    FASTQ_BAM_QC(ch_fastq)
+
+    // MultiQC
+    MULTIQC(
+        Channel.empty().mix(
+            FASTQ_BAM_QC.out.fastqc_zip.collect{it[1]}.ifEmpty([])
+        ).collect(),
+        Channel.fromPath("${params.multiqc_yaml}", checkIfExists: true), 
+        [], 
+        []
+
+    )
 }
