@@ -5,6 +5,8 @@
     Import modules/subworkflows
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
+// Ordered alphabetically
+include { SAMTOOLS_CONVERT } from '../../modules/nf-core/samtools/convert/main'                                                                    
 include { SAMTOOLS_INDEX } from '../../modules/nf-core/samtools/index/main'
 include { SAMTOOLS_MERGE } from '../../modules/nf-core/samtools/merge/main'
 include { STAR_ALIGN } from '../../modules/nf-core/star/align/main'
@@ -12,10 +14,10 @@ include { TRIMGALORE } from '../../modules/nf-core/trimgalore/main'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    FASTQ_TO_BAM (sub)workflow
+    FASTQ_TRIM_ALIGN_TRIMGALORE_STAR (sub)workflow
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
-workflow FASTQ_TO_BAM {
+workflow FASTQ_TRIM_ALIGN_TRIMGALORE_STAR {
 
     take:
     ch_fasta_fai  // channel: [ val(meta), path(fa), path(fai) ]
@@ -50,6 +52,13 @@ workflow FASTQ_TO_BAM {
     SAMTOOLS_INDEX(SAMTOOLS_MERGE.out.bam)
     ch_versions.mix(SAMTOOLS_INDEX.out.versions.first())
 
+    SAMTOOLS_CONVERT(
+        SAMTOOLS_MERGE.out.bam.join(SAMTOOLS_INDEX.out.bai), 
+        ch_fasta_fai.map{meta, fasta, fai -> [meta, fasta]}, 
+        ch_fasta_fai.map{meta, fasta, fai -> [meta, fai]}
+    )
+    ch_versions.mix(SAMTOOLS_CONVERT.out.versions.first())
+
     emit:
     // TODO nf-core: edit emitted channels
     trim_reads = TRIMGALORE.out.reads  // channel: [ val(meta), path(fq.gz) ]
@@ -75,6 +84,7 @@ workflow FASTQ_TO_BAM {
     star_align_bedgraph = STAR_ALIGN.out.bedgraph  // channel: [ val(meta), path(bg) ]
 
     ch_bam_bai = SAMTOOLS_MERGE.out.bam.join(SAMTOOLS_INDEX.out.bai)  // channel: [ val(meta), path(bam), path(bai/csi) ]
+    ch_cram_crai = SAMTOOLS_CONVERT.out.cram.join(SAMTOOLS_CONVERT.out.crai)  // channel: [ val(meta), path(cram), path(bai/crai) ]
 
-    versions = ch_versions                     // channel: [ versions.yml ]
+    versions = ch_versions  // channel: [ versions.yml ]
 }
