@@ -26,7 +26,7 @@ validateParameters()
 
 include { MULTIQC } from './modules/nf-core/multiqc/main'
 
-include { FASTQ_BAM_QC } from './subworkflows/local/fastq_nam_qc'
+include { FASTQ_BAM_QC } from './subworkflows/local/fastq_bam_qc'
 include { FASTQ_TRIM_ALIGN_TRIMGALORE_STAR } from './subworkflows/local/fastq_trim_align_trimgalore_star'
 
 /*
@@ -77,8 +77,10 @@ workflow {
             FASTQ_BAM_QC.out.fastqc_zip.collect{it[1]}.ifEmpty([])
         ).collect(),
         Channel.fromPath("${params.multiqc_yaml}", checkIfExists: true), 
-        [], 
-        []
+        [],  // extra_multiqc_config
+        [],  // multiqc_logo
+        [],  // replace_names
+        []   // sample_names
 
     )
 }
