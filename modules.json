@@ -1,54 +1,106 @@
 {
-    "name": "UMCUGenetics/DxNextflowRNA",
-    "homePage": "https://github.com/UMCUGenetics/DxNextflowRNA",
-    "repos": {
-        "https://github.com/nf-core/modules.git": {
-            "modules": {
-                "nf-core": {
-                    "fastqc": {
-                        "branch": "master",
-                        "git_sha": "285a50500f9e02578d90b3ce6382ea3c30216acd",
-                        "installed_by": [
-                            "modules"
-                        ]
-                    },
-                    "samtools/convert": {
-                        "branch": "master",
-                        "git_sha": "04fbbc7c43cebc0b95d5b126f6d9fe4effa33519",
-                        "installed_by": [
-                            "modules"
-                        ]
-                    },
-                    "samtools/index": {
-                        "branch": "master",
-                        "git_sha": "04fbbc7c43cebc0b95d5b126f6d9fe4effa33519",
-                        "installed_by": [
-                            "modules"
-                        ]
-                    },
-                    "samtools/merge": {
-                        "branch": "master",
-                        "git_sha": "04fbbc7c43cebc0b95d5b126f6d9fe4effa33519",
-                        "installed_by": [
-                            "modules"
-                        ]
-                    },
-                    "star/align": {
-                        "branch": "master",
-                        "git_sha": "a21faa6a3481af92a343a10926f59c189a2c16c9",
-                        "installed_by": [
-                            "modules"
-                        ]
-                    },
-                    "trimgalore": {
-                        "branch": "master",
-                        "git_sha": "b4919e9a2b4d8b71061e601633db4600a3858fa1",
-                        "installed_by": [
-                            "modules"
-                        ]
-                    }
-                }
-            }
+  "name": "UMCUGenetics/DxNextflowRNA",
+  "homePage": "https://github.com/UMCUGenetics/DxNextflowRNA",
+  "repos": {
+    "https://github.com/nf-core/modules.git": {
+      "modules": {
+        "nf-core": {
+          "fastqc": {
+            "branch": "master",
+            "git_sha": "46eca555142d6e597729fcb682adcc791796f514",
+            "installed_by": ["modules"]
+          },
+          "multiqc": {
+            "branch": "master",
+            "git_sha": "b80f5fd12ff7c43938f424dd76392a2704fa2396",
+            "installed_by": ["modules"]
+          },
+          "picard/collectrnaseqmetrics": {
+            "branch": "master",
+            "git_sha": "0dee12b56ccecc416d6f7a1ccd85fd571eab3307",
+            "installed_by": ["modules"]
+          },
+          "preseq/lcextrap": {
+            "branch": "master",
+            "git_sha": "2c6b1144ed58b6184ad58fc4e6b6a90219b4bf4f",
+            "installed_by": ["modules"]
+          },
+          "rseqc/bamstat": {
+            "branch": "master",
+            "git_sha": "b4919e9a2b4d8b71061e601633db4600a3858fa1",
+            "installed_by": ["bam_rseqc"]
+          },
+          "rseqc/inferexperiment": {
+            "branch": "master",
+            "git_sha": "b4919e9a2b4d8b71061e601633db4600a3858fa1",
+            "installed_by": ["bam_rseqc"]
+          },
+          "rseqc/innerdistance": {
+            "branch": "master",
+            "git_sha": "b4919e9a2b4d8b71061e601633db4600a3858fa1",
+            "installed_by": ["bam_rseqc"]
+          },
+          "rseqc/junctionannotation": {
+            "branch": "master",
+            "git_sha": "b4919e9a2b4d8b71061e601633db4600a3858fa1",
+            "installed_by": ["bam_rseqc"]
+          },
+          "rseqc/junctionsaturation": {
+            "branch": "master",
+            "git_sha": "b4919e9a2b4d8b71061e601633db4600a3858fa1",
+            "installed_by": ["bam_rseqc"]
+          },
+          "rseqc/readdistribution": {
+            "branch": "master",
+            "git_sha": "b4919e9a2b4d8b71061e601633db4600a3858fa1",
+            "installed_by": ["bam_rseqc"]
+          },
+          "rseqc/readduplication": {
+            "branch": "master",
+            "git_sha": "b4919e9a2b4d8b71061e601633db4600a3858fa1",
+            "installed_by": ["bam_rseqc"]
+          },
+          "rseqc/tin": {
+            "branch": "master",
+            "git_sha": "b4919e9a2b4d8b71061e601633db4600a3858fa1",
+            "installed_by": ["bam_rseqc"]
+          },
+          "samtools/convert": {
+            "branch": "master",
+            "git_sha": "04fbbc7c43cebc0b95d5b126f6d9fe4effa33519",
+            "installed_by": ["modules"]
+          },
+          "samtools/index": {
+            "branch": "master",
+            "git_sha": "04fbbc7c43cebc0b95d5b126f6d9fe4effa33519",
+            "installed_by": ["modules"]
+          },
+          "samtools/merge": {
+            "branch": "master",
+            "git_sha": "04fbbc7c43cebc0b95d5b126f6d9fe4effa33519",
+            "installed_by": ["modules"]
+          },
+          "star/align": {
+            "branch": "master",
+            "git_sha": "a21faa6a3481af92a343a10926f59c189a2c16c9",
+            "installed_by": ["modules"]
+          },
+          "trimgalore": {
+            "branch": "master",
+            "git_sha": "b4919e9a2b4d8b71061e601633db4600a3858fa1",
+            "installed_by": ["modules"]
+          }
         }
+      },
+      "subworkflows": {
+        "nf-core": {
+          "bam_rseqc": {
+            "branch": "master",
+            "git_sha": "0eacd714effe5aac1c1de26593873960b3346cab",
+            "installed_by": ["subworkflows"]
+          }
+        }
+      }
     }
+  }
 }
