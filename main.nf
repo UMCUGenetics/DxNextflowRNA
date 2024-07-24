@@ -44,7 +44,7 @@ workflow {
 
     ch_fasta_fai = Channel.fromPath(params.fasta)
         .combine(Channel.fromPath(params.fai))
-        .map{fasta, fai -> [[id: fasta.getSimpleName()], fasta, file]}
+        .map{fasta, fai -> [[id: fasta.getSimpleName()], fasta, fai]}
     
     // Input channel 
     ch_fastq = Channel.fromFilePairs("$params.input/*_R{1,2}_001.fastq.gz")
