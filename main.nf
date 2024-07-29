@@ -50,8 +50,8 @@ workflow {
     ch_fasta_fai = Channel.fromPath(params.fasta)
         .combine(Channel.fromPath(params.fai))
         .map{fasta, fai -> [[id: fasta.getSimpleName()], fasta, fai]}
-    
-    // Input channel 
+
+    // Input channel
     ch_fastq = Channel.fromFilePairs("$params.input/*_R{1,2}_001.fastq.gz")
         .map {
             meta, fastq ->
@@ -74,13 +74,18 @@ workflow {
     // MultiQC
     MULTIQC(
         Channel.empty().mix(
+            FASTQ_TRIM_ALIGN_TRIMGALORE_STAR.out.versions,
+            FASTQ_TRIM_ALIGN_TRIMGALORE_STAR.out.trim_log.collect{it[1]}.ifEmpty([]),
+            FASTQ_TRIM_ALIGN_TRIMGALORE_STAR.out.trim_zip.collect{it[1]}.ifEmpty([]),
+            FASTQ_TRIM_ALIGN_TRIMGALORE_STAR.out.star_align_log_final.collect{it[1]}.ifEmpty([]),
+            FASTQ_TRIM_ALIGN_TRIMGALORE_STAR.out.star_align_read_per_gene_tab.collect{it[1]}.ifEmpty([]),
+            FASTQ_BAM_QC.out.versions,
             FASTQ_BAM_QC.out.fastqc_zip.collect{it[1]}.ifEmpty([])
         ).collect(),
-        Channel.fromPath("${params.multiqc_yaml}", checkIfExists: true), 
+        Channel.fromPath("${params.multiqc_yaml}", checkIfExists: true),
         [],  // extra_multiqc_config
         [],  // multiqc_logo
         [],  // replace_names
         []   // sample_names
-
     )
 }
