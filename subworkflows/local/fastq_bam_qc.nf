@@ -27,4 +27,3 @@ workflow FASTQ_BAM_QC {
 
     versions = ch_versions  // channel: [ versions.yml ]
 }
-

@@ -70,7 +70,7 @@ $workflow_path/main.nf  \
 -resume \
 -ansi-log false \
 ${optional_params[@]:-""}
- 
+
 if [ \$? -eq 0 ]; then
     echo "Nextflow done."
 
