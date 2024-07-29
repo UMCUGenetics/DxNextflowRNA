@@ -6,7 +6,7 @@
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 // Ordered alphabetically
-include { SAMTOOLS_CONVERT } from '../../modules/nf-core/samtools/convert/main'                                                                    
+include { SAMTOOLS_CONVERT } from '../../modules/nf-core/samtools/convert/main'
 include { SAMTOOLS_INDEX } from '../../modules/nf-core/samtools/index/main'
 include { SAMTOOLS_MERGE } from '../../modules/nf-core/samtools/merge/main'
 include { STAR_ALIGN } from '../../modules/nf-core/star/align/main'
@@ -48,13 +48,13 @@ workflow FASTQ_TRIM_ALIGN_TRIMGALORE_STAR {
         [[ id:'null' ], []],
     )
     ch_versions.mix(SAMTOOLS_MERGE.out.versions.first())
-    
+
     SAMTOOLS_INDEX(SAMTOOLS_MERGE.out.bam)
     ch_versions.mix(SAMTOOLS_INDEX.out.versions.first())
 
     SAMTOOLS_CONVERT(
-        SAMTOOLS_MERGE.out.bam.join(SAMTOOLS_INDEX.out.bai), 
-        ch_fasta_fai.map{meta, fasta, fai -> [meta, fasta]}, 
+        SAMTOOLS_MERGE.out.bam.join(SAMTOOLS_INDEX.out.bai),
+        ch_fasta_fai.map{meta, fasta, fai -> [meta, fasta]},
         ch_fasta_fai.map{meta, fasta, fai -> [meta, fai]}
     )
     ch_versions.mix(SAMTOOLS_CONVERT.out.versions.first())
