@@ -5,6 +5,7 @@
 */
 include { FASTQC } from '../../modules/nf-core/fastqc/main'
 include { PICARD_COLLECTRNASEQMETRICS } from '../../modules/nf-core/picard/collectrnaseqmetrics/main'
+include { PRESEQ_LCEXTRAP } from '../../modules/nf-core/preseq/lcextrap/main'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -42,6 +43,8 @@ workflow FASTQ_BAM_QC {
     // PICARD_COLLECTRNASEQMETRICS(ch_bam, ch_ref_flat, ch_fasta, ch_rrna_interval)
     // ch_versions = ch_versions.mix(PICARD_COLLECTRNASEQMETRICS.out.versions.first())
 
+    PRESEQ_LCEXTRAP(ch_bam)
+    ch_versions = ch_versions.mix(PRESEQ_LCEXTRAP.out.versions.first())
 
     emit:
     // FASTQC
@@ -87,6 +90,9 @@ workflow FASTQ_BAM_QC {
     // PICARD_COLLECTRNASEQMETRICS
     // rna_metrics = PICARD_COLLECTRNASEQMETRICS.out.metrics  // channel: [ val(meta), rna_metrics ]
 
+    // PRESEQ_LCEXTRAP
+    lc_extrap = PRESEQ_LCEXTRAP.out.lc_extrap  // channel: [ val(meta), lc_extrap.txt
+    preseq_lcextrap_log = PRESEQ_LCEXTRAP.out.log  // channel: [ val(meta), log ]
 
     // Subworkflow specific outputs
     versions = ch_versions  // channel: [ versions.yml ]
