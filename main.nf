@@ -20,11 +20,16 @@ validateParameters()
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    Import modules/subworkflows
+    Import modules, alphabetical order
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 include { MULTIQC } from './modules/nf-core/multiqc/main'
 
+/*
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    Import local subworkflows, alphabetical order
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+*/
 include { FASTQ_BAM_QC } from './subworkflows/local/fastq_bam_qc'
 include { FASTQ_TRIM_ALIGN_TRIMGALORE_STAR } from './subworkflows/local/fastq_trim_align_trimgalore_star'
 
@@ -87,7 +92,16 @@ workflow {
             FASTQ_TRIM_ALIGN_TRIMGALORE_STAR.out.star_align_log_final.collect{it[1]}.ifEmpty([]),
             FASTQ_TRIM_ALIGN_TRIMGALORE_STAR.out.star_align_read_per_gene_tab.collect{it[1]}.ifEmpty([]),
             FASTQ_BAM_QC.out.versions,
-            FASTQ_BAM_QC.out.fastqc_zip.collect{it[1]}.ifEmpty([])
+            FASTQ_BAM_QC.out.fastqc_zip.collect{it[1]}.ifEmpty([]),
+            FASTQ_BAM_QC.out.bamstat_txt.collect{it[1]}.ifEmpty([]),
+            FASTQ_BAM_QC.out.inferexperiment_txt.collect{it[1]}.ifEmpty([]),
+            FASTQ_BAM_QC.out.innerdistance_freq.collect{it[1]}.ifEmpty([]),
+            FASTQ_BAM_QC.out.junctionannotation_all.collect{it[1]}.ifEmpty([]),
+            FASTQ_BAM_QC.out.junctionsaturation_rscript.collect{it[1]}.ifEmpty([]),
+            FASTQ_BAM_QC.out.readdistribution_txt.collect{it[1]}.ifEmpty([]),
+            FASTQ_BAM_QC.out.readduplication_pos_xls.collect{it[1]}.ifEmpty([]),
+            FASTQ_BAM_QC.out.tin_txt.collect{it[1]}.ifEmpty([]),
+            FASTQ_BAM_QC.out.versions,
         ).collect(),
         Channel.fromPath("${params.multiqc_yaml}", checkIfExists: true),
         [],  // extra_multiqc_config
