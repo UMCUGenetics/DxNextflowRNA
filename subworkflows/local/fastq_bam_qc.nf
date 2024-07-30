@@ -20,7 +20,7 @@ include { BAM_RSEQC } from '../../subworkflows/nf-core/bam_rseqc/main'
 */
 workflow FASTQ_BAM_QC {
     take:
-    ch_bam  // channel: [ val(meta), [ bam ] ]
+    ch_bam_bai  // channel: [ val(meta), [ bam, bai] ]
     ch_fasta  // channel: path(fasta)
     ch_fastq  // channel: [ val(meta), [ fastq_forward, fastq_reverse ] ]
     ch_gene_bed  // channel: path(gene_bed.bed)
@@ -28,23 +28,26 @@ workflow FASTQ_BAM_QC {
     ch_rrna_interval  // channel: path(rrna_intervals.bed)
 
     main:
+    ch_bam = ch_bam_bai.map{meta, bam, bai -> [meta, bam]}
     ch_versions = Channel.empty()
 
+    // QC tools on fastq
     FASTQC(ch_fastq)
     ch_versions = ch_versions.mix(FASTQC.out.versions.first())
 
+    // QC tools on bam
     BAM_RSEQC(ch_bam_bai, ch_gene_bed, params.rseqc_modules)
     ch_versions = ch_versions.mix(BAM_RSEQC.out.versions.first())
+
+    // PICARD_COLLECTRNASEQMETRICS(ch_bam, ch_ref_flat, ch_fasta, ch_rrna_interval)
+    // ch_versions = ch_versions.mix(PICARD_COLLECTRNASEQMETRICS.out.versions.first())
 
 
     emit:
     // FASTQC
     // TODO nf-core: edit emitted channels
-    fastqc_html = FASTQC.out.html  // channel: [ val(meta), [ html ] ]
-    fastqc_zip = FASTQC.out.zip  // channel: [ val(meta), [ zip ] ]
-
-    // PICARD_COLLECTRNASEQMETRICS
-    rna_metrics = PICARD_COLLECTRNASEQMETRICS.out.metrics  // channel: [ val(meta), [ rna_metrics ]]
+    fastqc_html = FASTQC.out.html  // channel: [ val(meta), html]
+    fastqc_zip = FASTQC.out.zip  // channel: [ val(meta), zip ]
 
     // BAM_RSEQC
     bamstat_txt = BAM_RSEQC.out.bamstat_txt  // channel: [ val(meta), txt ]
@@ -80,6 +83,10 @@ workflow FASTQ_BAM_QC {
     readduplication_rscript = BAM_RSEQC.out.readduplication_rscript  // channel: [ val(meta), r   ]
 
     tin_txt = BAM_RSEQC.out.tin_txt  // channel: [ val(meta), txt ]
+
+    // PICARD_COLLECTRNASEQMETRICS
+    // rna_metrics = PICARD_COLLECTRNASEQMETRICS.out.metrics  // channel: [ val(meta), rna_metrics ]
+
 
     // Subworkflow specific outputs
     versions = ch_versions  // channel: [ versions.yml ]
