@@ -25,7 +25,6 @@ workflow featurecounts {
             ch_bam_bai.map { meta, bam, bai -> [meta, bam, params.gtf] }
         )
 
-
     emit:
 	    SUBREAD_FEATURECOUNTS_GENE.out.counts
 	    SUBREAD_FEATURECOUNTS_EXON.out.counts
