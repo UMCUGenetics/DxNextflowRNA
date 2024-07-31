@@ -42,6 +42,18 @@
           "format": "path",
           "description": "The directory or file(s) where reference files of exon feature counts are located.",
           "fa_icon": "fas fa-path"
+        },
+        "inputbam": {
+          "type": "string",
+          "format": "path",
+          "description": "The directory or file(s) where input bam and bam.bai files are located for sample of interest for FRASER.",
+          "fa_icon": "fas fa-path"
+        },
+        "refbam": {
+          "type": "string",
+          "format": "path",
+          "description": "The directory or file(s) where reference bam and bam.bai files are located for FRASER.",
+          "fa_icon": "fas fa-path"
         }
       }
     },
@@ -120,6 +132,14 @@
       "default": null
     },
     "inputexon": {
+      "type": "string",
+      "default": null
+    },
+    "inputbam": {
+      "type": "string",
+      "default": null
+    },
+    "refbam": {
       "type": "string",
       "default": null
     }

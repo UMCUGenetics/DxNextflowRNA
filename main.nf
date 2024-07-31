@@ -54,4 +54,5 @@ workflow {
     featurecounts(fastq_to_bam.out)
     outrider(featurecounts.out)
     quality_control(ch_fastq)
+//    fraser(fastq_to_bam.out)
 }
