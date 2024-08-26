@@ -19,14 +19,13 @@ workflow outrider {
 	    featurecounts_exon
 
     main:
-        ch_gtf = Channel.fromPath(params.gtf).map { gtf -> [gtf.getSimpleName(), gtf] }.first()
 	    if (params.refgene != null && params.inputgene != null){
 	        ch_outrider_ref_gene = params.refgene.contains(",") ? Channel.fromPath(params.refgene?.split(',') as List) : Channel.fromPath("$params.refgene")
 
             OUTRIDER_GENE(
 	            featurecounts_gene,
                 ch_outrider_ref_gene.collect(),
-                ch_gtf
+                params.gtf
             )
 	    }
 
@@ -35,7 +34,7 @@ workflow outrider {
             OUTRIDER_EXON(
                 featurecounts_exon,
                 ch_outrider_ref_exon.collect(),
-                ch_gtf
+                params.gtf
             )
 	    }
 }
