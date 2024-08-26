@@ -41,7 +41,7 @@ workflow {
             def fmeta = [:]
             // Set meta.id
             fmeta.id = meta
-	    // Set meta.single_end
+            // Set meta.single_end
             if (fastq.size() == 1) {
                 fmeta.single_end = true
             } else {
