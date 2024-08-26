@@ -11,9 +11,9 @@ process SUBREAD_FEATURECOUNTS {
     tuple val(meta), path(bams), path(annotation)
 
     output:
-    tuple val(meta), path("*featureCounts.txt")                 , emit: counts
-    tuple val(meta), path("*featureCounts.txt.summary")         , emit: summary
-    path "versions.yml"                                         , emit: versions
+    tuple val(meta), path("*featureCounts.txt")        , emit: counts
+    tuple val(meta), path("*featureCounts.txt.summary"), emit: summary
+    path "versions.yml"                                , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
@@ -36,7 +36,7 @@ process SUBREAD_FEATURECOUNTS {
         -a $annotation \\
         -s $strandedness \\
         -o ${prefix}.featureCounts.txt \\
-	${bams.join(' ')}
+    ${bams.join(' ')}
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
