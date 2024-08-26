@@ -23,8 +23,9 @@ workflow outrider {
 	    ch_outrider_ref_gene = params.refgene.contains(",") ? Channel.fromPath(params.refgene?.split(',') as List) : Channel.fromPath("$params.refgene")
 
             OUTRIDER_GENE(
-	        featurecounts_gene,
+	            featurecounts_gene,
                 ch_outrider_ref_gene.collect(),
+                params.gtf
             )
 	}
 
@@ -33,6 +34,7 @@ workflow outrider {
             OUTRIDER_EXON(
                 featurecounts_exon,
                 ch_outrider_ref_exon.collect(),
+                params.gtf
             )
 	}
 }
