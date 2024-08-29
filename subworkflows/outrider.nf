@@ -18,9 +18,8 @@ workflow outrider {
 	    featurecounts_gene
 	    featurecounts_exon
 
-    main:
-	    if (params.refgene != null && params.inputgene != null){
-	        ch_outrider_ref_gene = params.refgene.contains(",") ? Channel.fromPath(params.refgene?.split(',') as List) : Channel.fromPath("$params.refgene")
+    main:        
+        if (params.refgene != null && (params.inputgene != null || featurecounts_gene != null)){	        ch_outrider_ref_gene = params.refgene.contains(",") ? Channel.fromPath(params.refgene?.split(',') as List) : Channel.fromPath("$params.refgene")
 
             OUTRIDER_GENE(
 	            featurecounts_gene,
@@ -29,8 +28,7 @@ workflow outrider {
             )
 	    }
 
-	    if (params.refexon != null && params.inputexon != null){
-            ch_outrider_ref_exon = params.refexon.contains(",") ? Channel.fromPath(params.refexon?.split(',') as List) : Channel.fromPath("$params.refexon")
+        if (params.refexon != null && (params.inputexon != null || featurecounts_exon != null)){            ch_outrider_ref_exon = params.refexon.contains(",") ? Channel.fromPath(params.refexon?.split(',') as List) : Channel.fromPath("$params.refexon")
             OUTRIDER_EXON(
                 featurecounts_exon,
                 ch_outrider_ref_exon.collect(),
