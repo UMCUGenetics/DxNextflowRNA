@@ -22,7 +22,6 @@ process SUBREAD_FEATURECOUNTS {
     def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
     def paired_end = meta.single_end ? '' : '-p'
-
     def strandedness = 0
     if (meta.strandedness == 'forward') {
         strandedness = 1
@@ -37,7 +36,7 @@ process SUBREAD_FEATURECOUNTS {
         -a $annotation \\
         -s $strandedness \\
         -o ${prefix}.featureCounts.txt \\
-        ${bams.join(' ')}
+    ${bams.join(' ')}
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

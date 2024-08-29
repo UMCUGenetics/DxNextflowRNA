@@ -1,8 +1,8 @@
 #!/usr/bin/env nextflow
 /*
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     UMCUGenetics/DxNextflowRNA
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     Github : https://github.com/UMCUGenetics/DxNextflowRNA
 ----------------------------------------------------------------------------------------
 */
@@ -10,40 +10,31 @@
 nextflow.enable.dsl = 2
 
 /*
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     Validate parameters
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
 include { validateParameters; } from 'plugin/nf-validation'
 validateParameters()
 
 /*
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     Import modules/subworkflows
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
-include { BAM_DEDUP_STATS_SAMTOOLS_UMITOOLS } from './subworkflows/nf-core/bam_dedup_stats_samtools_umitools/main'
-
-include { FASTQC } from './modules/nf-core/fastqc/main'
-include { MULTIQC } from './modules/nf-core/multiqc/main'
-include { SAMTOOLS_INDEX } from './modules/nf-core/samtools/index/main'
-include { SAMTOOLS_MERGE } from './modules/nf-core/samtools/merge/main'
-include { STAR_ALIGN } from './modules/nf-core/star/align/main'
-include { SUBREAD_FEATURECOUNTS } from './modules/nf-core/subread/featurecounts/main'
-
+include { fastq_to_bam } from './subworkflows/fastq_to_bam.nf'
+include { quality_control } from './subworkflows/quality_control.nf'
+include { featurecounts;featurecounts_entry } from './subworkflows/featurecounts.nf'
+include { outrider;outrider_entry } from './subworkflows/outrider.nf'
+include { fraser;fraser_entry } from './subworkflows/fraser.nf'
 /*
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     Main workflow
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
 workflow {
-    // Reference file channels
-    ch_star_index = Channel.fromPath(params.star_index).map {star_index -> [star_index.getSimpleName(), star_index] }
-    ch_gtf = Channel.fromPath(params.gtf).map { gtf -> [gtf.getSimpleName(), gtf] }
-
-    // Input channel
     ch_fastq = Channel.fromFilePairs("$params.input/*_R{1,2}_001.fastq.gz")
         .map {
             meta, fastq ->
@@ -59,57 +50,9 @@ workflow {
             [ fmeta, fastq ]
         }
 
-    // Trim, Alignment, FeatureCounts
-    // TRIMGALORE
-
-    STAR_ALIGN(
-        ch_fastq,
-        ch_star_index.first(),
-        ch_gtf.first(),
-        false,
-        'illumina',
-        'UMCU Genetics'
-    )
-
-    SAMTOOLS_MERGE(
-        STAR_ALIGN.out.bam_sorted.map {
-            meta, bam ->
-                new_id = meta.id.split('_')[0]
-                [ meta + [id: new_id], bam ]
-        }.groupTuple(),
-        [ [ id:'null' ], []],
-        [ [ id:'null' ], []],
-    )
-
-    SAMTOOLS_INDEX ( SAMTOOLS_MERGE.out.bam )
-
-    SAMTOOLS_MERGE.out.bam
-        .join(SAMTOOLS_INDEX.out.bai)
-        .set { ch_bam_bai }
-
-    BAM_DEDUP_STATS_SAMTOOLS_UMITOOLS(
-        ch_bam_bai,
-        true
-    )
-
-    SUBREAD_FEATURECOUNTS(
-        BAM_DEDUP_STATS_SAMTOOLS_UMITOOLS.out.bam.map{
-        meta, bam -> [ meta, bam, params.gtf ]
-        }
-    )
-
-    // QC
-    FASTQC(ch_fastq)
-
-    // MultiQC
-    ch_multiqc_files = Channel.empty()
-    ch_multiqc_files = ch_multiqc_files.mix(FASTQC.out.zip.collect{it[1]}.ifEmpty([]))
-    ch_multiqc_config = Channel.fromPath("$projectDir/assets/multiqc_config.yml", checkIfExists: true)
-    MULTIQC(
-        ch_multiqc_files.collect(),
-        ch_multiqc_config.toList(),
-        Channel.empty().toList(),
-        Channel.empty().toList()
-    )
-
+    fastq_to_bam(ch_fastq)
+    featurecounts(fastq_to_bam.out)
+    outrider(featurecounts.out)
+    quality_control(ch_fastq)
+//    fraser(fastq_to_bam.out)
 }
