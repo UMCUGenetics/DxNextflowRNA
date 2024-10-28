@@ -37,7 +37,8 @@ workflow FASTQ_BAM_QC {
     ch_versions = ch_versions.mix(FASTQC.out.versions.first())
 
     // QC tools on bam
-    BAM_RSEQC(ch_bam_bai, ch_gene_bed, params.rseqc_modules)
+    def rseqc_modules = params.rseqc_modules ? params.rseqc_modules.split(',').collect{ it.trim().toLowerCase() } : []
+    BAM_RSEQC(ch_bam_bai, ch_gene_bed, rseqc_modules)
     ch_versions = ch_versions.mix(BAM_RSEQC.out.versions.first())
 
     // PICARD_COLLECTRNASEQMETRICS(ch_bam, ch_ref_flat, ch_fasta, ch_rrna_interval)
