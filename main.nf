@@ -73,14 +73,16 @@ workflow {
         }
 
     // Subworkflows
-    FASTQ_TRIM_ALIGN_TRIMGALORE_STAR(ch_fasta_fai, ch_fastq, ch_gtf, ch_star_index, params.seq_platform, params.seq_center, false)
+    FASTQ_TRIM_ALIGN_TRIMGALORE_STAR(
+        ch_fasta_fai, ch_fastq, ch_gtf, ch_star_index, params.seq_platform, params.seq_center, false
+    )
     FASTQ_BAM_QC(
         FASTQ_TRIM_ALIGN_TRIMGALORE_STAR.out.ch_bam_bai,
         ch_fasta_fai.map { meta, fasta, fai -> [ fasta ] },
         ch_fastq,
         ch_gene_bed,
         ch_ref_flat,
-        ch_rrna_interval,
+        ch_rrna_interval
     )
 
     // MultiQC
