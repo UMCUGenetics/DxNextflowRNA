@@ -43,12 +43,11 @@
           "type": "string",
           "fa_icon": "far fa-file-code",
           "format": "directory-path",
-          "description": "Path to genome generated reference dir.",
-          "default": "/hpc/diaggen/users/ellen/references/GRCh38_gencode_v37_CTAT_lib_Mar012021.plug-n-play/ctat_genome_lib_build_dir/"
+          "description": "Path to genome generated reference dir."
         },
         "fasta": {
           "type": "string",
-          "default": "/hpc/diaggen/users/ellen/references/GRCh38_gencode_v37_CTAT_lib_Mar012021.plug-n-play/ctat_genome_lib_build_dir//ref_genome.fa",
+          "default": "/hpc/diaggen/users/ellen/references/GRCh38_gencode_v22_CTAT_lib_Mar012021.plug-n-play/ctat_genome_lib_build_dir/ref_genome.fa",
           "format": "file-path",
           "mimetype": "text/plain",
           "pattern": "^\\S+\\.fn?a(sta)?(\\.gz)?$",
@@ -58,7 +57,7 @@
         "fai": {
           "type": "string",
           "format": "file-path",
-          "default": "/hpc/diaggen/users/ellen/references/GRCh38_gencode_v37_CTAT_lib_Mar012021.plug-n-play/ctat_genome_lib_build_dir//ref_genome.fa.fai",
+          "default": "/hpc/diaggen/users/ellen/references/GRCh38_gencode_v22_CTAT_lib_Mar012021.plug-n-play/ctat_genome_lib_build_dir/ref_genome.fa.fai",
           "mimetype": "text/plain",
           "pattern": "^\\S+\\.fn?ai(\\.gz)?$",
           "description": "Path to FASTA genome index file.",
@@ -72,7 +71,7 @@
           "pattern": "^\\S+\\.gtf(\\.gz)?$",
           "description": "Path to GTF annotation file.",
           "fa_icon": "fas fa-code-branch",
-          "default": "/hpc/diaggen/users/ellen/references/GRCh38_gencode_v37_CTAT_lib_Mar012021.plug-n-play/ctat_genome_lib_build_dir//ref_annot.gtf"
+          "default": "/hpc/diaggen/users/ellen/references/GRCh38_gencode_v22_CTAT_lib_Mar012021.plug-n-play/ctat_genome_lib_build_dir/ref_annot.gtf"
         },
         "star_index": {
           "type": "string",
@@ -80,7 +79,34 @@
           "exists": true,
           "fa_icon": "fas fa-bezier-curve",
           "description": "Path to directory or tar.gz archive for pre-built STAR index.",
-          "default": "/hpc/diaggen/users/ellen/references/GRCh38_gencode_v37_CTAT_lib_Mar012021.plug-n-play/ctat_genome_lib_build_dir//ref_genome.fa.star.idx"
+          "default": "/hpc/diaggen/users/ellen/references/GRCh38_gencode_v22_CTAT_lib_Mar012021.plug-n-play/ctat_genome_lib_build_dir/ref_genome.fa.star.idx/"
+        },
+        "genome_base": {
+            "type": "string",
+            "fa_icon": "far fa-file-code",
+            "format": "directory-path",
+            "default": "/hpc/diaggen/users/ellen/references/GRCh38_gencode_v22_CTAT_lib_Mar012021.plug-n-play/ctat_genome_lib_build_dir"
+        },
+        "gene_bed": {
+            "type": "string",
+            "fa_icon": "far fa-file-code",
+            "format": "file-path",
+            "mimetype": "text/plain",
+            "default": "/hpc/diaggen/users/ellen/references/GRCh38_gencode_v22_CTAT_lib_Mar012021.ref_annot.gtf.bed"
+        },
+        "ref_flat": {
+            "type": "string",
+            "fa_icon": "far fa-file-code",
+            "format": "file-path",
+            "mimetype": "text/plain",
+            "default": "/hpc/diaggen/users/ellen/references/GRCh38_gencode_v22_CTAT_lib_Mar012021.ref_annot.gtf.refflat"
+        },
+        "rrna_intervals": {
+            "type": "string",
+            "fa_icon": "far fa-file-code",
+            "format": "file-path",
+            "mimetype": "text/plain",
+            "default": "/hpc/diaggen/users/ellen/references/hg38_rRNA_genbank.intervallist"
         }
       }
     },
@@ -90,6 +116,13 @@
       "fa_icon": "fas fa-file-import",
       "description": "Less common options for the pipeline, typically set in a config file.",
       "properties": {
+        "cluster_options": {
+            "type": "string",
+            "default": "--mail-user null --mail-type FAIL --account=diaggen"
+        },
+        "multiqc_yaml": {
+            "type": "string"
+        },
         "publish_dir_mode": {
           "type": "string",
           "default": "link",
@@ -105,6 +138,10 @@
             "move"
           ],
           "hidden": true
+        },
+        "rseqc_modules": {
+            "type": "string",
+            "default": "bam_stat,infer_experiment,inner_distance,junction_annotation,junction_saturation,read_distribution,read_duplication"
         },
         "seq_platform": {
           "type": "string",
@@ -131,9 +168,5 @@
     }
   ],
   "properties": {
-    "multiqc_yaml": {
-      "type": "string",
-      "default": "{projectDir}/assets/multiqc_config.yml"
-    }
   }
 }
