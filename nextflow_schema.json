@@ -82,31 +82,31 @@
           "default": "/hpc/diaggen/users/ellen/references/GRCh38_gencode_v22_CTAT_lib_Mar012021.plug-n-play/ctat_genome_lib_build_dir/ref_genome.fa.star.idx/"
         },
         "genome_base": {
-            "type": "string",
-            "fa_icon": "far fa-file-code",
-            "format": "directory-path",
-            "default": "/hpc/diaggen/users/ellen/references/GRCh38_gencode_v22_CTAT_lib_Mar012021.plug-n-play/ctat_genome_lib_build_dir"
+          "type": "string",
+          "fa_icon": "far fa-file-code",
+          "format": "directory-path",
+          "default": "/hpc/diaggen/users/ellen/references/GRCh38_gencode_v22_CTAT_lib_Mar012021.plug-n-play/ctat_genome_lib_build_dir"
         },
         "gene_bed": {
-            "type": "string",
-            "fa_icon": "far fa-file-code",
-            "format": "file-path",
-            "mimetype": "text/plain",
-            "default": "/hpc/diaggen/users/ellen/references/GRCh38_gencode_v22_CTAT_lib_Mar012021.ref_annot.gtf.bed"
+          "type": "string",
+          "fa_icon": "far fa-file-code",
+          "format": "file-path",
+          "mimetype": "text/plain",
+          "default": "/hpc/diaggen/users/ellen/references/GRCh38_gencode_v22_CTAT_lib_Mar012021.ref_annot.gtf.bed"
         },
         "ref_flat": {
-            "type": "string",
-            "fa_icon": "far fa-file-code",
-            "format": "file-path",
-            "mimetype": "text/plain",
-            "default": "/hpc/diaggen/users/ellen/references/GRCh38_gencode_v22_CTAT_lib_Mar012021.ref_annot.gtf.refflat"
+          "type": "string",
+          "fa_icon": "far fa-file-code",
+          "format": "file-path",
+          "mimetype": "text/plain",
+          "default": "/hpc/diaggen/users/ellen/references/GRCh38_gencode_v22_CTAT_lib_Mar012021.ref_annot.gtf.refflat"
         },
         "rrna_intervals": {
-            "type": "string",
-            "fa_icon": "far fa-file-code",
-            "format": "file-path",
-            "mimetype": "text/plain",
-            "default": "/hpc/diaggen/users/ellen/references/hg38_rRNA_genbank.intervallist"
+          "type": "string",
+          "fa_icon": "far fa-file-code",
+          "format": "file-path",
+          "mimetype": "text/plain",
+          "default": "/hpc/diaggen/users/ellen/references/hg38_rRNA_genbank.intervallist"
         }
       }
     },
@@ -117,11 +117,11 @@
       "description": "Less common options for the pipeline, typically set in a config file.",
       "properties": {
         "cluster_options": {
-            "type": "string",
-            "default": "--mail-user null --mail-type FAIL --account=diaggen"
+          "type": "string",
+          "default": "--mail-user null --mail-type FAIL --account=diaggen"
         },
         "multiqc_yaml": {
-            "type": "string"
+          "type": "string"
         },
         "publish_dir_mode": {
           "type": "string",
@@ -140,8 +140,8 @@
           "hidden": true
         },
         "rseqc_modules": {
-            "type": "string",
-            "default": "bam_stat,infer_experiment,inner_distance,junction_annotation,junction_saturation,read_distribution,read_duplication"
+          "type": "string",
+          "default": "bam_stat,infer_experiment,inner_distance,junction_annotation,junction_saturation,read_distribution,read_duplication"
         },
         "seq_platform": {
           "type": "string",
@@ -168,5 +168,9 @@
     }
   ],
   "properties": {
+    "rrna_database_manifest": {
+      "type": "string",
+      "default": "/home/cog/edejong2/repos/DxNextflowRNA_add_to_trimgalore/assets/sortmerna-db-default.txt"
+    }
   }
 }
