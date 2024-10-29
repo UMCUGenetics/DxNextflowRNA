@@ -8,15 +8,22 @@
 include { SAMTOOLS_CONVERT } from '../../modules/nf-core/samtools/convert/main'
 include { SAMTOOLS_INDEX } from '../../modules/nf-core/samtools/index/main'
 include { SAMTOOLS_MERGE } from '../../modules/nf-core/samtools/merge/main'
+include { SORTMERNA } from '../../modules/nf-core/sortmerna/main'
 include { STAR_ALIGN } from '../../modules/nf-core/star/align/main'
 include { TRIMGALORE } from '../../modules/nf-core/trimgalore/main'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    FASTQ_TRIM_ALIGN_TRIMGALORE_STAR (sub)workflow
+    Import subworkflows, alphabetical order
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
-workflow FASTQ_TRIM_ALIGN_TRIMGALORE_STAR {
+
+/*
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    FASTQ_TRIM_FILTER_ALIGN_TRIMGALORE_STAR_SORTMERNA (sub)workflow
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+*/
+workflow FASTQ_TRIM_FILTER_ALIGN_TRIMGALORE_STAR_SORTMERNA {
 
     take:
     ch_fasta_fai  // channel: [ val(meta), path(fa), path(fai) ]
@@ -34,7 +41,16 @@ workflow FASTQ_TRIM_ALIGN_TRIMGALORE_STAR {
     TRIMGALORE(ch_fastq)
     ch_versions = ch_versions.mix(TRIMGALORE.out.versions.first())
 
-    STAR_ALIGN(TRIMGALORE.out.reads, ch_star_index, ch_gtf, star_ignore_sjdbgtf, seq_platform, seq_center)
+    // Parse rrna database fasta files.
+    ch_rrna_database = Channel
+        .from(file(params.rrna_database_manifest).readlines())
+        .map { row -> file(row) }
+        .collect()
+
+    SORTMERNA(TRIMGALORE.out.reads, ch_rrna_database, [[],[]])
+    ch_versions = ch_versions.mix(SORTMERNA.out.versions.first())
+
+    STAR_ALIGN(SORTMERNA.out.reads, ch_star_index, ch_gtf, star_ignore_sjdbgtf, seq_platform, seq_center)
     ch_versions = ch_versions.mix(STAR_ALIGN.out.versions.first())
 
     SAMTOOLS_MERGE(
@@ -61,12 +77,17 @@ workflow FASTQ_TRIM_ALIGN_TRIMGALORE_STAR {
 
     emit:
     // TODO nf-core: edit emitted channels
+    // TrimGalore output
     trim_reads = TRIMGALORE.out.reads  // channel: [ val(meta), path(fq.gz) ]
     trim_unpaired = TRIMGALORE.out.unpaired  // channel: [ val(meta), path(fq.gz) ]
     trim_html = TRIMGALORE.out.html  // channel: [ val(meta), path(html) ]
     trim_zip = TRIMGALORE.out.zip  // channel: [ val(meta), path(zip) ]
     trim_log = TRIMGALORE.out.log  // channel: [ val(meta), path(txt) ]
 
+    // SortMeRNA output
+    sortmerna_log = SORTMERNA.out.log  // channel: [ val(meta), path(log) ]
+
+    // Star align output
     star_align_bam = STAR_ALIGN.out.bam  // channel: [ val(meta), path(bam) ]
     star_align_bam_sorted = STAR_ALIGN.out.bam_sorted  // channel: [ val(meta), path(bam) ]
     star_align_bam_unsorted = STAR_ALIGN.out.bam_unsorted  // channel: [ val(meta), path(bam) ]
@@ -83,8 +104,10 @@ workflow FASTQ_TRIM_ALIGN_TRIMGALORE_STAR {
     star_align_wig = STAR_ALIGN.out.wig  // channel: [ val(meta), path(wig) ]
     star_align_bedgraph = STAR_ALIGN.out.bedgraph  // channel: [ val(meta), path(bg) ]
 
+    // Final bam and cram output
     ch_bam_bai = SAMTOOLS_MERGE.out.bam.join(SAMTOOLS_INDEX.out.bai)  // channel: [ val(meta), path(bam), path(bai/csi) ]
     ch_cram_crai = SAMTOOLS_CONVERT.out.cram.join(SAMTOOLS_CONVERT.out.crai)  // channel: [ val(meta), path(cram), path(bai/crai) ]
 
+    // Software versions
     versions = ch_versions  // channel: [ versions.yml ]
 }
