@@ -32,10 +32,10 @@ workflow FASTQ_TRIM_ALIGN_TRIMGALORE_STAR {
     ch_versions = Channel.empty()
 
     TRIMGALORE(ch_fastq)
-    ch_versions.mix(TRIMGALORE.out.versions.first())
+    ch_versions = ch_versions.mix(TRIMGALORE.out.versions.first())
 
     STAR_ALIGN(TRIMGALORE.out.reads, ch_star_index, ch_gtf, star_ignore_sjdbgtf, seq_platform, seq_center)
-    ch_versions.mix(STAR_ALIGN.out.versions.first())
+    ch_versions = ch_versions.mix(STAR_ALIGN.out.versions.first())
 
     SAMTOOLS_MERGE(
         STAR_ALIGN.out.bam_sorted.map {
@@ -46,17 +46,18 @@ workflow FASTQ_TRIM_ALIGN_TRIMGALORE_STAR {
         [[ id:'null' ], []],
         [[ id:'null' ], []],
     )
-    ch_versions.mix(SAMTOOLS_MERGE.out.versions.first())
+    ch_versions = ch_versions.mix(SAMTOOLS_MERGE.out.versions.first())
 
     SAMTOOLS_INDEX(SAMTOOLS_MERGE.out.bam)
-    ch_versions.mix(SAMTOOLS_INDEX.out.versions.first())
+    ch_versions = ch_versions.mix(SAMTOOLS_INDEX.out.versions.first())
 
+    // BAM_DEDUP_STATS_SAMTOOLS_UMITOOLS
     SAMTOOLS_CONVERT(
         SAMTOOLS_MERGE.out.bam.join(SAMTOOLS_INDEX.out.bai),
         ch_fasta_fai.map{meta, fasta, fai -> [meta, fasta]},
         ch_fasta_fai.map{meta, fasta, fai -> [meta, fai]}
     )
-    ch_versions.mix(SAMTOOLS_CONVERT.out.versions.first())
+    ch_versions = ch_versions.mix(SAMTOOLS_CONVERT.out.versions.first())
 
     emit:
     // TODO nf-core: edit emitted channels
