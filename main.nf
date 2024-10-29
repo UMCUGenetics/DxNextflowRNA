@@ -55,6 +55,11 @@ workflow {
         .first()
     ch_ref_flat = Channel.fromPath(params.ref_flat).first()
     ch_rrna_interval = Channel.fromPath(params.rrna_intervals).first()
+    ch_rrna_database = Channel
+        .from(file(params.rrna_database_manifest).readLines())
+        .map { line -> file(line) }
+        .collect()
+        .map {files -> [[id: file(params.rrna_database_manifest).getSimpleName()], files]}
 
     // Input channel
     ch_fastq = Channel.fromFilePairs("$params.input/*_R{1,2}_001.fastq.gz")
@@ -74,7 +79,7 @@ workflow {
 
     // Subworkflows
     FASTQ_TRIM_FILTER_ALIGN_TRIMGALORE_SORTMERNA_STAR(
-        ch_fasta_fai, ch_fastq, ch_gtf, ch_star_index, params.seq_platform, params.seq_center, false
+        ch_fasta_fai, ch_fastq, ch_gtf, ch_rrna_database, ch_star_index, params.seq_platform, params.seq_center, false
     )
     FASTQ_BAM_QC(
         FASTQ_TRIM_FILTER_ALIGN_TRIMGALORE_SORTMERNA_STAR.out.ch_bam_bai,

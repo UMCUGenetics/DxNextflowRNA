@@ -29,6 +29,7 @@ workflow FASTQ_TRIM_FILTER_ALIGN_TRIMGALORE_SORTMERNA_STAR {
     ch_fasta_fai  // channel: [ val(meta), path(fa), path(fai) ]
     ch_fastq  // channel: [ val(meta), [ path(fastq1), path(fastq2) ] ]
     ch_gtf  // channel: [ val(meta), path(gtf) ]
+    ch_rrna_database  // channel: [ val(meta), file(fastas)]
     ch_star_index  // channel: [ val(meta), path(star_index) ]
     seq_platform  // val(seq_platform)
     seq_center  // val(seq_center)
@@ -40,12 +41,6 @@ workflow FASTQ_TRIM_FILTER_ALIGN_TRIMGALORE_SORTMERNA_STAR {
 
     TRIMGALORE(ch_fastq)
     ch_versions = ch_versions.mix(TRIMGALORE.out.versions.first())
-
-    // Parse rrna database fasta files.
-    ch_rrna_database = Channel
-        .from(file(params.rrna_database_manifest).readlines())
-        .map { row -> file(row) }
-        .collect()
 
     SORTMERNA(TRIMGALORE.out.reads, ch_rrna_database, [[],[]])
     ch_versions = ch_versions.mix(SORTMERNA.out.versions.first())
