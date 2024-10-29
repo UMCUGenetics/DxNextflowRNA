@@ -80,6 +80,11 @@
             "git_sha": "04fbbc7c43cebc0b95d5b126f6d9fe4effa33519",
             "installed_by": ["modules"]
           },
+          "sortmerna": {
+            "branch": "master",
+            "git_sha": "666652151335353eef2fcd58880bcef5bc2928e1",
+            "installed_by": ["modules"]
+          },
           "star/align": {
             "branch": "master",
             "git_sha": "a21faa6a3481af92a343a10926f59c189a2c16c9",
