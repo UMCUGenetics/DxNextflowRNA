@@ -3,6 +3,11 @@ sp:
   software_versions:
     fn_re: "versions\\.(yaml|yml)"
 
+preseq:
+  genome_size: hg38_genome
+  notrim: true
+  read_length: 300
+
 table_sample_merge:
   "(L001 R1)":
     - "L001_R1"
