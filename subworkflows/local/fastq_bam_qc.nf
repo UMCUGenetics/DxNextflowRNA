@@ -41,8 +41,8 @@ workflow FASTQ_BAM_QC {
     BAM_RSEQC(ch_bam_bai, ch_gene_bed, rseqc_modules)
     ch_versions = ch_versions.mix(BAM_RSEQC.out.versions.first())
 
-    // PICARD_COLLECTRNASEQMETRICS(ch_bam, ch_ref_flat, ch_fasta, ch_rrna_interval)
-    // ch_versions = ch_versions.mix(PICARD_COLLECTRNASEQMETRICS.out.versions.first())
+    PICARD_COLLECTRNASEQMETRICS(ch_bam, ch_ref_flat, ch_fasta, ch_rrna_interval)
+    ch_versions = ch_versions.mix(PICARD_COLLECTRNASEQMETRICS.out.versions.first())
 
     PRESEQ_LCEXTRAP(ch_bam)
     ch_versions = ch_versions.mix(PRESEQ_LCEXTRAP.out.versions.first())
@@ -89,7 +89,7 @@ workflow FASTQ_BAM_QC {
     tin_txt = BAM_RSEQC.out.tin_txt  // channel: [ val(meta), txt ]
 
     // PICARD_COLLECTRNASEQMETRICS
-    // rna_metrics = PICARD_COLLECTRNASEQMETRICS.out.metrics  // channel: [ val(meta), rna_metrics ]
+    rna_metrics = PICARD_COLLECTRNASEQMETRICS.out.metrics  // channel: [ val(meta), rna_metrics ]
 
     // PRESEQ_LCEXTRAP
     lc_extrap = PRESEQ_LCEXTRAP.out.lc_extrap  // channel: [ val(meta), lc_extrap.txt

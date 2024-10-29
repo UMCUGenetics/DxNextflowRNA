@@ -103,6 +103,7 @@ workflow {
             FASTQ_BAM_QC.out.readdistribution_txt.collect{it[1]}.ifEmpty([]),
             FASTQ_BAM_QC.out.readduplication_pos_xls.collect{it[1]}.ifEmpty([]),
             FASTQ_BAM_QC.out.tin_txt.collect{it[1]}.ifEmpty([]),
+            FASTQ_BAM_QC.out.rna_metrics.collect{it[1]}.ifEmpty([]),
         ).collect(),
         Channel.fromPath("${params.multiqc_yaml}", checkIfExists: true),
         [],  // extra_multiqc_config
