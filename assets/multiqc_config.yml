@@ -1,4 +1,7 @@
 top_modules:
+sp:
+  software_versions:
+    fn_re: "versions\\.(yaml|yml)"
 
 table_sample_merge:
   "(L001 R1)":
