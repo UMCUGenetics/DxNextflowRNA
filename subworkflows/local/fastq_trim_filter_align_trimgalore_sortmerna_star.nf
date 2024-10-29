@@ -20,10 +20,10 @@ include { TRIMGALORE } from '../../modules/nf-core/trimgalore/main'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    FASTQ_TRIM_FILTER_ALIGN_TRIMGALORE_STAR_SORTMERNA (sub)workflow
+    FASTQ_TRIM_FILTER_ALIGN_TRIMGALORE_SORTMERNA_STAR (sub)workflow
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
-workflow FASTQ_TRIM_FILTER_ALIGN_TRIMGALORE_STAR_SORTMERNA {
+workflow FASTQ_TRIM_FILTER_ALIGN_TRIMGALORE_SORTMERNA_STAR {
 
     take:
     ch_fasta_fai  // channel: [ val(meta), path(fa), path(fai) ]
