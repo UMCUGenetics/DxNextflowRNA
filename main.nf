@@ -93,7 +93,7 @@ workflow {
         params.seq_center,
         false
     )
-    /*
+
     FASTQ_BAM_QC(
         FASTQ_TRIM_FILTER_ALIGN.out.ch_bam_bai,
         ch_fasta_fai.map { meta, fasta, fai -> [ fasta ] },
@@ -131,5 +131,5 @@ workflow {
         [],  // replace_names
         []   // sample_names
     )
-    */
+
 }
