@@ -10,11 +10,13 @@ sp:
   software_versions:
     fn_re: "versions\\.(yaml|yml)"
 
+# Tool specific settings
 preseq:
   genome_size: hg38_genome
   notrim: true
   read_length: 300
 
+# Sample grouping in General Stats
 table_sample_merge:
   "(L001 R1)":
     - "L001_R1"
