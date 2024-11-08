@@ -7,7 +7,7 @@
         "nf-core": {
           "fastqc": {
             "branch": "master",
-            "git_sha": "46eca555142d6e597729fcb682adcc791796f514",
+            "git_sha": "666652151335353eef2fcd58880bcef5bc2928e1",
             "installed_by": ["modules"]
           },
           "multiqc": {
@@ -17,67 +17,67 @@
           },
           "picard/collectrnaseqmetrics": {
             "branch": "master",
-            "git_sha": "0dee12b56ccecc416d6f7a1ccd85fd571eab3307",
+            "git_sha": "49f4e50534fe4b64101e62ea41d5dc43b1324358",
             "installed_by": ["modules"]
           },
           "preseq/lcextrap": {
             "branch": "master",
-            "git_sha": "2c6b1144ed58b6184ad58fc4e6b6a90219b4bf4f",
+            "git_sha": "a1abf90966a2a4016d3c3e41e228bfcbd4811ccc",
             "installed_by": ["modules"]
           },
           "rseqc/bamstat": {
             "branch": "master",
-            "git_sha": "b4919e9a2b4d8b71061e601633db4600a3858fa1",
+            "git_sha": "666652151335353eef2fcd58880bcef5bc2928e1",
             "installed_by": ["bam_rseqc"]
           },
           "rseqc/inferexperiment": {
             "branch": "master",
-            "git_sha": "b4919e9a2b4d8b71061e601633db4600a3858fa1",
+            "git_sha": "666652151335353eef2fcd58880bcef5bc2928e1",
             "installed_by": ["bam_rseqc"]
           },
           "rseqc/innerdistance": {
             "branch": "master",
-            "git_sha": "b4919e9a2b4d8b71061e601633db4600a3858fa1",
+            "git_sha": "666652151335353eef2fcd58880bcef5bc2928e1",
             "installed_by": ["bam_rseqc"]
           },
           "rseqc/junctionannotation": {
             "branch": "master",
-            "git_sha": "b4919e9a2b4d8b71061e601633db4600a3858fa1",
+            "git_sha": "666652151335353eef2fcd58880bcef5bc2928e1",
             "installed_by": ["bam_rseqc"]
           },
           "rseqc/junctionsaturation": {
             "branch": "master",
-            "git_sha": "b4919e9a2b4d8b71061e601633db4600a3858fa1",
+            "git_sha": "666652151335353eef2fcd58880bcef5bc2928e1",
             "installed_by": ["bam_rseqc"]
           },
           "rseqc/readdistribution": {
             "branch": "master",
-            "git_sha": "b4919e9a2b4d8b71061e601633db4600a3858fa1",
+            "git_sha": "666652151335353eef2fcd58880bcef5bc2928e1",
             "installed_by": ["bam_rseqc"]
           },
           "rseqc/readduplication": {
             "branch": "master",
-            "git_sha": "b4919e9a2b4d8b71061e601633db4600a3858fa1",
+            "git_sha": "666652151335353eef2fcd58880bcef5bc2928e1",
             "installed_by": ["bam_rseqc"]
           },
           "rseqc/tin": {
             "branch": "master",
-            "git_sha": "b4919e9a2b4d8b71061e601633db4600a3858fa1",
+            "git_sha": "666652151335353eef2fcd58880bcef5bc2928e1",
             "installed_by": ["bam_rseqc"]
           },
           "samtools/convert": {
             "branch": "master",
-            "git_sha": "04fbbc7c43cebc0b95d5b126f6d9fe4effa33519",
+            "git_sha": "b13f07be4c508d6ff6312d354d09f2493243e208",
             "installed_by": ["modules"]
           },
           "samtools/index": {
             "branch": "master",
-            "git_sha": "04fbbc7c43cebc0b95d5b126f6d9fe4effa33519",
+            "git_sha": "b13f07be4c508d6ff6312d354d09f2493243e208",
             "installed_by": ["modules"]
           },
           "samtools/merge": {
             "branch": "master",
-            "git_sha": "04fbbc7c43cebc0b95d5b126f6d9fe4effa33519",
+            "git_sha": "b13f07be4c508d6ff6312d354d09f2493243e208",
             "installed_by": ["modules"]
           },
           "sortmerna": {
@@ -87,17 +87,17 @@
           },
           "star/align": {
             "branch": "master",
-            "git_sha": "a21faa6a3481af92a343a10926f59c189a2c16c9",
+            "git_sha": "a5ad53288c79fa52c5ae708c317e09ec2dd149ab",
             "installed_by": ["modules"]
           },
           "star/genomegenerate": {
             "branch": "master",
-            "git_sha": "06c8865e36741e05ad32ef70ab3fac127486af48",
+            "git_sha": "a5ad53288c79fa52c5ae708c317e09ec2dd149ab",
             "installed_by": ["modules"]
           },
           "trimgalore": {
             "branch": "master",
-            "git_sha": "b4919e9a2b4d8b71061e601633db4600a3858fa1",
+            "git_sha": "8c5eeedd45e295fc9a4f164631da6a8b37e6b9c6",
             "installed_by": ["modules"]
           }
         }
