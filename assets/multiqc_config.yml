@@ -1,4 +1,11 @@
+# Order modules
 top_modules:
+- "fastqc"
+- "cutadapt"
+- "star"
+- "rseqc"
+
+# Define custom search patterns
 sp:
   software_versions:
     fn_re: "versions\\.(yaml|yml)"
