@@ -84,3 +84,15 @@ gatk BedToIntervalList \
 -O /hpc/diaggen/users/ellen/references/hg38_rRNA_genbank.intervallist \
 -SD /hpc/diaggen/users/ellen/references/GRCh38_gencode_v22_CTAT_lib_Mar012021.ref_genome.dict
 ```
+
+## rRNA database sortmerna
+Use rRNA database fasta files provided by sortmerna.
+It is recommended to use `smr_v4.3_sensitive_db.fasta` (https://github.com/sortmerna/sortmerna/issues/292)
+
+```bash
+wget https://github.com/biocore/sortmerna/releases/download/v4.3.4/database.tar.gz
+
+```
+File locations are added to `"./assets/sortmerna-db-default.txt"`
+
+Sortmerna is used to remove rRNA from fastq files. Run time can be improved by creating an index first and provide this when running sortmerna a second time.
