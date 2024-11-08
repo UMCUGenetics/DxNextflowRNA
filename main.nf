@@ -31,7 +31,7 @@ include { MULTIQC } from './modules/nf-core/multiqc/main'
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 include { FASTQ_BAM_QC } from './subworkflows/local/fastq_bam_qc'
-include { FASTQ_TRIM_FILTER_ALIGN } from './subworkflows/local/fastq_trim_filter_align'
+include { FASTQ_TRIM_FILTER_ALIGN_DEDUP } from './subworkflows/local/fastq_trim_filter_align_dedup'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -82,7 +82,7 @@ workflow {
         }
 
     // Subworkflows
-    FASTQ_TRIM_FILTER_ALIGN(
+    FASTQ_TRIM_FILTER_ALIGN_DEDUP(
         ch_fasta_fai,
         ch_fastq,
         ch_gtf,
@@ -95,7 +95,7 @@ workflow {
     )
 
     FASTQ_BAM_QC(
-        FASTQ_TRIM_FILTER_ALIGN.out.ch_bam_bai,
+        FASTQ_TRIM_FILTER_ALIGN_DEDUP.out.ch_bam_bai,
         ch_fasta_fai.map { meta, fasta, fai -> [ fasta ] },
         ch_fastq,
         ch_gene_bed,
@@ -106,12 +106,16 @@ workflow {
     // MultiQC
     MULTIQC(
         Channel.empty().mix(
-            FASTQ_TRIM_FILTER_ALIGN.out.versions,
-            FASTQ_TRIM_FILTER_ALIGN.out.trim_log.collect{it[1]}.ifEmpty([]),
-            FASTQ_TRIM_FILTER_ALIGN.out.trim_zip.collect{it[1]}.ifEmpty([]),
-            FASTQ_TRIM_FILTER_ALIGN.out.sortmerna_log.collect{it[1]}.ifEmpty([]),
-            FASTQ_TRIM_FILTER_ALIGN.out.star_align_log_final.collect{it[1]}.ifEmpty([]),
-            FASTQ_TRIM_FILTER_ALIGN.out.star_align_read_per_gene_tab.collect{it[1]}.ifEmpty([]),
+            FASTQ_TRIM_FILTER_ALIGN_DEDUP.out.versions,
+            FASTQ_TRIM_FILTER_ALIGN_DEDUP.out.trim_log.collect{it[1]}.ifEmpty([]),
+            FASTQ_TRIM_FILTER_ALIGN_DEDUP.out.trim_zip.collect{it[1]}.ifEmpty([]),
+            FASTQ_TRIM_FILTER_ALIGN_DEDUP.out.sortmerna_log.collect{it[1]}.ifEmpty([]),
+            FASTQ_TRIM_FILTER_ALIGN_DEDUP.out.star_align_log_final.collect{it[1]}.ifEmpty([]),
+            FASTQ_TRIM_FILTER_ALIGN_DEDUP.out.star_align_read_per_gene_tab.collect{it[1]}.ifEmpty([]),
+            FASTQ_TRIM_FILTER_ALIGN_DEDUP.out.umitools_dedup_log.collect{it[1]}.ifEmpty([]),
+            FASTQ_TRIM_FILTER_ALIGN_DEDUP.out.samtools_stats.collect{it[1]}.ifEmpty([]),
+            FASTQ_TRIM_FILTER_ALIGN_DEDUP.out.flagstat.collect{it[1]}.ifEmpty([]),
+            FASTQ_TRIM_FILTER_ALIGN_DEDUP.out.idxstats.collect{it[1]}.ifEmpty([]),
             FASTQ_BAM_QC.out.versions,
             FASTQ_BAM_QC.out.fastqc_zip.collect{it[1]}.ifEmpty([]),
             FASTQ_BAM_QC.out.bamstat_txt.collect{it[1]}.ifEmpty([]),
