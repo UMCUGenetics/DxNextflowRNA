@@ -70,15 +70,30 @@
             "git_sha": "b13f07be4c508d6ff6312d354d09f2493243e208",
             "installed_by": ["modules"]
           },
+          "samtools/flagstat": {
+            "branch": "master",
+            "git_sha": "b13f07be4c508d6ff6312d354d09f2493243e208",
+            "installed_by": ["bam_stats_samtools"]
+          },
+          "samtools/idxstats": {
+            "branch": "master",
+            "git_sha": "b13f07be4c508d6ff6312d354d09f2493243e208",
+            "installed_by": ["bam_stats_samtools"]
+          },
           "samtools/index": {
             "branch": "master",
             "git_sha": "b13f07be4c508d6ff6312d354d09f2493243e208",
-            "installed_by": ["modules"]
+            "installed_by": ["bam_dedup_stats_samtools_umitools", "modules"]
           },
           "samtools/merge": {
             "branch": "master",
             "git_sha": "b13f07be4c508d6ff6312d354d09f2493243e208",
             "installed_by": ["modules"]
+          },
+          "samtools/stats": {
+            "branch": "master",
+            "git_sha": "b13f07be4c508d6ff6312d354d09f2493243e208",
+            "installed_by": ["bam_stats_samtools"]
           },
           "sortmerna": {
             "branch": "master",
@@ -99,15 +114,30 @@
             "branch": "master",
             "git_sha": "8c5eeedd45e295fc9a4f164631da6a8b37e6b9c6",
             "installed_by": ["modules"]
+          },
+          "umitools/dedup": {
+            "branch": "master",
+            "git_sha": "666652151335353eef2fcd58880bcef5bc2928e1",
+            "installed_by": ["bam_dedup_stats_samtools_umitools"]
           }
         }
       },
       "subworkflows": {
         "nf-core": {
+          "bam_dedup_stats_samtools_umitools": {
+            "branch": "master",
+            "git_sha": "763d4b5c05ffda3ac1ac969dc67f7458cfb2eb1d",
+            "installed_by": ["subworkflows"]
+          },
           "bam_rseqc": {
             "branch": "master",
             "git_sha": "0eacd714effe5aac1c1de26593873960b3346cab",
             "installed_by": ["subworkflows"]
+          },
+          "bam_stats_samtools": {
+            "branch": "master",
+            "git_sha": "763d4b5c05ffda3ac1ac969dc67f7458cfb2eb1d",
+            "installed_by": ["bam_dedup_stats_samtools_umitools"]
           }
         }
       }
