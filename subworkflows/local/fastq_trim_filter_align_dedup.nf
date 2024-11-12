@@ -52,7 +52,7 @@ workflow FASTQ_TRIM_FILTER_ALIGN_DEDUP {
     ch_versions = ch_versions.mix(STAR_ALIGN.out.versions.first())
 
     SAMTOOLS_MERGE(
-        STAR_ALIGN.out.bam_sorted.map { meta, bam ->
+        STAR_ALIGN.out.bam_sorted_aligned.map { meta, bam ->
             new_id = meta.id.split('_')[0]
             [meta + [id: new_id], bam]
         }.groupTuple(),
