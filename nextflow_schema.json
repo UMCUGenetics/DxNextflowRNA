@@ -47,7 +47,6 @@
         },
         "fasta": {
           "type": "string",
-          "default": "/hpc/diaggen/users/ellen/references/GRCh38_gencode_v22_CTAT_lib_Mar012021.plug-n-play/ctat_genome_lib_build_dir/ref_genome.fa",
           "format": "file-path",
           "mimetype": "text/plain",
           "pattern": "^\\S+\\.fn?a(sta)?(\\.gz)?$",
@@ -57,7 +56,6 @@
         "fai": {
           "type": "string",
           "format": "file-path",
-          "default": "/hpc/diaggen/users/ellen/references/GRCh38_gencode_v22_CTAT_lib_Mar012021.plug-n-play/ctat_genome_lib_build_dir/ref_genome.fa.fai",
           "mimetype": "text/plain",
           "pattern": "^\\S+\\.fn?ai(\\.gz)?$",
           "description": "Path to FASTA genome index file.",
@@ -71,7 +69,6 @@
           "pattern": "^\\S+\\.gtf(\\.gz)?$",
           "description": "Path to GTF annotation file.",
           "fa_icon": "fas fa-code-branch",
-          "default": "/hpc/diaggen/users/ellen/references/GRCh38_gencode_v22_CTAT_lib_Mar012021.plug-n-play/ctat_genome_lib_build_dir/ref_annot.gtf"
         },
         "star_index": {
           "type": "string",
@@ -79,34 +76,29 @@
           "exists": true,
           "fa_icon": "fas fa-bezier-curve",
           "description": "Path to directory or tar.gz archive for pre-built STAR index.",
-          "default": "/hpc/diaggen/users/ellen/references/GRCh38_gencode_v22_CTAT_lib_Mar012021.plug-n-play/ctat_genome_lib_build_dir/ref_genome.fa.star.idx/"
         },
         "genome_base": {
           "type": "string",
           "fa_icon": "far fa-file-code",
           "format": "directory-path",
-          "default": "/hpc/diaggen/users/ellen/references/GRCh38_gencode_v22_CTAT_lib_Mar012021.plug-n-play/ctat_genome_lib_build_dir"
         },
         "gene_bed": {
           "type": "string",
           "fa_icon": "far fa-file-code",
           "format": "file-path",
           "mimetype": "text/plain",
-          "default": "/hpc/diaggen/users/ellen/references/GRCh38_gencode_v22_CTAT_lib_Mar012021.ref_annot.gtf.bed"
         },
         "ref_flat": {
           "type": "string",
           "fa_icon": "far fa-file-code",
           "format": "file-path",
           "mimetype": "text/plain",
-          "default": "/hpc/diaggen/users/ellen/references/GRCh38_gencode_v22_CTAT_lib_Mar012021.ref_annot.gtf.refflat"
         },
         "rrna_intervals": {
           "type": "string",
           "fa_icon": "far fa-file-code",
           "format": "file-path",
           "mimetype": "text/plain",
-          "default": "/hpc/diaggen/users/ellen/references/hg38_rRNA_genbank.intervallist"
         }
       }
     },
@@ -170,7 +162,12 @@
   "properties": {
     "rrna_database_manifest": {
       "type": "string",
-      "default": "/home/cog/edejong2/repos/DxNextflowRNA_add_to_trimgalore/assets/sortmerna-db-default.txt"
+    },
+    "sortmerna_index": {
+      "type": "string",
+    },
+    "save_non_ribo_reads": {
+      "type": "boolean",
     }
   }
 }
