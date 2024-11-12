@@ -6,7 +6,6 @@
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 include { SAMTOOLS_CONVERT                  } from '../../modules/nf-core/samtools/convert/main'
-include { SAMTOOLS_INDEX                    } from '../../modules/nf-core/samtools/index/main'
 include { SAMTOOLS_MERGE                    } from '../../modules/nf-core/samtools/merge/main'
 include { SORTMERNA as SORTMERNA_READS      } from '../../modules/local/sortmerna/main'
 
@@ -61,10 +60,7 @@ workflow FASTQ_TRIM_FILTER_ALIGN_DEDUP {
     )
     ch_versions = ch_versions.mix(SAMTOOLS_MERGE.out.versions.first())
 
-    SAMTOOLS_INDEX(SAMTOOLS_MERGE.out.bam)
-    ch_versions = ch_versions.mix(SAMTOOLS_INDEX.out.versions.first())
-
-    BAM_DEDUP_STATS_SAMTOOLS_UMITOOLS(SAMTOOLS_MERGE.out.bam.join(SAMTOOLS_INDEX.out.bai), true)
+    BAM_DEDUP_STATS_SAMTOOLS_UMITOOLS(SAMTOOLS_MERGE.out.bam.join(SAMTOOLS_MERGE.out.csi), true)
     ch_versions = ch_versions.mix(BAM_DEDUP_STATS_SAMTOOLS_UMITOOLS.out.versions)
 
     SAMTOOLS_CONVERT(
