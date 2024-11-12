@@ -65,7 +65,7 @@ workflow FASTQ_TRIM_FILTER_ALIGN_DEDUP {
     ch_versions = ch_versions.mix(SAMTOOLS_INDEX.out.versions.first())
 
     BAM_DEDUP_STATS_SAMTOOLS_UMITOOLS(SAMTOOLS_MERGE.out.bam.join(SAMTOOLS_INDEX.out.bai), true)
-    ch_versions = ch_versions.mix(BAM_DEDUP_STATS_SAMTOOLS_UMITOOLS.versions)
+    ch_versions = ch_versions.mix(BAM_DEDUP_STATS_SAMTOOLS_UMITOOLS.out.versions)
 
     SAMTOOLS_CONVERT(
         BAM_DEDUP_STATS_SAMTOOLS_UMITOOLS.out.bam.join(BAM_DEDUP_STATS_SAMTOOLS_UMITOOLS.out.bai),
