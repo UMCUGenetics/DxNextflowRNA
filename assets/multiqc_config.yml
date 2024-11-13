@@ -1,9 +1,31 @@
 # Order modules
-top_modules:
-- "fastqc"
-- "cutadapt"
-- "star"
-- "rseqc"
+report_section_order:
+  # Preprocessing and pre-alignment QC
+  fastqc:
+    order: 4004
+  cutadapt:
+    order: 4003
+  sortmerna:
+    order: 4002
+  # Alignment
+  star:
+    order: 3000
+  # Post-alignment QC
+  samtools:
+    order: 3000
+  picard:
+    order: 3000
+  preseq:
+    order: 3000
+  rseqc:
+    order: 3000
+  umitools:
+    order: 3000
+  # Summaries
+  "software_versions-module":
+    order: -1001
+  "umcugenetics-dxnextflowrna-summary-module":
+    order: -1002
 
 # Define custom search patterns
 sp:
