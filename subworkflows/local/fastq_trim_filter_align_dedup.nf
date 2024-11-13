@@ -38,6 +38,15 @@ workflow FASTQ_TRIM_FILTER_ALIGN_DEDUP {
     star_ignore_sjdbgtf // boolean
 
     main:
+    def joinIndex = { meta, bam, bai, csi ->
+        if (bai) {
+            [meta, bam, bai]
+        }
+        else {
+            [meta, bam, csi]
+        }
+    }
+
     // Create empty versions channel, and fill with each tools version
     ch_versions = Channel.empty()
 
@@ -60,11 +69,20 @@ workflow FASTQ_TRIM_FILTER_ALIGN_DEDUP {
     )
     ch_versions = ch_versions.mix(SAMTOOLS_MERGE.out.versions.first())
 
-    BAM_DEDUP_STATS_SAMTOOLS_UMITOOLS(SAMTOOLS_MERGE.out.bam.join(SAMTOOLS_MERGE.out.csi), true)
+    BAM_DEDUP_STATS_SAMTOOLS_UMITOOLS(
+        SAMTOOLS_MERGE.out.bam
+            .join(SAMTOOLS_MERGE.out.bai)
+            .join(SAMTOOLS_MERGE.out.csi)
+            .map(joinIndex),
+        true
+    )
     ch_versions = ch_versions.mix(BAM_DEDUP_STATS_SAMTOOLS_UMITOOLS.out.versions)
 
     SAMTOOLS_CONVERT(
-        BAM_DEDUP_STATS_SAMTOOLS_UMITOOLS.out.bam.join(BAM_DEDUP_STATS_SAMTOOLS_UMITOOLS.out.bai),
+        BAM_DEDUP_STATS_SAMTOOLS_UMITOOLS.out.bam
+            .join(BAM_DEDUP_STATS_SAMTOOLS_UMITOOLS.out.bai)
+            .join(BAM_DEDUP_STATS_SAMTOOLS_UMITOOLS.out.csi)
+            .map(joinIndex),
         ch_fasta_fai.map { meta, fasta, fai -> [meta, fasta] },
         ch_fasta_fai.map { meta, fasta, fai -> [meta, fai] }
     )
