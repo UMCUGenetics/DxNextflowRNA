@@ -68,37 +68,37 @@
           "mimetype": "text/plain",
           "pattern": "^\\S+\\.gtf(\\.gz)?$",
           "description": "Path to GTF annotation file.",
-          "fa_icon": "fas fa-code-branch",
+          "fa_icon": "fas fa-code-branch"
         },
         "star_index": {
           "type": "string",
           "format": "directory-path",
           "exists": true,
           "fa_icon": "fas fa-bezier-curve",
-          "description": "Path to directory or tar.gz archive for pre-built STAR index.",
+          "description": "Path to directory or tar.gz archive for pre-built STAR index."
         },
         "genome_base": {
           "type": "string",
           "fa_icon": "far fa-file-code",
-          "format": "directory-path",
+          "format": "directory-path"
         },
         "gene_bed": {
           "type": "string",
           "fa_icon": "far fa-file-code",
           "format": "file-path",
-          "mimetype": "text/plain",
+          "mimetype": "text/plain"
         },
         "ref_flat": {
           "type": "string",
           "fa_icon": "far fa-file-code",
           "format": "file-path",
-          "mimetype": "text/plain",
+          "mimetype": "text/plain"
         },
         "rrna_intervals": {
           "type": "string",
           "fa_icon": "far fa-file-code",
           "format": "file-path",
-          "mimetype": "text/plain",
+          "mimetype": "text/plain"
         }
       }
     },
@@ -161,13 +161,13 @@
   ],
   "properties": {
     "rrna_database_manifest": {
-      "type": "string",
+      "type": "string"
     },
     "sortmerna_index": {
-      "type": "string",
+      "type": "string"
     },
     "save_non_ribo_reads": {
-      "type": "boolean",
+      "type": "boolean"
     }
   }
 }
