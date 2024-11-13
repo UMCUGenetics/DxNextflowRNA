@@ -24,6 +24,9 @@ validateParameters()
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 include { MULTIQC } from './modules/nf-core/multiqc/main'
+include { paramsSummaryMap       } from 'plugin/nf-schema'
+include { paramsSummaryMultiqc   } from './subworkflows/nf-core/utils_nfcore_pipeline'
+include { softwareVersionsToYAML } from './subworkflows/nf-core/utils_nfcore_pipeline'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -104,9 +107,29 @@ workflow {
     )
 
     // MultiQC
+    // Collect workflow params
+    summary_params      = paramsSummaryMap(workflow, parameters_schema: "nextflow_schema.json")
+    ch_workflow_summary = Channel.value(paramsSummaryMultiqc(summary_params))
+
+    // Collate software versions
+    ch_collated_versions = softwareVersionsToYAML(
+		Channel.empty().mix(
+		    FASTQ_TRIM_FILTER_ALIGN_DEDUP.out.versions,
+	        FASTQ_BAM_QC.out.versions
+		)
+	)
+        .collectFile(
+            storeDir: "${params.outdir}/pipeline_info",
+            name: 'nf_core_'  + 'pipeline_software_' +  'mqc_'  + 'versions.yml',
+            sort: true,
+            newLine: true
+        )
+
+    // Run MultiQC
     MULTIQC(
         Channel.empty().mix(
-            FASTQ_TRIM_FILTER_ALIGN_DEDUP.out.versions,
+            ch_workflow_summary.collectFile(name: 'workflow_summary_mqc.yaml'),
+	        ch_collated_versions,
             FASTQ_TRIM_FILTER_ALIGN_DEDUP.out.trim_log.collect{it[1]}.ifEmpty([]),
             FASTQ_TRIM_FILTER_ALIGN_DEDUP.out.trim_zip.collect{it[1]}.ifEmpty([]),
             FASTQ_TRIM_FILTER_ALIGN_DEDUP.out.sortmerna_log.collect{it[1]}.ifEmpty([]),
@@ -116,7 +139,6 @@ workflow {
             FASTQ_TRIM_FILTER_ALIGN_DEDUP.out.samtools_stats.collect{it[1]}.ifEmpty([]),
             FASTQ_TRIM_FILTER_ALIGN_DEDUP.out.flagstat.collect{it[1]}.ifEmpty([]),
             FASTQ_TRIM_FILTER_ALIGN_DEDUP.out.idxstats.collect{it[1]}.ifEmpty([]),
-            FASTQ_BAM_QC.out.versions,
             FASTQ_BAM_QC.out.fastqc_zip.collect{it[1]}.ifEmpty([]),
             FASTQ_BAM_QC.out.bamstat_txt.collect{it[1]}.ifEmpty([]),
             FASTQ_BAM_QC.out.inferexperiment_txt.collect{it[1]}.ifEmpty([]),
