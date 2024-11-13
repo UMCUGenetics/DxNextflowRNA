@@ -30,7 +30,7 @@ report_section_order:
 # Define custom search patterns
 sp:
   software_versions:
-    fn_re: "versions\\.(yaml|yml)"
+    fn_re: ".*ersions\\.(yaml|yml)"
 
 # Tool specific settings
 preseq:
