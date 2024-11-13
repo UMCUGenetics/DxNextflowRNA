@@ -138,6 +138,11 @@
             "branch": "master",
             "git_sha": "763d4b5c05ffda3ac1ac969dc67f7458cfb2eb1d",
             "installed_by": ["bam_dedup_stats_samtools_umitools"]
+          },
+          "utils_nfcore_pipeline": {
+            "branch": "master",
+            "git_sha": "1b6b9a3338d011367137808b49b923515080e3ba",
+            "installed_by": ["subworkflows"]
           }
         }
       }
