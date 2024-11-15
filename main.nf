@@ -114,6 +114,7 @@ workflow {
     // Collate software versions
     ch_collated_versions = softwareVersionsToYAML(
 		Channel.empty().mix(
+            Channel.fromPath(params.sortmerna_index_versions),
 		    FASTQ_TRIM_FILTER_ALIGN_DEDUP.out.versions,
 	        FASTQ_BAM_QC.out.versions
 		)
