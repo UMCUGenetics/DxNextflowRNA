@@ -6,6 +6,7 @@
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 include { SAMTOOLS_CONVERT                  } from '../../modules/nf-core/samtools/convert/main'
+include { SAMTOOLS_INDEX                    } from '../../modules/nf-core/samtools/index/main'
 include { SAMTOOLS_MERGE                    } from '../../modules/nf-core/samtools/merge/main'
 include { SORTMERNA as SORTMERNA_READS      } from '../../modules/local/sortmerna/main'
 
@@ -38,15 +39,6 @@ workflow FASTQ_TRIM_FILTER_ALIGN_DEDUP {
     star_ignore_sjdbgtf // boolean
 
     main:
-    def joinIndex = { meta, bam, bai, csi ->
-        if (bai) {
-            [meta, bam, bai]
-        }
-        else {
-            [meta, bam, csi]
-        }
-    }
-
     // Create empty versions channel, and fill with each tools version
     ch_versions = Channel.empty()
 
@@ -69,18 +61,23 @@ workflow FASTQ_TRIM_FILTER_ALIGN_DEDUP {
     )
     ch_versions = ch_versions.mix(SAMTOOLS_MERGE.out.versions.first())
 
+    // samtools index will create a .bai. RSeQC, and maybe other tools as well, requires .bai instead of .csi.
+    SAMTOOLS_INDEX(SAMTOOLS_MERGE.out.bam)
+    ch_versions = ch_versions.mix(SAMTOOLS_INDEX.out.versions.first())
+
     BAM_DEDUP_STATS_SAMTOOLS_UMITOOLS(
         SAMTOOLS_MERGE.out.bam
-            .join(SAMTOOLS_MERGE.out.csi),
+            .join(SAMTOOLS_INDEX.out.bai),
         true
     )
     ch_versions = ch_versions.mix(BAM_DEDUP_STATS_SAMTOOLS_UMITOOLS.out.versions)
 
+    // Create variable to use in emit as well.
+    ch_bam_bai = BAM_DEDUP_STATS_SAMTOOLS_UMITOOLS.out.bam
+        .join(BAM_DEDUP_STATS_SAMTOOLS_UMITOOLS.out.bai)
+
     SAMTOOLS_CONVERT(
-        BAM_DEDUP_STATS_SAMTOOLS_UMITOOLS.out.bam
-            .join(BAM_DEDUP_STATS_SAMTOOLS_UMITOOLS.out.bai)
-            .join(BAM_DEDUP_STATS_SAMTOOLS_UMITOOLS.out.csi)
-            .map(joinIndex),
+        ch_bam_bai,
         ch_fasta_fai.map { meta, fasta, fai -> [meta, fasta] },
         ch_fasta_fai.map { meta, fasta, fai -> [meta, fai] }
     )
@@ -116,7 +113,7 @@ workflow FASTQ_TRIM_FILTER_ALIGN_DEDUP {
     flagstat                     = BAM_DEDUP_STATS_SAMTOOLS_UMITOOLS.out.flagstat // channel: [ val(meta), path(flagstat) ]
     idxstats                     = BAM_DEDUP_STATS_SAMTOOLS_UMITOOLS.out.idxstats // channel: [ val(meta), path(idxstats) ]
 
-    ch_bam_bai                   = BAM_DEDUP_STATS_SAMTOOLS_UMITOOLS.out.bam.join(BAM_DEDUP_STATS_SAMTOOLS_UMITOOLS.out.bai) // channel: [ val(meta), path(bam), path(bai) ]
+    ch_bam_bai                   = ch_bam_bai // channel: [ val(meta), path(bam), path(bai) ]
     ch_cram_crai                 = SAMTOOLS_CONVERT.out.cram.join(SAMTOOLS_CONVERT.out.crai) // channel: [ val(meta), path(cram), path(crai) ]
 
     versions                     = ch_versions // channel: [ versions.yml, versions.yml, ... ]
