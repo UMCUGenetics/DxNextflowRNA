@@ -43,27 +43,38 @@
                     "type": "string",
                     "fa_icon": "far fa-file-code",
                     "format": "directory-path",
-                    "description": "Path to genome generated reference dir.",
-                    "default": "/hpc/diaggen/users/ellen/references/GRCh38_gencode_v37_CTAT_lib_Mar012021.plug-n-play/ctat_genome_lib_build_dir/"
+                    "description": "Path to genome generated reference dir."
                 },
                 "fasta": {
                     "type": "string",
-                    "default": "/hpc/diaggen/users/ellen/references/GRCh38_gencode_v37_CTAT_lib_Mar012021.plug-n-play/ctat_genome_lib_build_dir//ref_genome.fa",
                     "format": "file-path",
                     "mimetype": "text/plain",
                     "pattern": "^\\S+\\.fn?a(sta)?(\\.gz)?$",
                     "description": "Path to FASTA genome file.",
                     "fa_icon": "far fa-file-code"
-        
                 },
                 "fai": {
                     "type": "string",
                     "format": "file-path",
-                    "default": "/hpc/diaggen/users/ellen/references/GRCh38_gencode_v37_CTAT_lib_Mar012021.plug-n-play/ctat_genome_lib_build_dir//ref_genome.fa.fai",
                     "mimetype": "text/plain",
                     "pattern": "^\\S+\\.fn?ai(\\.gz)?$",
                     "description": "Path to FASTA genome index file.",
                     "fa_icon": "far fa-file-code"
+                },
+                "gencode_version_name": {
+                    "type": "string",
+                    "default": "GRCh38_gencode_v22_CTAT_lib_Mar012021"
+                },
+                "genome_base": {
+                    "type": "string",
+                    "fa_icon": "far fa-file-code",
+                    "format": "directory-path"
+                },
+                "gene_bed": {
+                    "type": "string",
+                    "fa_icon": "far fa-file-code",
+                    "format": "file-path",
+                    "mimetype": "text/plain"
                 },
                 "gtf": {
                     "type": "string",
@@ -72,16 +83,35 @@
                     "mimetype": "text/plain",
                     "pattern": "^\\S+\\.gtf(\\.gz)?$",
                     "description": "Path to GTF annotation file.",
-                    "fa_icon": "fas fa-code-branch",
-                    "default": "/hpc/diaggen/users/ellen/references/GRCh38_gencode_v37_CTAT_lib_Mar012021.plug-n-play/ctat_genome_lib_build_dir//ref_annot.gtf"
+                    "fa_icon": "fas fa-code-branch"
+                },
+                "ref_flat": {
+                    "type": "string",
+                    "fa_icon": "far fa-file-code",
+                    "format": "file-path",
+                    "mimetype": "text/plain"
+                },
+                "rrna_database_manifest": {
+                    "type": "string"
+                },
+                "rrna_intervals": {
+                    "type": "string",
+                    "fa_icon": "far fa-file-code",
+                    "format": "file-path",
+                    "mimetype": "text/plain"
+                },
+                "sortmerna_index": {
+                    "type": "string"
+                },
+                "sortmerna_index_versions": {
+                    "type": "string"
                 },
                 "star_index": {
                     "type": "string",
                     "format": "directory-path",
                     "exists": true,
                     "fa_icon": "fas fa-bezier-curve",
-                    "description": "Path to directory or tar.gz archive for pre-built STAR index.",
-                    "default": "/hpc/diaggen/users/ellen/references/GRCh38_gencode_v37_CTAT_lib_Mar012021.plug-n-play/ctat_genome_lib_build_dir//ref_genome.fa.star.idx"
+                    "description": "Path to directory or tar.gz archive for pre-built STAR index."
                 }
             }
         },
@@ -91,6 +121,13 @@
             "fa_icon": "fas fa-file-import",
             "description": "Less common options for the pipeline, typically set in a config file.",
             "properties": {
+                "cluster_options": {
+                    "type": "string",
+                    "default": "--mail-user null --mail-type FAIL --account=diaggen"
+                },
+                "multiqc_yaml": {
+                    "type": "string"
+                },
                 "publish_dir_mode": {
                     "type": "string",
                     "default": "link",
@@ -106,6 +143,13 @@
                         "move"
                     ],
                     "hidden": true
+                },
+                "rseqc_modules": {
+                    "type": "string",
+                    "default": "bam_stat,infer_experiment,inner_distance,junction_annotation,junction_saturation,read_distribution,read_duplication"
+                },
+                "save_non_ribo_reads": {
+                    "type": "boolean"
                 },
                 "seq_platform": {
                     "type": "string",
