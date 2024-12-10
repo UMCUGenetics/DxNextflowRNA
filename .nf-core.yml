@@ -42,18 +42,3 @@ lint:
     - CODE_OF_CONDUCT.md
   multiqc_config:
     - report_comment
-  nextflow_config:
-    - config_defaults:
-        - params.ribo_database_manifest
-    - dag.enabled
-    - dag.file
-    - manifest.name
-    - manifest.homePage
-    - params.outdir
-    - params.input
-    - params.validationShowHiddenParams
-    - params.validationSchemaIgnoreParams
-    - process.cpus
-    - process.memory
-    - process.time
-    - custom_config
