@@ -9,6 +9,8 @@ output=`realpath $2`
 email=$3
 optional_params=( "${@:4}" )
 
+analysis_id=$(basename ${output})
+
 mkdir -p $output && cd $output
 mkdir -p log
 
@@ -66,9 +68,11 @@ $workflow_path/main.nf  \
 -c $workflow_path/nextflow.config \
 --input $input \
 --outdir $output \
+--analysis_id $analysis_id \
 --email $email \
 -resume \
 -ansi-log false \
+-profile singularity \
 ${optional_params[@]:-""}
 
 if [ \$? -eq 0 ]; then
