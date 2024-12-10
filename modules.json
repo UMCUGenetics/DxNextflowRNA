@@ -1,13 +1,13 @@
 {
-  "name": "UMCUGenetics/DxNextflowRNA",
-  "homePage": "https://github.com/UMCUGenetics/DxNextflowRNA",
+  "name": "umcugenetics/dxnextflowrna",
+  "homePage": "https://github.com/umcugenetics/dxnextflowrna",
   "repos": {
     "https://github.com/nf-core/modules.git": {
       "modules": {
         "nf-core": {
           "fastqc": {
             "branch": "master",
-            "git_sha": "666652151335353eef2fcd58880bcef5bc2928e1",
+            "git_sha": "dc94b6ee04a05ddb9f7ae050712ff30a13149164",
             "installed_by": ["modules"]
           },
           "multiqc": {
@@ -28,42 +28,42 @@
           "rseqc/bamstat": {
             "branch": "master",
             "git_sha": "666652151335353eef2fcd58880bcef5bc2928e1",
-            "installed_by": ["bam_rseqc"]
+            "installed_by": ["bam_rseqc", "modules"]
           },
           "rseqc/inferexperiment": {
             "branch": "master",
             "git_sha": "666652151335353eef2fcd58880bcef5bc2928e1",
-            "installed_by": ["bam_rseqc"]
+            "installed_by": ["bam_rseqc", "modules"]
           },
           "rseqc/innerdistance": {
             "branch": "master",
             "git_sha": "666652151335353eef2fcd58880bcef5bc2928e1",
-            "installed_by": ["bam_rseqc"]
+            "installed_by": ["bam_rseqc", "modules"]
           },
           "rseqc/junctionannotation": {
             "branch": "master",
             "git_sha": "666652151335353eef2fcd58880bcef5bc2928e1",
-            "installed_by": ["bam_rseqc"]
+            "installed_by": ["bam_rseqc", "modules"]
           },
           "rseqc/junctionsaturation": {
             "branch": "master",
             "git_sha": "666652151335353eef2fcd58880bcef5bc2928e1",
-            "installed_by": ["bam_rseqc"]
+            "installed_by": ["bam_rseqc", "modules"]
           },
           "rseqc/readdistribution": {
             "branch": "master",
             "git_sha": "666652151335353eef2fcd58880bcef5bc2928e1",
-            "installed_by": ["bam_rseqc"]
+            "installed_by": ["bam_rseqc", "modules"]
           },
           "rseqc/readduplication": {
             "branch": "master",
             "git_sha": "666652151335353eef2fcd58880bcef5bc2928e1",
-            "installed_by": ["bam_rseqc"]
+            "installed_by": ["bam_rseqc", "modules"]
           },
           "rseqc/tin": {
             "branch": "master",
             "git_sha": "666652151335353eef2fcd58880bcef5bc2928e1",
-            "installed_by": ["bam_rseqc"]
+            "installed_by": ["bam_rseqc", "modules"]
           },
           "samtools/convert": {
             "branch": "master",
@@ -72,13 +72,13 @@
           },
           "samtools/flagstat": {
             "branch": "master",
-            "git_sha": "b13f07be4c508d6ff6312d354d09f2493243e208",
-            "installed_by": ["bam_stats_samtools"]
+            "git_sha": "2d20463181b1c38981a02e90d3084b5f9fa8d540",
+            "installed_by": ["bam_stats_samtools", "modules"]
           },
           "samtools/idxstats": {
             "branch": "master",
-            "git_sha": "b13f07be4c508d6ff6312d354d09f2493243e208",
-            "installed_by": ["bam_stats_samtools"]
+            "git_sha": "2d20463181b1c38981a02e90d3084b5f9fa8d540",
+            "installed_by": ["bam_stats_samtools", "modules"]
           },
           "samtools/index": {
             "branch": "master",
@@ -92,8 +92,8 @@
           },
           "samtools/stats": {
             "branch": "master",
-            "git_sha": "b13f07be4c508d6ff6312d354d09f2493243e208",
-            "installed_by": ["bam_stats_samtools"]
+            "git_sha": "2d20463181b1c38981a02e90d3084b5f9fa8d540",
+            "installed_by": ["bam_stats_samtools", "modules"]
           },
           "sortmerna": {
             "branch": "master",
@@ -112,13 +112,13 @@
           },
           "trimgalore": {
             "branch": "master",
-            "git_sha": "8c5eeedd45e295fc9a4f164631da6a8b37e6b9c6",
+            "git_sha": "4c2d06a5e79abf08ba7f04c58e39c7dad75f094d",
             "installed_by": ["modules"]
           },
           "umitools/dedup": {
             "branch": "master",
-            "git_sha": "666652151335353eef2fcd58880bcef5bc2928e1",
-            "installed_by": ["bam_dedup_stats_samtools_umitools"]
+            "git_sha": "0b27602842d3d79fd0e8db79f4afa764967fc3d1",
+            "installed_by": ["bam_dedup_stats_samtools_umitools", "modules"]
           }
         }
       },
@@ -126,7 +126,7 @@
         "nf-core": {
           "bam_dedup_stats_samtools_umitools": {
             "branch": "master",
-            "git_sha": "763d4b5c05ffda3ac1ac969dc67f7458cfb2eb1d",
+            "git_sha": "0b27602842d3d79fd0e8db79f4afa764967fc3d1",
             "installed_by": ["subworkflows"]
           },
           "bam_rseqc": {
@@ -137,11 +137,24 @@
           "bam_stats_samtools": {
             "branch": "master",
             "git_sha": "763d4b5c05ffda3ac1ac969dc67f7458cfb2eb1d",
-            "installed_by": ["bam_dedup_stats_samtools_umitools"]
+            "installed_by": [
+              "bam_dedup_stats_samtools_umitools",
+              "subworkflows"
+            ]
+          },
+          "utils_nextflow_pipeline": {
+            "branch": "master",
+            "git_sha": "3aa0aec1d52d492fe241919f0c6100ebf0074082",
+            "installed_by": ["subworkflows"]
           },
           "utils_nfcore_pipeline": {
             "branch": "master",
             "git_sha": "1b6b9a3338d011367137808b49b923515080e3ba",
+            "installed_by": ["subworkflows"]
+          },
+          "utils_nfschema_plugin": {
+            "branch": "master",
+            "git_sha": "bbd5a41f4535a8defafe6080e00ea74c45f4f96c",
             "installed_by": ["subworkflows"]
           }
         }

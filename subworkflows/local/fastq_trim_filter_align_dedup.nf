@@ -1,25 +1,18 @@
-#!/usr/bin/env nextflow
-
 /*
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    Import modules, alphabetical order
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    IMPORT MODULES / SUBWORKFLOWS / FUNCTIONS
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
+// MODULES, alphabetical order
 include { SAMTOOLS_CONVERT                  } from '../../modules/nf-core/samtools/convert/main'
 include { SAMTOOLS_INDEX                    } from '../../modules/nf-core/samtools/index/main'
 include { SAMTOOLS_MERGE                    } from '../../modules/nf-core/samtools/merge/main'
 include { SORTMERNA as SORTMERNA_READS      } from '../../modules/local/sortmerna/main'
-
-include { STAR_ALIGN                        } from '../../modules/nf-core/star/align/main'
+include { STAR_ALIGN                        } from '../../modules/nf-core/star/align/main.nf'
 include { TRIMGALORE                        } from '../../modules/nf-core/trimgalore/main'
 
-/*
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    Import subworkflows, alphabetical order
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-*/
+// SUBWORKFLOWS, alphabetical order
 include { BAM_DEDUP_STATS_SAMTOOLS_UMITOOLS } from '../../subworkflows/nf-core/bam_dedup_stats_samtools_umitools/main'
-
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -66,15 +59,13 @@ workflow FASTQ_TRIM_FILTER_ALIGN_DEDUP {
     ch_versions = ch_versions.mix(SAMTOOLS_INDEX.out.versions.first())
 
     BAM_DEDUP_STATS_SAMTOOLS_UMITOOLS(
-        SAMTOOLS_MERGE.out.bam
-            .join(SAMTOOLS_INDEX.out.bai),
+        SAMTOOLS_MERGE.out.bam.join(SAMTOOLS_INDEX.out.bai),
         true
     )
     ch_versions = ch_versions.mix(BAM_DEDUP_STATS_SAMTOOLS_UMITOOLS.out.versions)
 
     // Create variable to use in emit as well.
-    ch_bam_bai = BAM_DEDUP_STATS_SAMTOOLS_UMITOOLS.out.bam
-        .join(BAM_DEDUP_STATS_SAMTOOLS_UMITOOLS.out.bai)
+    ch_bam_bai = BAM_DEDUP_STATS_SAMTOOLS_UMITOOLS.out.bam.join(BAM_DEDUP_STATS_SAMTOOLS_UMITOOLS.out.bai)
 
     SAMTOOLS_CONVERT(
         ch_bam_bai,
@@ -89,9 +80,7 @@ workflow FASTQ_TRIM_FILTER_ALIGN_DEDUP {
     trim_html                    = TRIMGALORE.out.html // channel: [ val(meta), path(html) ]
     trim_zip                     = TRIMGALORE.out.zip // channel: [ val(meta), path(zip) ]
     trim_log                     = TRIMGALORE.out.log // channel: [ val(meta), path(txt) ]
-
     sortmerna_log                = SORTMERNA_READS.out.log // channel: [ val(meta), path(log) ]
-
     star_align_bam               = STAR_ALIGN.out.bam // channel: [ val(meta), path(bam) ]
     star_align_bam_sorted        = STAR_ALIGN.out.bam_sorted // channel: [ val(meta), path(bam) ]
     star_align_bam_unsorted      = STAR_ALIGN.out.bam_unsorted // channel: [ val(meta), path(bam) ]
@@ -107,14 +96,11 @@ workflow FASTQ_TRIM_FILTER_ALIGN_DEDUP {
     star_align_log_progress      = STAR_ALIGN.out.log_progress // channel: [ val(meta), path(log_progress) ]
     star_align_wig               = STAR_ALIGN.out.wig // channel: [ val(meta), path(wig) ]
     star_align_bedgraph          = STAR_ALIGN.out.bedgraph // channel: [ val(meta), path(bg) ]
-
     umitools_dedup_log           = BAM_DEDUP_STATS_SAMTOOLS_UMITOOLS.out.deduplog // channel: [ val(meta), path(log) ]
     samtools_stats               = BAM_DEDUP_STATS_SAMTOOLS_UMITOOLS.out.stats // channel: [ val(meta), path(stats) ]
     flagstat                     = BAM_DEDUP_STATS_SAMTOOLS_UMITOOLS.out.flagstat // channel: [ val(meta), path(flagstat) ]
     idxstats                     = BAM_DEDUP_STATS_SAMTOOLS_UMITOOLS.out.idxstats // channel: [ val(meta), path(idxstats) ]
-
     ch_bam_bai                   = ch_bam_bai // channel: [ val(meta), path(bam), path(bai) ]
     ch_cram_crai                 = SAMTOOLS_CONVERT.out.cram.join(SAMTOOLS_CONVERT.out.crai) // channel: [ val(meta), path(cram), path(crai) ]
-
     versions                     = ch_versions // channel: [ versions.yml, versions.yml, ... ]
 }

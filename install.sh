@@ -2,7 +2,7 @@
 
 # Set parameters
 java_download_url='https://download.java.net/java/GA/jdk21.0.2/f2283984656d49d69e91c558476027ac/13/GPL/openjdk-21.0.2_linux-x64_bin.tar.gz'
-nextflow_version=23.10.0
+nextflow_version=24.10.2
 
 # Remember the cwd
 repo_dir=$PWD

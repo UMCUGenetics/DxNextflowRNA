@@ -275,9 +275,9 @@ def attachMultiqcReport(multiqc_report) {
 def completionEmail(summary_params, email, email_on_fail, plaintext_email, outdir, monochrome_logs=true, multiqc_report=null) {
 
     // Set up the e-mail variables
-    def subject = "[${workflow.manifest.name}] Successful: ${workflow.runName}"
+    def subject = "[${workflow.manifest.name}] Successful: ${params.analysis_id}"
     if (!workflow.success) {
-        subject = "[${workflow.manifest.name}] FAILED: ${workflow.runName}"
+        subject = "[${workflow.manifest.name}] FAILED: ${params.analysis_id}"
     }
 
     def summary = [:]
@@ -289,6 +289,7 @@ def completionEmail(summary_params, email, email_on_fail, plaintext_email, outdi
         }
 
     def misc_fields = [:]
+    misc_fields['Analysis']                  = params.analysis_id
     misc_fields['Date Started']              = workflow.start
     misc_fields['Date Completed']            = workflow.complete
     misc_fields['Pipeline script file path'] = workflow.scriptFile
@@ -307,6 +308,7 @@ def completionEmail(summary_params, email, email_on_fail, plaintext_email, outdi
     misc_fields['Nextflow Compile Timestamp'] = workflow.nextflow.timestamp
 
     def email_fields = [:]
+    email_fields['Analysis']     = params.analysis_id
     email_fields['version']      = getWorkflowVersion()
     email_fields['runName']      = workflow.runName
     email_fields['success']      = workflow.success
@@ -351,8 +353,8 @@ def completionEmail(summary_params, email, email_on_fail, plaintext_email, outdi
     if (email_address) {
         try {
             if (plaintext_email) {
-new org.codehaus.groovy.GroovyException('Send plaintext e-mail, not HTML')            }
-            // Try to send HTML e-mail using sendmail
+                new org.codehaus.groovy.GroovyException('Send plaintext e-mail, not HTML')
+            }            // Try to send HTML e-mail using sendmail
             def sendmail_tf = new File(workflow.launchDir.toString(), ".sendmail_tmp.html")
             sendmail_tf.withWriter { w -> w << sendmail_html }
             ['sendmail', '-t'].execute() << sendmail_html

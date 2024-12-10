@@ -1,22 +1,19 @@
 /*
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    Import modules, alphabetical order
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    IMPORT MODULES / SUBWORKFLOWS / FUNCTIONS
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
+// MODULES, alphabetical order
 include { FASTQC                      } from '../../modules/nf-core/fastqc/main'
 include { PICARD_COLLECTRNASEQMETRICS } from '../../modules/nf-core/picard/collectrnaseqmetrics/main'
 include { PRESEQ_LCEXTRAP             } from '../../modules/nf-core/preseq/lcextrap/main'
 
-/*
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    Import subworkflows, alphabetical order
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-*/
+// SUBWORKFLOWS, alphabetical order
 include { BAM_RSEQC                   } from '../../subworkflows/nf-core/bam_rseqc/main'
 
 /*
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    Main workflow
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    FASTQ_BAM_QC (sub)workflow
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 workflow FASTQ_BAM_QC {
@@ -39,7 +36,7 @@ workflow FASTQ_BAM_QC {
     // QC tools on bam
     def rseqc_modules = params.rseqc_modules ? params.rseqc_modules.split(',').collect { it.trim().toLowerCase() } : []
     BAM_RSEQC(ch_bam_bai, ch_gene_bed, rseqc_modules)
-    ch_versions = ch_versions.mix(BAM_RSEQC.out.versions.first())
+    ch_versions = ch_versions.mix(BAM_RSEQC.out.versions)
 
     PICARD_COLLECTRNASEQMETRICS(ch_bam, ch_ref_flat, ch_fasta, ch_rrna_interval)
     ch_versions = ch_versions.mix(PICARD_COLLECTRNASEQMETRICS.out.versions.first())
@@ -50,6 +47,7 @@ workflow FASTQ_BAM_QC {
     emit:
     fastqc_html                     = FASTQC.out.html // channel: [ val(meta), html]
     fastqc_zip                      = FASTQC.out.zip // channel: [ val(meta), zip ]
+
     bamstat_txt                     = BAM_RSEQC.out.bamstat_txt // channel: [ val(meta), txt ]
     innerdistance_all               = BAM_RSEQC.out.innerdistance_all // channel: [ val(meta), {txt, pdf, r} ]
     innerdistance_distance          = BAM_RSEQC.out.innerdistance_distance // channel: [ val(meta), txt ]
@@ -76,8 +74,11 @@ workflow FASTQ_BAM_QC {
     readduplication_pdf             = BAM_RSEQC.out.readduplication_pdf // channel: [ val(meta), pdf ]
     readduplication_rscript         = BAM_RSEQC.out.readduplication_rscript // channel: [ val(meta), r   ]
     tin_txt                         = BAM_RSEQC.out.tin_txt // channel: [ val(meta), txt ]
+
     rna_metrics                     = PICARD_COLLECTRNASEQMETRICS.out.metrics // channel: [ val(meta), rna_metrics ]
+
     lc_extrap                       = PRESEQ_LCEXTRAP.out.lc_extrap // channel: [ val(meta), lc_extrap.txt
     preseq_lcextrap_log             = PRESEQ_LCEXTRAP.out.log // channel: [ val(meta), log ]
+
     versions                        = ch_versions // channel: [ versions.yml ]
 }
