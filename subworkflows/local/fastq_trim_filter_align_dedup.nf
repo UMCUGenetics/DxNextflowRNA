@@ -7,7 +7,7 @@
 include { SAMTOOLS_CONVERT                  } from '../../modules/nf-core/samtools/convert/main'
 include { SAMTOOLS_INDEX                    } from '../../modules/nf-core/samtools/index/main'
 include { SAMTOOLS_MERGE                    } from '../../modules/nf-core/samtools/merge/main'
-include { SORTMERNA as SORTMERNA_READS      } from '../../modules/local/sortmerna/main'
+include { SORTMERNA as SORTMERNA_READS      } from '../../modules/nf-core/sortmerna/main'
 include { STAR_ALIGN                        } from '../../modules/nf-core/star/align/main.nf'
 include { TRIMGALORE                        } from '../../modules/nf-core/trimgalore/main'
 
