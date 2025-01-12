@@ -1,1 +1,1 @@
-/hpc/diaggen/users/ellen/references/sortmerna/sortmerna_v4.3.4_db/smr_v4.3_sensitive_db.fasta
+/hpc/diaggen/data/databases/sortmerna/sortmerna_v4.3.4_db/smr_v4.3_sensitive_db.fasta
