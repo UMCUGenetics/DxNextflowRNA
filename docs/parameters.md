@@ -1,5 +1,5 @@
 # umcugenetics/dxnextflowrna pipeline parameters
-UMCU Genetics RNA Workflow
+UMCU Genetics RNA seq Workflow
 
 ## Input/output options
 Define where the pipeline should find input data and save output data.

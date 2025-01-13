@@ -1,5 +1,5 @@
 name: DxNextflowRNA
-description: UMCU Genetics RNA Workflow
+description: UMCU Genetics RNA seq Workflow
 author: UMCU Genetics
 prefix: UMCUGenetics
 skip:
@@ -9,7 +9,7 @@ skip:
     - igenomes
 template:
     author: UMCU Genetics
-    description: UMCU Genetics RNA Workflow
+    description: UMCU Genetics RNA seq Workflow
     force: false
     is_nfcore: false
     name: DxNextflowRNA

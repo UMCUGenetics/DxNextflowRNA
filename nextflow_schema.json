@@ -2,7 +2,7 @@
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$id": "https://raw.githubusercontent.com/umcugenetics/dxnextflowrna/master/nextflow_schema.json",
     "title": "umcugenetics/dxnextflowrna pipeline parameters",
-    "description": "UMCU Genetics RNA Workflow",
+    "description": "UMCU Genetics RNA seq Workflow",
     "type": "object",
     "$defs": {
         "input_output_options": {
