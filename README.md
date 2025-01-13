@@ -1,7 +1,7 @@
 <h1>
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="docs/images/umcugenetics-dxnextflowrna_logo_dark.png">
-    <img alt="umcugenetics/dxnextflowrna" src="docs/images/umcugenetics-dxnextflowrna_logo_light.png">
+    <source media="(prefers-color-scheme: dark)" srcset="assets/umcugenetics-dxnextflowrna_logo_dark.png">
+    <img alt="umcugenetics/dxnextflowrna" src="assets/umcugenetics-dxnextflowrna_logo_light.png">
   </picture>
 </h1>
 
