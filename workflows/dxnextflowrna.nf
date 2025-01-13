@@ -12,8 +12,8 @@ include { FASTQ_TRIM_FILTER_ALIGN_DEDUP } from '../subworkflows/local/fastq_trim
 
 // FUNCTIONS
 include { paramsSummaryMap       } from 'plugin/nf-schema'
-include { paramsSummaryMultiqc   } from '../subworkflows/local/utils_nfcore_pipeline'
-include { softwareVersionsToYAML } from '../subworkflows/local/utils_nfcore_pipeline'
+include { paramsSummaryMultiqc   } from '../subworkflows/nf-core/utils_nfcore_pipeline'
+include { softwareVersionsToYAML } from '../subworkflows/nf-core/utils_nfcore_pipeline'
 include { methodsDescriptionText } from '../subworkflows/local/utils_umcugenetics_dxnextflowrna_pipeline'
 
 /*
