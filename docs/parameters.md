@@ -37,6 +37,30 @@ Reference genome related files and options required for the workflow.
 | `star_index` | Path to directory or tar.gz archive for pre-built STAR index. | `string` |  |  |  |
 
 
+
+### sortmerna_index and sortmerna_index_versions
+
+Runtimes of SortMeRNA are optimized by creating a sortmerna index first.
+This is done by executing the tool with settings as configured in the modules.config with name SORTMERNA_INDEX.
+The [`rrna_database_manifest`](assets/sortmerna-db-default.txtl) can be used as input.
+Down below an example of nextflow workflow to run SORTMERNA_INDEX.
+
+```nextflow
+nextflow.enable.dsl = 2
+
+include { SORTMERNA as SORTMERNA_INDEX } from './modules/local/sortmerna/main'
+
+workflow {
+    SORTMERNA_INDEX(
+        [[], []],
+        Channel.from(file(params.rrna_database_manifest).readLines())
+            .map { row -> file(row, checkIfExists: true) }
+            .collect().map { [[id: 'rrna_refs'], it] },
+        [[], []]
+    )
+}
+```
+
 ## Institutional config options
 
 
