@@ -125,7 +125,6 @@ table_sample_merge:
     - type: regex
       pattern: "[_.-](A|B)[A-Za-z0-9]{9}[_.-]S[0-9]+[_.-]L[0-9]{3}[_.-](R2[_.-]001|2)$"
 
-
   "(L001)":
     - "L001"
     - type: regex

@@ -311,6 +311,5 @@
             "type": "string",
             "default": "/hpc/diaggen/software/development/Dx_tracks/"
         }
-
     }
 }
