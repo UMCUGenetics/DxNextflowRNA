@@ -35,6 +35,8 @@ report_section_order:
 # Disable version detection; all versions are retrieved previously.
 disable_version_detection: true
 export_plots: true
+# Column name in Software Versions Table instead of "Group".
+versions_table_group_header: "Analysis Pipeline Step"
 
 # Define custom search patterns
 sp:
