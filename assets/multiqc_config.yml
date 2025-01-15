@@ -32,6 +32,8 @@ report_section_order:
   "umcugenetics-dxnextflowrna-summary":
     order: -1002
 
+# Disable version detection; all versions are retrieved previously.
+disable_version_detection: true
 export_plots: true
 
 # Define custom search patterns
