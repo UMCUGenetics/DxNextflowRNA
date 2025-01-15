@@ -52,7 +52,7 @@ workflow FASTQ_TRIM_FILTER_ALIGN_DEDUP {
             [meta + [id: new_id], bam]
         }.groupTuple(),
         [[id: 'null'], []],
-        [[id: 'null'], []]
+        [[id: 'null'], []],
     )
     ch_versions = ch_versions.mix(SAMTOOLS_MERGE.out.versions.first())
 
@@ -62,7 +62,7 @@ workflow FASTQ_TRIM_FILTER_ALIGN_DEDUP {
 
     BAM_DEDUP_STATS_SAMTOOLS_UMITOOLS(
         SAMTOOLS_MERGE.out.bam.join(SAMTOOLS_INDEX.out.bai),
-        true
+        true,
     )
     ch_versions = ch_versions.mix(BAM_DEDUP_STATS_SAMTOOLS_UMITOOLS.out.versions)
 
@@ -72,7 +72,7 @@ workflow FASTQ_TRIM_FILTER_ALIGN_DEDUP {
     SAMTOOLS_CONVERT(
         ch_bam_bai,
         ch_fasta_fai.map { meta, fasta, fai -> [meta, fasta] },
-        ch_fasta_fai.map { meta, fasta, fai -> [meta, fai] }
+        ch_fasta_fai.map { meta, fasta, fai -> [meta, fai] },
     )
     ch_versions = ch_versions.mix(SAMTOOLS_CONVERT.out.versions.first())
 

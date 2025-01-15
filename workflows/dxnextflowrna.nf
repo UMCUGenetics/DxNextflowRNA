@@ -4,17 +4,17 @@
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 // MODULES
-include { MULTIQC                } from '../modules/nf-core/multiqc/main'
+include { MULTIQC                       } from '../modules/nf-core/multiqc/main'
 
 // SUBWORKFLOWS
 include { FASTQ_BAM_QC                  } from '../subworkflows/local/fastq_bam_qc'
 include { FASTQ_TRIM_FILTER_ALIGN_DEDUP } from '../subworkflows/local/fastq_trim_filter_align_dedup'
 
 // FUNCTIONS
-include { paramsSummaryMap       } from 'plugin/nf-schema'
-include { paramsSummaryMultiqc   } from '../subworkflows/nf-core/utils_nfcore_pipeline'
-include { softwareVersionsToYAML } from '../subworkflows/nf-core/utils_nfcore_pipeline'
-include { methodsDescriptionText } from '../subworkflows/local/utils_umcugenetics_dxnextflowrna_pipeline'
+include { paramsSummaryMap              } from 'plugin/nf-schema'
+include { paramsSummaryMultiqc          } from '../subworkflows/nf-core/utils_nfcore_pipeline'
+include { softwareVersionsToYAML        } from '../subworkflows/nf-core/utils_nfcore_pipeline'
+include { methodsDescriptionText        } from '../subworkflows/local/utils_umcugenetics_dxnextflowrna_pipeline'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -84,7 +84,7 @@ workflow DXNEXTFLOWRNA {
         ch_star_index,
         params.seq_platform,
         params.seq_center,
-        false
+        false,
     )
     ch_versions = ch_versions.mix(FASTQ_TRIM_FILTER_ALIGN_DEDUP.out.versions)
 
@@ -98,7 +98,7 @@ workflow DXNEXTFLOWRNA {
         FASTQ_TRIM_FILTER_ALIGN_DEDUP.out.umitools_dedup_log.collect { it[1] }.ifEmpty([]),
         FASTQ_TRIM_FILTER_ALIGN_DEDUP.out.samtools_stats.collect { it[1] }.ifEmpty([]),
         FASTQ_TRIM_FILTER_ALIGN_DEDUP.out.flagstat.collect { it[1] }.ifEmpty([]),
-        FASTQ_TRIM_FILTER_ALIGN_DEDUP.out.idxstats.collect { it[1] }.ifEmpty([])
+        FASTQ_TRIM_FILTER_ALIGN_DEDUP.out.idxstats.collect { it[1] }.ifEmpty([]),
     )
 
     //
@@ -110,7 +110,7 @@ workflow DXNEXTFLOWRNA {
         ch_fastq,
         ch_gene_bed,
         ch_ref_flat,
-        ch_rrna_interval
+        ch_rrna_interval,
     )
     ch_versions = ch_versions.mix(FASTQ_BAM_QC.out.versions)
 
@@ -126,7 +126,7 @@ workflow DXNEXTFLOWRNA {
         FASTQ_BAM_QC.out.readduplication_pos_xls.collect { it[1] }.ifEmpty([]),
         FASTQ_BAM_QC.out.tin_txt.collect { it[1] }.ifEmpty([]),
         FASTQ_BAM_QC.out.rna_metrics.collect { it[1] }.ifEmpty([]),
-        FASTQ_BAM_QC.out.lc_extrap.collect { it[1] }.ifEmpty([])
+        FASTQ_BAM_QC.out.lc_extrap.collect { it[1] }.ifEmpty([]),
     )
 
     //
@@ -137,7 +137,7 @@ workflow DXNEXTFLOWRNA {
             storeDir: "${params.outdir}/pipeline_info",
             name: 'nf_core_' + 'pipeline_software_' + 'mqc_' + 'versions.yml',
             sort: true,
-            newLine: true
+            newLine: true,
         )
         .set { ch_collated_versions }
 
@@ -175,7 +175,7 @@ workflow DXNEXTFLOWRNA {
     ch_multiqc_files = ch_multiqc_files.mix(
         ch_methods_description.collectFile(
             name: 'methods_description_mqc.yaml',
-            sort: true
+            sort: true,
         )
     )
     // Collate software versions
@@ -187,7 +187,7 @@ workflow DXNEXTFLOWRNA {
         ch_multiqc_custom_config.toList(),
         ch_multiqc_logo.toList(),
         [],
-        []
+        [],
     )
 
     emit:

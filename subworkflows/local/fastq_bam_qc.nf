@@ -47,7 +47,6 @@ workflow FASTQ_BAM_QC {
     emit:
     fastqc_html                     = FASTQC.out.html // channel: [ val(meta), html]
     fastqc_zip                      = FASTQC.out.zip // channel: [ val(meta), zip ]
-
     bamstat_txt                     = BAM_RSEQC.out.bamstat_txt // channel: [ val(meta), txt ]
     innerdistance_all               = BAM_RSEQC.out.innerdistance_all // channel: [ val(meta), {txt, pdf, r} ]
     innerdistance_distance          = BAM_RSEQC.out.innerdistance_distance // channel: [ val(meta), txt ]
@@ -74,11 +73,8 @@ workflow FASTQ_BAM_QC {
     readduplication_pdf             = BAM_RSEQC.out.readduplication_pdf // channel: [ val(meta), pdf ]
     readduplication_rscript         = BAM_RSEQC.out.readduplication_rscript // channel: [ val(meta), r   ]
     tin_txt                         = BAM_RSEQC.out.tin_txt // channel: [ val(meta), txt ]
-
     rna_metrics                     = PICARD_COLLECTRNASEQMETRICS.out.metrics // channel: [ val(meta), rna_metrics ]
-
     lc_extrap                       = PRESEQ_LCEXTRAP.out.lc_extrap // channel: [ val(meta), lc_extrap.txt
     preseq_lcextrap_log             = PRESEQ_LCEXTRAP.out.log // channel: [ val(meta), log ]
-
     versions                        = ch_versions // channel: [ versions.yml ]
 }
