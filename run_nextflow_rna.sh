@@ -59,6 +59,7 @@ sbatch <<EOT
 #SBATCH -e log/slurm_nextflow_rnaseq.%j.err
 #SBATCH --mail-user $email
 #SBATCH --mail-type FAIL
+#SBATCH --export=NONE
 #SBATCH --account=diaggen
 
 export NXF_JAVA_HOME='$workflow_path/tools/java/jdk'
