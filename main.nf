@@ -1,115 +1,75 @@
 #!/usr/bin/env nextflow
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    UMCUGenetics/DxNextflowRNA
+    umcugenetics/dxnextflowrna
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    Github : https://github.com/UMCUGenetics/DxNextflowRNA
+    Github : https://github.com/umcugenetics/dxnextflowrna
 ----------------------------------------------------------------------------------------
 */
 
-nextflow.enable.dsl = 2
-
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    Validate parameters
+    IMPORT FUNCTIONS / MODULES / SUBWORKFLOWS / WORKFLOWS
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-include { validateParameters; } from 'plugin/nf-validation'
-validateParameters()
-
+include { DXNEXTFLOWRNA           } from './workflows/dxnextflowrna'
+include { PIPELINE_INITIALISATION } from './subworkflows/local/utils_umcugenetics_dxnextflowrna_pipeline'
+include { PIPELINE_COMPLETION     } from './subworkflows/local/utils_umcugenetics_dxnextflowrna_pipeline'
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    Import modules/subworkflows
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-*/
-include { BAM_DEDUP_STATS_SAMTOOLS_UMITOOLS } from './subworkflows/nf-core/bam_dedup_stats_samtools_umitools/main'
-
-include { FASTQC } from './modules/nf-core/fastqc/main'
-include { MULTIQC } from './modules/nf-core/multiqc/main'
-include { SAMTOOLS_INDEX } from './modules/nf-core/samtools/index/main'
-include { SAMTOOLS_MERGE } from './modules/nf-core/samtools/merge/main'
-include { STAR_ALIGN } from './modules/nf-core/star/align/main'
-include { SUBREAD_FEATURECOUNTS } from './modules/nf-core/subread/featurecounts/main'
-
-/*
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    Main workflow
+    RUN MAIN WORKFLOW
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
 workflow {
-    // Reference file channels
-    ch_star_index = Channel.fromPath(params.star_index).map {star_index -> [star_index.getSimpleName(), star_index] }
-    ch_gtf = Channel.fromPath(params.gtf).map { gtf -> [gtf.getSimpleName(), gtf] }
-
-    // Input channel
-    ch_fastq = Channel.fromFilePairs("$params.input/*_R{1,2}_001.fastq.gz")
-        .map {
-            meta, fastq ->
-            def fmeta = [:]
-            // Set meta.id
-            fmeta.id = meta
-            // Set meta.single_end
-            if (fastq.size() == 1) {
-                fmeta.single_end = true
-            } else {
-                fmeta.single_end = false
-            }
-            [ fmeta, fastq ]
-        }
-
-    // Trim, Alignment, FeatureCounts
-    // TRIMGALORE
-
-    STAR_ALIGN(
-        ch_fastq,
-        ch_star_index.first(),
-        ch_gtf.first(),
-        false,
-        'illumina',
-        'UMCU Genetics'
+    //
+    // SUBWORKFLOW: Run initialisation tasks
+    //
+    PIPELINE_INITIALISATION(
+        params.version,
+        params.validate_params,
+        params.monochrome_logs,
+        args,
+        params.outdir,
     )
 
-    SAMTOOLS_MERGE(
-        STAR_ALIGN.out.bam_sorted.map {
-            meta, bam ->
-                new_id = meta.id.split('_')[0]
-                [ meta + [id: new_id], bam ]
-        }.groupTuple(),
-        [ [ id:'null' ], []],
-        [ [ id:'null' ], []],
+    //
+    // WORKFLOW: Run main workflow
+    //
+    UMCUGENETICS_DXNEXTFLOWRNA()
+
+    //
+    // SUBWORKFLOW: Run completion tasks
+    //
+    PIPELINE_COMPLETION(
+        params.email,
+        params.email_on_fail,
+        params.plaintext_email,
+        params.outdir,
+        params.monochrome_logs,
+        params.hook_url,
+        UMCUGENETICS_DXNEXTFLOWRNA.out.multiqc_report,
     )
+}
 
-    SAMTOOLS_INDEX ( SAMTOOLS_MERGE.out.bam )
+/*
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    NAMED WORKFLOWS FOR PIPELINE
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+*/
 
-    SAMTOOLS_MERGE.out.bam
-        .join(SAMTOOLS_INDEX.out.bai)
-        .set { ch_bam_bai }
+//
+// WORKFLOW: Run main analysis pipeline depending on type of input
+//
+workflow UMCUGENETICS_DXNEXTFLOWRNA {
+    main:
 
-    BAM_DEDUP_STATS_SAMTOOLS_UMITOOLS(
-        ch_bam_bai,
-        true
-    )
+    //
+    // WORKFLOW: Run pipeline
+    //
+    DXNEXTFLOWRNA()
 
-    SUBREAD_FEATURECOUNTS(
-        BAM_DEDUP_STATS_SAMTOOLS_UMITOOLS.out.bam.map{
-        meta, bam -> [ meta, bam, params.gtf ]
-        }
-    )
-
-    // QC
-    FASTQC(ch_fastq)
-
-    // MultiQC
-    ch_multiqc_files = Channel.empty()
-    ch_multiqc_files = ch_multiqc_files.mix(FASTQC.out.zip.collect{it[1]}.ifEmpty([]))
-    ch_multiqc_config = Channel.fromPath("$projectDir/assets/multiqc_config.yml", checkIfExists: true)
-    MULTIQC(
-        ch_multiqc_files.collect(),
-        ch_multiqc_config.toList(),
-        Channel.empty().toList(),
-        Channel.empty().toList()
-    )
-
+    emit:
+    multiqc_report = DXNEXTFLOWRNA.out.multiqc_report // channel: /path/to/multiqc_report.html
 }

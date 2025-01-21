@@ -1,6 +1,5 @@
 channels:
   - conda-forge
   - bioconda
-  - defaults
 dependencies:
-  - bioconda::umi_tools=1.1.4
+  - bioconda::umi_tools=1.1.5
