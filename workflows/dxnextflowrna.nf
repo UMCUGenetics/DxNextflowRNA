@@ -31,6 +31,7 @@ workflow DXNEXTFLOWRNA {
         .fromPath(params.fasta)
         .combine(Channel.fromPath(params.fai))
         .map { fasta, fai -> [[id: fasta.getSimpleName()], fasta, fai] }
+        .collect()
     ch_gene_bed = Channel.fromPath(params.gene_bed)
     ch_gtf = Channel
         .fromPath(params.gtf)
