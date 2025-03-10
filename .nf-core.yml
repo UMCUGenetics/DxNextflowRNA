@@ -1,0 +1,44 @@
+nf_core_version: 3.0.2
+repository_type: pipeline
+
+lint:
+  actions_ci: false
+  files_exist:
+    - .gitattributes
+    - .editorconfig
+    - .github/CONTRIBUTING.md
+    - .github/ISSUE_TEMPLATE/bug_report.yml
+    - .github/ISSUE_TEMPLATE/config.yml
+    - .github/ISSUE_TEMPLATE/feature_request.yml
+    - .github/PULL_REQUEST_TEMPLATE.md
+    - .github/.dockstore.yml
+    - .github/workflows/ci.yml
+    - .github/workflows/awstest.yml
+    - .github/workflows/awsfulltest.yml
+    - .github/workflows/branch.yml
+    - .github/workflows/linting_comment.yml
+    - .github/workflows/linting.yml
+    - CODE_OF_CONDUCT.md
+    - CHANGELOG.md
+    - CITATIONS.md
+    - assets/email_template.html
+    - assets/email_template.txt
+    - assets/sendmail_template.txt
+    - assets/umcugenetics-dxnextflowrna_logo_dark.png
+    - assets/umcugenetics-dxnextflowrna_logo_light.png
+    - conf/modules.config
+    - conf/test.config
+    - conf/test_full.config
+    - docs/images/umcugenetics-dxnextflowrna_metro_map
+    - docs/output.md
+    - docs/README.md
+    - docs/usage.md
+  files_unchanged:
+    - .github/ISSUE_TEMPLATE/bug_report.yml
+    - .github/workflows/linting.yml
+    - assets/email_template.html
+    - assets/email_template.txt
+    - .gitignore
+    - CODE_OF_CONDUCT.md
+  multiqc_config:
+    - report_comment

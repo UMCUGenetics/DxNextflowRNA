@@ -1,55 +1,75 @@
 #!/usr/bin/env nextflow
-nextflow.preview.dsl=2
+/*
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    umcugenetics/dxnextflowrna
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    Github : https://github.com/umcugenetics/dxnextflowrna
+----------------------------------------------------------------------------------------
+*/
 
+/*
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    IMPORT FUNCTIONS / MODULES / SUBWORKFLOWS / WORKFLOWS
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+*/
 
-params.reads = '/hpc/diaggen/users/Behzad/bam/PMABM000_fastq/*_r{1,2}.fastq'
-params.transcripts = '/hpc/diaggen/users/Behzad/bam/STAR/hg38_genome/gencode.v39.transcripts.fa'
-
-
-process INDEX {
-
-    input:
-    path fasta
-
-    output:
-    path 'index'
-
-    """
-    salmon index \\
-        -t "${fasta}" \\
-        -i index \\
-    """
-}
-
-
-transcriptome_ch = Channel.fromPath(params.transcripts)
-
-
-process QUANT {
-
-    input:
-    path index
-    tuple val(pair_id), path(reads)
-
-    output:
-    path (pair_id)
-
-    """
-    salmon quant \\
-        --index $index\\
-        --libType=U  \\
-        -1 ${reads[0]} \\
-        -2 ${reads[1]} \\
-        -o $pair_id
-    """
-}
-
-
-read_pairs_ch = Channel.fromFilePairs(params.reads, checkIfExists:true)
+include { DXNEXTFLOWRNA           } from './workflows/dxnextflowrna'
+include { PIPELINE_INITIALISATION } from './subworkflows/local/utils_umcugenetics_dxnextflowrna_pipeline'
+include { PIPELINE_COMPLETION     } from './subworkflows/local/utils_umcugenetics_dxnextflowrna_pipeline'
+/*
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    RUN MAIN WORKFLOW
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+*/
 
 workflow {
+    //
+    // SUBWORKFLOW: Run initialisation tasks
+    //
+    PIPELINE_INITIALISATION(
+        params.version,
+        params.validate_params,
+        params.monochrome_logs,
+        args,
+        params.outdir,
+    )
 
-    index_ch=INDEX(transcriptome_ch)
-    quant_ch=QUANT(index_ch,read_pairs_ch)
+    //
+    // WORKFLOW: Run main workflow
+    //
+    UMCUGENETICS_DXNEXTFLOWRNA()
 
+    //
+    // SUBWORKFLOW: Run completion tasks
+    //
+    PIPELINE_COMPLETION(
+        params.email,
+        params.email_on_fail,
+        params.plaintext_email,
+        params.outdir,
+        params.monochrome_logs,
+        params.hook_url,
+        UMCUGENETICS_DXNEXTFLOWRNA.out.multiqc_report,
+    )
+}
+
+/*
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    NAMED WORKFLOWS FOR PIPELINE
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+*/
+
+//
+// WORKFLOW: Run main analysis pipeline depending on type of input
+//
+workflow UMCUGENETICS_DXNEXTFLOWRNA {
+    main:
+
+    //
+    // WORKFLOW: Run pipeline
+    //
+    DXNEXTFLOWRNA()
+
+    emit:
+    multiqc_report = DXNEXTFLOWRNA.out.multiqc_report // channel: /path/to/multiqc_report.html
 }

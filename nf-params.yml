@@ -1,0 +1,9 @@
+## ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+##     umcugenetics/dxnextflowrna 1.0.0
+## ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+##     This is an example parameter file to pass to the `-params-file` option
+##     of nextflow run with the umcugenetics/dxnextflowrna pipeline.
+##
+##     Uncomment lines with a single '#' if you want to pass the parameter to
+##     the pipeline.
+## -----------------------------------------------------------------------------
