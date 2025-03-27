@@ -32,11 +32,14 @@ workflow DXNEXTFLOWRNA {
         .combine(Channel.fromPath(params.fai))
         .map { fasta, fai -> [[id: fasta.getSimpleName()], fasta, fai] }
         .collect()
-    ch_gene_bed = Channel.fromPath(params.gene_bed)
+    ch_gene_bed = Channel
+        .fromPath(params.gene_bed)
+        .collect()
     ch_gtf = Channel
         .fromPath(params.gtf)
         .map(createMetaWithIdSimpleName)
         .first()
+        .collect()
     ch_star_index = Channel
         .fromPath(params.star_index)
         .map(createMetaWithIdSimpleName)
