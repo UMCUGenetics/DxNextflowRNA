@@ -1,16 +1,14 @@
 #!/usr/bin/env Rscript
 
-                                        # Import statements, alphabetic order of main package.
-suppressPackageStartupMessages(library("argparse"))
-suppressPackageStartupMessages(library("OUTRIDER"))
-suppressPackageStartupMessages(library("tools"))
-suppressPackageStartupMessages(library("tibble"))
-suppressPackageStartupMessages(library("readr"))
-suppressPackageStartupMessages(library("dplyr"))
-suppressPackageStartupMessages(library("stringr"))
+library("argparse")
+library("OUTRIDER")
+library("tools")
+library("tibble")
+library("readr")
+library("dplyr")
+library("stringr")
 
 
-                                        # Argument parser
 parser <- ArgumentParser(description = "Process some integers")
 parser$add_argument(
          "query",
