@@ -4,8 +4,8 @@
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 // MODULES, alphabetical order
-include { SUBREAD_FEATURECOUNTS as SUBREAD_FEATURECOUNTS_GENE } from '../../../modules/nf-core/subread/featurecounts/main'
-include { SUBREAD_FEATURECOUNTS as SUBREAD_FEATURECOUNTS_EXON } from '../../../modules/nf-core/subread/featurecounts/main'
+include { SUBREAD_FEATURECOUNTS as SUBREAD_FEATURECOUNTS_GENE } from '../../modules/nf-core/subread/featurecounts/main'
+include { SUBREAD_FEATURECOUNTS as SUBREAD_FEATURECOUNTS_EXON } from '../../modules/nf-core/subread/featurecounts/main'
 
 workflow BAM_QUANTIFICATION_FEATURECOUNTS {
     take:
