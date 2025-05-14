@@ -139,6 +139,10 @@ workflow DXNEXTFLOWRNA {
     )
     ch_versions = ch_versions.mix(BAM_QUANTIFICATION_FEATURECOUNTS.out.versions)
 
+
+
+
+
     // Add bam_quantification_featurecounts results to MultiQC files
     ch_multiqc_files = ch_multiqc_files.mix(
         BAM_QUANTIFICATION_FEATURECOUNTS.out.gene_counts_summary.collect { it[1] }.ifEmpty([]),
