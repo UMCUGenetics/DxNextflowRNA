@@ -2,12 +2,12 @@ process OUTRIDER {
     tag "$meta.id"
     label 'process_medium'
 
-    conda "${moduleDir}/enfironment.yml"
-    container
+    conda "${moduleDir}/environment.yml"
+    container "oras://community.wave.seqera.io/library/bioconductor-outrider_r-argparse_r-tidyverse:bf4b6d86b39e3c3e"
+
 
     input:
-    tuple val(meta), path(counts)
-    tuple val(meta2), path(refset)
+    tuple val(meta), path(counts), path(refset)
     tuple val(meta3), path(gtf)
 
     output:
@@ -29,6 +29,6 @@ process OUTRIDER {
         --ref ${refset} \\
         --pref ${prefix} \\
         --gtf ${gtf} \\
-        --threads %{nthreads}
+        --threads ${nthreads}
     """
 }
