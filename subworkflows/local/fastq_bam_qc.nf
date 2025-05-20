@@ -9,7 +9,7 @@ include { PICARD_COLLECTRNASEQMETRICS } from '../../modules/nf-core/picard/colle
 include { PRESEQ_LCEXTRAP             } from '../../modules/nf-core/preseq/lcextrap/main'
 
 // SUBWORKFLOWS, alphabetical order
-include { BAM_RSEQC                   } from '../../subworkflows/nf-core/bam_rseqc/main'
+include { BAM_RSEQC                   } from '../nf-core/bam_rseqc/main'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
