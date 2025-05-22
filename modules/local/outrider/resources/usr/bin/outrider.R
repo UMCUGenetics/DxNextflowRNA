@@ -1,6 +1,7 @@
 #!/usr/bin/env Rscript
 
 library("argparse")
+
 library("OUTRIDER")
 library("tools")
 library("tibble")
@@ -59,6 +60,47 @@ args <- parser$parse_args()
 
 
 
+
+main <- function(query, ref, output_path, prefix, gtf, nthreads){
+  save.image('./img.RData')
+
+  query_data <- get_input(query)
+  ref_data   <- get_input(ref)
+
+  all_counts <- merge_count_tables(query_data$count_tables, ref_data$count_tables)
+  all_counts.df <- as.data.frame(all_counts)
+
+  rownames(all_counts.df) <- all_counts.df$rownames
+  all_counts.df$rownames <- NULL
+  all_counts.df$gene_name.x <- NULL
+  all_counts.df$gene_name.y <- NULL
+
+
+  ods <- OutriderDataSet(countData = all_counts.df)
+  ## ods <- filterExpression(ods, gtf)
+  ods <- filter_expression(ods, query, prefix, gtf)
+
+  ods <- run_outrider(ods, query, prefix, gtf, nthreads)
+
+  res <- results(ods)
+
+  write_tsv(query_res, paste0(out_path, prefix, ".outrider_result.tsv"))
+}
+
+## save_output <- function(out_path, out_outrider, ref_samples, prefix, query, padj_thres=0.05, zscore_thres=0, a=TRUE) {
+## #    res <- as_tibble(results(out_outrider, padjCutoff=padj_thres, zScoreCutoff=zscore_thres, all=a))
+##   ##Reference samples are excluded from final results.
+##    #    query_res <- filter(res, !(sampleID %in% ref_samples))
+##   res <- as_tibble(results(out_outrider, all=a))
+##   query_res <- res
+
+##                                         # Write output table with aberrant expressed targets.
+##   write_tsv(query_res, paste0(out_path, prefix, ".outrider_result.tsv"))
+## }
+
+
+
+
 read_input_files <- function(input){
   sampleIDs <- c()
   count_tables <- lapply(input, function(f) {
@@ -96,7 +138,6 @@ get_input <- function(input){
   return(read_input_files(retrieved_files))
 }
 
-
 merge_count_tables <- function(lst_query, lst_ref){
                                         # merge count tables together.
   lst_count_tables <- c(lst_query, lst_ref)
@@ -104,6 +145,57 @@ merge_count_tables <- function(lst_query, lst_ref){
     Reduce(function(dtf1,dtf2) dplyr::full_join(dtf1, dtf2,by="rownames"), .)
   return(all_counts)
 }
+
+run_outrider <- function(ods, query, prefix, gtf, nthreads) {
+
+  plotheat = "counts_heatplots.pdf"
+  pdf(plotheat,onefile = TRUE)
+
+  ods <- filter_expression(ods, query, prefix, gtf)
+
+                                        # Heatmap of the sample correlation
+                                        # it can also annotate the clusters resulting from the dendrogram
+  plotCountCorHeatmap(ods, normalized=FALSE)
+
+                                        # Heatmap of the gene/sample expression
+  ods <- plotCountGeneSampleHeatmap(ods, normalized=FALSE)
+
+  ods <- estimateSizeFactors(ods)
+  message(date(), ": sizeFactors...")
+  print(ods$sizeFactor)
+
+  pars_q <- seq(2, min(100, ncol(ods) - 1, nrow(ods) - 1), 2)
+
+  message(date(), ": findEncodingDim...")
+  ods <- findEncodingDim(ods, params = pars_q, implementation="autoencoder", BPPARAM=MulticoreParam(nthreads))
+
+                                        #find best q (dimension)
+  opt_q <- getBestQ(ods)
+  message(date(), ": getbestQ...")
+  print(opt_q)
+
+  ods <- controlForConfounders(ods, q = opt_q, BPPARAM = MulticoreParam(nthreads))
+
+                                        # After controlling for confounders the heatmap should be plotted again.
+                                        # If it worked, no batches should be present and the correlations between samples should be reduced and close to zero. [1]*
+  ods <- plotCountCorHeatmap(ods, normalized=TRUE)
+  ods <- plotCountGeneSampleHeatmap(ods, normalized=TRUE)
+  dev.off()
+
+                                        #    if(grepl("^(peer|pca)$", implementation)){
+                                        #         message(date(), ": Fitting the data ...") # NOT with autoencoder
+                                        #         ods <- fit(ods, BPPARAM=MulticoreParam(8))
+                                        #    }
+
+  ods <- computePvalues(ods, alternative="two.sided", method="BY", BPPARAM = MulticoreParam(nthreads))
+
+  ods <- computeZscores(ods)
+
+                                        #    run full OUTRIDER pipeline (control, fit model, calculate P-values)
+                                        #    out <- OUTRIDER(ods, BPPARAM=MulticoreParam(8))
+  return(ods)
+}
+
 
 
 filter_expression <- function(ods, query, prefix, gtf){
@@ -142,150 +234,75 @@ filter_expression <- function(ods, query, prefix, gtf){
 }
 
 
-run_outrider <- function(all_counts, query, prefix, gtf, nthreads) {
-                                        # TODO: change to add to single object (ods) in case OOM, instead of renaming the vars.
-  all_counts_matrix <- as.matrix(all_counts)[,-1]
-  mode(all_counts_matrix) <- "integer"
-  rownames(all_counts_matrix) <- all_counts$rownames
 
-  ods <- OutriderDataSet(countData=all_counts_matrix)
+## ##Only necessary for Erasmus app
+## get_ct_emcapp <- function(query, prefix){
+##   count_table <- read_delim(query, show_col_types=FALSE, skip=1)
+##   ct <- count_table[,c(2,3,4,8,1)]
+##   colnames(ct)<- c("chr","start","end","gene","geneID")
+##   ct$chr <- str_split_fixed(ct$chr,';',2)[,1]
+##   ct$start <- str_split_fixed(ct$start,';',2)[,1]
+##   ct$end <- gsub("^.*;", "", ct$end)
 
-  plotheat = "counts_heatplots.pdf"
-  pdf(plotheat,onefile = TRUE)
+##   ##For gene level: create countdata table Identifier chr_start_end_genename
+##   ct$emcID <- paste(ct$chr,ct$start,ct$end,ct$gene,sep="_")
+##   ##For exon level: create countdata table Identifier: add Ensemble exon_id: chr_start_end_genename-exon_id
+##   if(grepl("exon", prefix)){
+##     ct$emcID <- paste(ct$emcID,ct$geneID,sep="-")
+##   }
 
-  ods <- filter_expression(ods, query, prefix, gtf)
+##   return(ct)
+## }
 
-                                        # Heatmap of the sample correlation
-                                        # it can also annotate the clusters resulting from the dendrogram
-  ods <- plotCountCorHeatmap(ods, normalized=FALSE)
+## ##Only necessary for Erasmus app
+## save_res_emcapp <- function(ct, res, prefix, out_path){
+##   res <- as_tibble(results(res, all=TRUE))[,c(2,1,3:14)]
+##   res_merge <- merge(res, ct, by = "geneID", all.res = TRUE)
+##   res_merge$geneENSG <- res_merge$geneID
+##   res_merge$geneID <- res_merge$emcID
+##   res_merge$sample_name<-NA
+##   res_merge$TIN_mean<-NA
+##   res_merge$link_bam<-NA
 
-                                        # Heatmap of the gene/sample expression
-  ods <- plotCountGeneSampleHeatmap(ods, normalized=FALSE)
+##   fragment <- "genes"
+##   treatment <- "untreated"
+##   if(grepl("exon",prefix)){ fragment <- "exons"}
+##   if(grepl("chx|CHX",prefix)){ treatment <- "CHX"}
+##   write_csv(res_merge[,c(1:18,20:23)], paste0(out_path, "umcu_rnaseq_fib_",treatment,"_res_outrider_",fragment,"_counts.tsv"), append=FALSE, col_names = TRUE)
+## }
 
-  ods <- estimateSizeFactors(ods)
-  message(date(), ": sizeFactors...")
-  print(ods$sizeFactor)
+## ##Only necessary for Erasmus app
+## save_count_meta_emcapp <- function(ct, all_counts, out_path, prefix){
+##   ct <- ct[,c("emcID","geneID")]
+##   colnames(all_counts)[1]<-c("geneID")
+##   merge_counts <- merge(all_counts, ct, by = "geneID", all.ct = TRUE)
+##   merge_counts$geneID <- merge_counts$emcID
+##   counts_out <- merge_counts[,c(1:ncol(merge_counts)-1)]
+##   colnames(counts_out)[1]<-c("")
 
-  pars_q <- seq(2, min(100, ncol(ods) - 1, nrow(ods) - 1), 2)
+##   ##countdata output table EMC app
+##   if(grepl("gene", prefix)){
+##     write_tsv(counts_out, paste0(out_path, "umcu_rnaseq_genes_counts.tsv"))
+##   }else{
+##     write_tsv(counts_out, paste0(out_path, "umcu_rnaseq_exons_counts.tsv"))
+##   }
 
-  message(date(), ": findEncodingDim...")
-  ods <- findEncodingDim(ods, params = pars_q, implementation="autoencoder", BPPARAM=MulticoreParam(nthreads))
+##   ##Meta output table EMC app
+##   treatment <- "untreated"
+##   if(grepl("chx|CHX",prefix)){ treatment <- "chx"}
+##   metadata<-data.frame(colnames(counts_out[,2:ncol(counts_out)]),treatment,"fib","umcu_rnaseq",0,"")
+##   colnames(metadata)<-c("sample_id","treatment","species","experiment_GS","gender","drop")
+##   if(grepl("gene",prefix)){
+##     write.csv2(metadata,paste0(out_path, "umcu_rnaseq_metadata_genes.csv"), row.names = FALSE, quote=FALSE)
+##   }else{
+##     write.csv2(metadata,paste0(out_path, "umcu_rnaseq_metadata_exons.csv"), row.names = FALSE, quote=FALSE)
+##   }
+## }
 
-                                        #find best q (dimension)
-  opt_q <- getBestQ(ods)
-  message(date(), ": getbestQ...")
-  print(opt_q)
 
-  ods <- controlForConfounders(ods, q = opt_q, BPPARAM = MulticoreParam(nthreads))
 
-                                        # After controlling for confounders the heatmap should be plotted again.
-                                        # If it worked, no batches should be present and the correlations between samples should be reduced and close to zero. [1]*
-  ods <- plotCountCorHeatmap(ods, normalized=TRUE)
-  ods <- plotCountGeneSampleHeatmap(ods, normalized=TRUE)
-  dev.off()
 
-                                        #    if(grepl("^(peer|pca)$", implementation)){
-                                        #         message(date(), ": Fitting the data ...") # NOT with autoencoder
-                                        #         ods <- fit(ods, BPPARAM=MulticoreParam(8))
-                                        #    }
 
-  ods <- computePvalues(ods, alternative="two.sided", method="BY", BPPARAM = MulticoreParam(nthreads))
-  out <- computeZscores(ods)
-
-                                        #    run full OUTRIDER pipeline (control, fit model, calculate P-values)
-                                        #    out <- OUTRIDER(ods, BPPARAM=MulticoreParam(8))
-  return(out)
-}
-
-##Only necessary for Erasmus app
-get_ct_emcapp <- function(query, prefix){
-  count_table <- read_delim(query, show_col_types=FALSE, skip=1)
-  ct <- count_table[,c(2,3,4,8,1)]
-  colnames(ct)<- c("chr","start","end","gene","geneID")
-  ct$chr <- str_split_fixed(ct$chr,';',2)[,1]
-  ct$start <- str_split_fixed(ct$start,';',2)[,1]
-  ct$end <- gsub("^.*;", "", ct$end)
-
-  ##For gene level: create countdata table Identifier chr_start_end_genename
-  ct$emcID <- paste(ct$chr,ct$start,ct$end,ct$gene,sep="_")
-  ##For exon level: create countdata table Identifier: add Ensemble exon_id: chr_start_end_genename-exon_id
-  if(grepl("exon", prefix)){
-    ct$emcID <- paste(ct$emcID,ct$geneID,sep="-")
-  }
-
-  return(ct)
-}
-
-##Only necessary for Erasmus app
-save_res_emcapp <- function(ct, res, prefix, out_path){
-  res <- as_tibble(results(res, all=TRUE))[,c(2,1,3:14)]
-  res_merge <- merge(res, ct, by = "geneID", all.res = TRUE)
-  res_merge$geneENSG <- res_merge$geneID
-  res_merge$geneID <- res_merge$emcID
-  res_merge$sample_name<-NA
-  res_merge$TIN_mean<-NA
-  res_merge$link_bam<-NA
-
-  fragment <- "genes"
-  treatment <- "untreated"
-  if(grepl("exon",prefix)){ fragment <- "exons"}
-  if(grepl("chx|CHX",prefix)){ treatment <- "CHX"}
-  write_csv(res_merge[,c(1:18,20:23)], paste0(out_path, "umcu_rnaseq_fib_",treatment,"_res_outrider_",fragment,"_counts.tsv"), append=FALSE, col_names = TRUE)
-}
-
-##Only necessary for Erasmus app
-save_count_meta_emcapp <- function(ct, all_counts, out_path, prefix){
-  ct <- ct[,c("emcID","geneID")]
-  colnames(all_counts)[1]<-c("geneID")
-  merge_counts <- merge(all_counts, ct, by = "geneID", all.ct = TRUE)
-  merge_counts$geneID <- merge_counts$emcID
-  counts_out <- merge_counts[,c(1:ncol(merge_counts)-1)]
-  colnames(counts_out)[1]<-c("")
-
-  ##countdata output table EMC app
-  if(grepl("gene", prefix)){
-    write_tsv(counts_out, paste0(out_path, "umcu_rnaseq_genes_counts.tsv"))
-  }else{
-    write_tsv(counts_out, paste0(out_path, "umcu_rnaseq_exons_counts.tsv"))
-  }
-
-  ##Meta output table EMC app
-  treatment <- "untreated"
-  if(grepl("chx|CHX",prefix)){ treatment <- "chx"}
-  metadata<-data.frame(colnames(counts_out[,2:ncol(counts_out)]),treatment,"fib","umcu_rnaseq",0,"")
-  colnames(metadata)<-c("sample_id","treatment","species","experiment_GS","gender","drop")
-  if(grepl("gene",prefix)){
-    write.csv2(metadata,paste0(out_path, "umcu_rnaseq_metadata_genes.csv"), row.names = FALSE, quote=FALSE)
-  }else{
-    write.csv2(metadata,paste0(out_path, "umcu_rnaseq_metadata_exons.csv"), row.names = FALSE, quote=FALSE)
-  }
-}
-
-save_output <- function(out_path, out_outrider, ref_samples, prefix, query, padj_thres=0.05, zscore_thres=0, a=TRUE) {
-                                        #    res <- as_tibble(results(out_outrider, padjCutoff=padj_thres, zScoreCutoff=zscore_thres, all=a))
-  ##Reference samples are excluded from final results.
-                                        #    query_res <- filter(res, !(sampleID %in% ref_samples))
-  res <- as_tibble(results(out_outrider, all=a))
-  query_res <- res
-
-                                        # Write output table with aberrant expressed targets.
-  write_tsv(query_res, paste0(out_path, prefix, ".outrider_result.tsv"))
-}
-
-                                        # TODO: investigate memory usage and if possible reduced / parallel.
-main <- function(query, ref, output_path, prefix, gtf, nthreads){
-  query_data <- get_input(query)
-  ref_data <- get_input(ref)
-  all_counts <- merge_count_tables(query_data$count_tables, ref_data$count_tables)
-
-  output <- run_outrider(all_counts, query, prefix, gtf)
-  save_output(output_path, output, ref_data$sampleIDs, prefix, query)
-
-  ##Only necessary for Erasmus app, to get the counts, meta and outrider results tables
-  ct_emcapp <- get_ct_emcapp(query, prefix)
-  save_count_meta_emcapp(ct_emcapp, all_counts, output_path, prefix)
-  save_res_emcapp(ct_emcapp, output, prefix, output_path)
-}
 
 
 main(args$query, args$ref, args$output_path, args$pref, args$gtf, args$nthreads)
