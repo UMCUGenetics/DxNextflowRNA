@@ -4,7 +4,8 @@
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 // MODULES, alphabetical order
-include { MULTIQC                       } from '../modules/nf-core/multiqc/main'
+include { MULTIQC                          } from '../modules/nf-core/multiqc/main'
+include { OUTRIDER as OUTRIDER_GENE        } from '../modules/local/outrider/main'
 
 // SUBWORKFLOWS, alphabetical order
 include { BAM_QUANTIFICATION_FEATURECOUNTS } from '../subworkflows/local/bam_quantification_featurecounts'
@@ -36,7 +37,7 @@ workflow DXNEXTFLOWRNA {
     ch_gtf = Channel
         .fromPath(params.gtf)
         .map(createMetaWithIdSimpleName)
-        .first()
+        .collect()
     ch_star_index = Channel
         .fromPath(params.star_index)
         .map(createMetaWithIdSimpleName)
@@ -140,14 +141,31 @@ workflow DXNEXTFLOWRNA {
     ch_versions = ch_versions.mix(BAM_QUANTIFICATION_FEATURECOUNTS.out.versions)
 
 
-
-
-
     // Add bam_quantification_featurecounts results to MultiQC files
     ch_multiqc_files = ch_multiqc_files.mix(
         BAM_QUANTIFICATION_FEATURECOUNTS.out.gene_counts_summary.collect { it[1] }.ifEmpty([]),
-        BAM_QUANTIFICATION_FEATURECOUNTS.out.exon_counts_summary.collect { it[1] }.ifEmpty([]),
+        BAM_QUANTIFICATION_FEATURECOUNTS.out.exon_counts_summary.collect { it[1] }.ifEmpty([])
     )
+
+
+
+    ch_outrider_gene_chx_set1 = Channel.fromPath("${params.outrider_gene_chx_parents}/")
+    ch_outrider_gene_cntrl_set1 = Channel.fromPath("${params.outrider_gene_cntrl_parents}/")
+
+    ch_outrider_refsets = ch_outrider_gene_chx_set1
+        .concat(ch_outrider_gene_cntrl_set1)
+
+    BAM_QUANTIFICATION_FEATURECOUNTS.out.gene_counts
+            .combine(ch_outrider_refsets)
+            .map{meta, counts, ref_path -> [["id": meta.id, "refset": ref_path.getSimpleName()], counts, ref_path]}
+        .set{ch_feature_counts_refset}
+
+     OUTRIDER_GENE(
+        ch_feature_counts_refset,
+        ch_gtf
+    )
+
+
 
     //
     // Collate and save software versions
