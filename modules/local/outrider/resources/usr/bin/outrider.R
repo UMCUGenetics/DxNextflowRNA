@@ -62,7 +62,7 @@ args <- parser$parse_args()
 
 
 main <- function(query, ref, output_path, prefix, gtf, nthreads){
-  save.image('./img.RData')
+
 
   query_data <- get_input(query)
   ref_data   <- get_input(ref)
@@ -86,17 +86,6 @@ main <- function(query, ref, output_path, prefix, gtf, nthreads){
 
   write_tsv(query_res, paste0(out_path, prefix, ".outrider_result.tsv"))
 }
-
-## save_output <- function(out_path, out_outrider, ref_samples, prefix, query, padj_thres=0.05, zscore_thres=0, a=TRUE) {
-## #    res <- as_tibble(results(out_outrider, padjCutoff=padj_thres, zScoreCutoff=zscore_thres, all=a))
-##   ##Reference samples are excluded from final results.
-##    #    query_res <- filter(res, !(sampleID %in% ref_samples))
-##   res <- as_tibble(results(out_outrider, all=a))
-##   query_res <- res
-
-##                                         # Write output table with aberrant expressed targets.
-##   write_tsv(query_res, paste0(out_path, prefix, ".outrider_result.tsv"))
-## }
 
 
 
@@ -151,8 +140,6 @@ run_outrider <- function(ods, query, prefix, gtf, nthreads) {
   plotheat = "counts_heatplots.pdf"
   pdf(plotheat,onefile = TRUE)
 
-  ods <- filter_expression(ods, query, prefix, gtf)
-
                                         # Heatmap of the sample correlation
                                         # it can also annotate the clusters resulting from the dendrogram
   plotCountCorHeatmap(ods, normalized=FALSE)
@@ -164,10 +151,15 @@ run_outrider <- function(ods, query, prefix, gtf, nthreads) {
   message(date(), ": sizeFactors...")
   print(ods$sizeFactor)
 
-  pars_q <- seq(2, min(100, ncol(ods) - 1, nrow(ods) - 1), 2)
+  ## pars_q <- seq(2, min(100, ncol(ods) - 1, nrow(ods) - 1), 2)
 
+  ## message(date(), paste(c(": ", pars_q), collapse=", "))
   message(date(), ": findEncodingDim...")
-  ods <- findEncodingDim(ods, params = pars_q, implementation="autoencoder", BPPARAM=MulticoreParam(nthreads))
+  ods <- findEncodingDim(ods,
+                         ## params=pars_q,
+                         implementation="autoencoder",
+                         BPPARAM=MulticoreParam(nthreads)
+                         )
 
                                         #find best q (dimension)
   opt_q <- getBestQ(ods)
@@ -235,74 +227,4 @@ filter_expression <- function(ods, query, prefix, gtf){
 
 
 
-## ##Only necessary for Erasmus app
-## get_ct_emcapp <- function(query, prefix){
-##   count_table <- read_delim(query, show_col_types=FALSE, skip=1)
-##   ct <- count_table[,c(2,3,4,8,1)]
-##   colnames(ct)<- c("chr","start","end","gene","geneID")
-##   ct$chr <- str_split_fixed(ct$chr,';',2)[,1]
-##   ct$start <- str_split_fixed(ct$start,';',2)[,1]
-##   ct$end <- gsub("^.*;", "", ct$end)
-
-##   ##For gene level: create countdata table Identifier chr_start_end_genename
-##   ct$emcID <- paste(ct$chr,ct$start,ct$end,ct$gene,sep="_")
-##   ##For exon level: create countdata table Identifier: add Ensemble exon_id: chr_start_end_genename-exon_id
-##   if(grepl("exon", prefix)){
-##     ct$emcID <- paste(ct$emcID,ct$geneID,sep="-")
-##   }
-
-##   return(ct)
-## }
-
-## ##Only necessary for Erasmus app
-## save_res_emcapp <- function(ct, res, prefix, out_path){
-##   res <- as_tibble(results(res, all=TRUE))[,c(2,1,3:14)]
-##   res_merge <- merge(res, ct, by = "geneID", all.res = TRUE)
-##   res_merge$geneENSG <- res_merge$geneID
-##   res_merge$geneID <- res_merge$emcID
-##   res_merge$sample_name<-NA
-##   res_merge$TIN_mean<-NA
-##   res_merge$link_bam<-NA
-
-##   fragment <- "genes"
-##   treatment <- "untreated"
-##   if(grepl("exon",prefix)){ fragment <- "exons"}
-##   if(grepl("chx|CHX",prefix)){ treatment <- "CHX"}
-##   write_csv(res_merge[,c(1:18,20:23)], paste0(out_path, "umcu_rnaseq_fib_",treatment,"_res_outrider_",fragment,"_counts.tsv"), append=FALSE, col_names = TRUE)
-## }
-
-## ##Only necessary for Erasmus app
-## save_count_meta_emcapp <- function(ct, all_counts, out_path, prefix){
-##   ct <- ct[,c("emcID","geneID")]
-##   colnames(all_counts)[1]<-c("geneID")
-##   merge_counts <- merge(all_counts, ct, by = "geneID", all.ct = TRUE)
-##   merge_counts$geneID <- merge_counts$emcID
-##   counts_out <- merge_counts[,c(1:ncol(merge_counts)-1)]
-##   colnames(counts_out)[1]<-c("")
-
-##   ##countdata output table EMC app
-##   if(grepl("gene", prefix)){
-##     write_tsv(counts_out, paste0(out_path, "umcu_rnaseq_genes_counts.tsv"))
-##   }else{
-##     write_tsv(counts_out, paste0(out_path, "umcu_rnaseq_exons_counts.tsv"))
-##   }
-
-##   ##Meta output table EMC app
-##   treatment <- "untreated"
-##   if(grepl("chx|CHX",prefix)){ treatment <- "chx"}
-##   metadata<-data.frame(colnames(counts_out[,2:ncol(counts_out)]),treatment,"fib","umcu_rnaseq",0,"")
-##   colnames(metadata)<-c("sample_id","treatment","species","experiment_GS","gender","drop")
-##   if(grepl("gene",prefix)){
-##     write.csv2(metadata,paste0(out_path, "umcu_rnaseq_metadata_genes.csv"), row.names = FALSE, quote=FALSE)
-##   }else{
-##     write.csv2(metadata,paste0(out_path, "umcu_rnaseq_metadata_exons.csv"), row.names = FALSE, quote=FALSE)
-##   }
-## }
-
-
-
-
-
-
-
-main(args$query, args$ref, args$output_path, args$pref, args$gtf, args$nthreads)
+main(args$query, args$ref, args$output_path, args$pref, args$gtf, args$threads)
