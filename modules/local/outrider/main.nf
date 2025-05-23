@@ -7,8 +7,8 @@ process OUTRIDER {
 
 
     input:
-    tuple val(meta), path(counts), path(refset)
-    tuple val(meta3), path(gtf)
+    tuple path(counts), path(refset)
+    tuple val(meta), path(gtf)
 
     output:
     tuple val(meta), path("*.tsv"), emit: tsv
@@ -22,13 +22,14 @@ process OUTRIDER {
     def prefix = task.ext.prefix ?: "${meta.id}"
     def args = task.ext.args ?: ""
     def nthreads = task.cpus ?: 1
+    def count_files = counts.join(" ")
     """
     outrider.R \\
         ${args} \\
-        ${counts} \\
         --ref ${refset} \\
         --pref ${prefix} \\
         --gtf ${gtf} \\
-        --threads ${nthreads}
+        --threads ${nthreads} \\
+        ${count_files} \\
     """
 }

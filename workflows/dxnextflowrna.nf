@@ -33,10 +33,13 @@ workflow DXNEXTFLOWRNA {
         .fromPath(params.fasta)
         .combine(Channel.fromPath(params.fai))
         .map { fasta, fai -> [[id: fasta.getSimpleName()], fasta, fai] }
-    ch_gene_bed = Channel.fromPath(params.gene_bed)
+    ch_gene_bed = Channel
+        .fromPath(params.gene_bed)
+        .collect()
     ch_gtf = Channel
         .fromPath(params.gtf)
         .map(createMetaWithIdSimpleName)
+        .first()
         .collect()
     ch_star_index = Channel
         .fromPath(params.star_index)
@@ -134,6 +137,8 @@ workflow DXNEXTFLOWRNA {
     //
     // SUBWORKFLOW: Run bam_quantification_featurecounts
     //
+
+    
     BAM_QUANTIFICATION_FEATURECOUNTS(
         FASTQ_TRIM_FILTER_ALIGN_DEDUP.out.ch_bam_bai,
         ch_gtf
@@ -150,18 +155,32 @@ workflow DXNEXTFLOWRNA {
 
 
     ch_outrider_gene_chx_set1 = Channel.fromPath("${params.outrider_gene_chx_parents}/")
+    ch_outrider_gene_chx_set2 = Channel.fromPath("${params.outrider_gene_chx_index}/")
+
     ch_outrider_gene_cntrl_set1 = Channel.fromPath("${params.outrider_gene_cntrl_parents}/")
+    ch_outrider_gene_cntrl_set2 = Channel.fromPath("${params.outrider_gene_cntrl_index}/")
 
-    ch_outrider_refsets = ch_outrider_gene_chx_set1
-        .concat(ch_outrider_gene_cntrl_set1)
+    ch_outrider_refset_gene_chx = ch_outrider_gene_chx_set1
+        .concat(ch_outrider_gene_chx_set2)
+    ch_outrider_refset_gene_cntrl = ch_outrider_gene_cntrl_set1
+        .concat(ch_outrider_gene_cntrl_set2)
 
-    BAM_QUANTIFICATION_FEATURECOUNTS.out.gene_counts
-            .combine(ch_outrider_refsets)
-            .map{meta, counts, ref_path -> [["id": meta.id, "refset": ref_path.getSimpleName()], counts, ref_path]}
-        .set{ch_feature_counts_refset}
 
-     OUTRIDER_GENE(
-        ch_feature_counts_refset,
+    ch_feature_counts_genes = BAM_QUANTIFICATION_FEATURECOUNTS.out.gene_counts
+            .map{ meta, counts -> counts }
+            .collect()
+            .map{counts -> [counts]}
+
+    ch_feature_counts_genes_chx = ch_feature_counts_genes
+        .filter(chx)
+        .combine(ch_outrider_refset_gene_chx)
+
+    ch_feature_counts_genes_cntrl = ch_feature_counts_genes
+        .filter(cntrl)
+        .combine(ch_outrider_refset_gene_cntrl)
+
+      OUTRIDER_GENE(
+        ch_feature_counts_genes_chx,
         ch_gtf
     )
 

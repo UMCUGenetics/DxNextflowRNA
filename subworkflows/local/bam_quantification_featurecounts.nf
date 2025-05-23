@@ -15,7 +15,7 @@ workflow BAM_QUANTIFICATION_FEATURECOUNTS {
     main:
     // Create empty versions channel, and fill with each tools version
     ch_versions = Channel.empty()
-    path_gtf = ch_gtf.map { meta, gtf -> gtf }
+    path_gtf = ch_gtf.map { meta, gtf -> gtf }.collect()
     ch_bam_gtf = ch_bam_bai.combine(path_gtf).map { meta, bam, bai, gtf -> [meta, bam, gtf] }
 
 
@@ -24,7 +24,7 @@ workflow BAM_QUANTIFICATION_FEATURECOUNTS {
     ch_versions = ch_versions.mix(SUBREAD_FEATURECOUNTS_GENE.out.versions.first())
 
     SUBREAD_FEATURECOUNTS_EXON(ch_bam_gtf)
-    // ch_versions = ch_versions.mix(SUBREAD_FEATURECOUNTS_EXON.out.versions.first())
+    ch_versions = ch_versions.mix(SUBREAD_FEATURECOUNTS_EXON.out.versions.first())
 
     emit:
     gene_counts_summary = SUBREAD_FEATURECOUNTS_GENE.out.summary // path featureCounts.txt.summary

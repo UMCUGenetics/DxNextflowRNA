@@ -67,7 +67,6 @@ args <- parser$parse_args()
 
 main <- function(query, ref, output_path, prefix, gtf, nthreads){
 
-
   query_data <- get_input(query)
   ref_data   <- get_input(ref)
 
@@ -140,6 +139,7 @@ merge_count_tables <- function(lst_query, lst_ref){
 }
 
 run_outrider <- function(ods, query, prefix, gtf, nthreads) {
+  BPPARAM <-SnowParam(workers = nthreads, type = "SOCK")
 
   plotheat = "counts_heatplots.pdf"
   pdf(plotheat,onefile = TRUE)
@@ -162,7 +162,7 @@ run_outrider <- function(ods, query, prefix, gtf, nthreads) {
   ods <- findEncodingDim(ods,
                          ## params=pars_q,
                          implementation="autoencoder",
-                         BPPARAM=MulticoreParam(nthreads)
+                         BPPARAM=BPPARAM
                          )
 
                                         #find best q (dimension)
