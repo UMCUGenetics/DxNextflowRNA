@@ -1,7 +1,6 @@
 #!/usr/bin/env Rscript
 
 library("argparse")
-
 library("OUTRIDER")
 library("tools")
 library("tibble")
@@ -59,6 +58,11 @@ parser$add_argument(
 args <- parser$parse_args()
 
 
+## ref <- "data2/gene_set1_parents_20250513/"
+## prefix <- "gencode_gene"
+## nthreads <- 12
+## gtf <- "data2/gencode.v44.primary_assembly.basic.annotation.gtf"
+## query <- c("data2/2024L00687plusCHX.gene.featureCounts.tsv", "data2/2024L00686cntrl.gene.featureCounts.tsv")
 
 
 main <- function(query, ref, output_path, prefix, gtf, nthreads){
@@ -84,7 +88,7 @@ main <- function(query, ref, output_path, prefix, gtf, nthreads){
 
   res <- results(ods)
 
-  write_tsv(query_res, paste0(out_path, prefix, ".outrider_result.tsv"))
+  write_tsv(res, paste0(output_path, prefix, ".outrider_result.tsv"))
 }
 
 
