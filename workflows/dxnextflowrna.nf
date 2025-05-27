@@ -168,15 +168,15 @@ workflow DXNEXTFLOWRNA {
 
     ch_feature_counts_genes = BAM_QUANTIFICATION_FEATURECOUNTS.out.gene_counts
             .map{ meta, counts -> counts }
-            .collect()
-            .map{counts -> [counts]}
 
     ch_feature_counts_genes_chx = ch_feature_counts_genes
-        .filter(chx)
+        .filter{ it.toString().contains('CHX') }
+        .collect()
         .combine(ch_outrider_refset_gene_chx)
 
     ch_feature_counts_genes_cntrl = ch_feature_counts_genes
-        .filter(cntrl)
+        .filter{ it.toString().contains('cntrl') }
+        .collect()
         .combine(ch_outrider_refset_gene_cntrl)
 
       OUTRIDER_GENE(

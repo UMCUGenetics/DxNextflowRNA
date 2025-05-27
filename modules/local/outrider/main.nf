@@ -11,9 +11,8 @@ process OUTRIDER {
     tuple val(meta), path(gtf)
 
     output:
-    tuple val(meta), path("*.tsv"), emit: tsv
-    tuple val(meta), path("*.csv"), emit: csv
-    tuple val(meta), path("*.pdf"), emit: psv
+    tuple val(meta), path("*.outrider_result.tsv"), emit: tsv
+    tuple val(meta), path("counts_heatplots.pdf"), emit: psv
 
     when:
     task.ext.when == null || task.ext.when
