@@ -3,15 +3,15 @@
     IMPORT MODULES / SUBWORKFLOWS / FUNCTIONS
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
-// MODULES, alphabetical order
+// MODULES
 include { MULTIQC                       } from '../modules/nf-core/multiqc/main'
 
-// SUBWORKFLOWS, alphabetical order
+// SUBWORKFLOWS
 include { BAM_QUANTIFICATION_FEATURECOUNTS } from '../subworkflows/local/bam_quantification_featurecounts'
 include { FASTQ_BAM_QC                  } from '../subworkflows/local/fastq_bam_qc'
 include { FASTQ_TRIM_FILTER_ALIGN_DEDUP } from '../subworkflows/local/fastq_trim_filter_align_dedup'
 
-// FUNCTIONS, alphabetical order
+// FUNCTION
 include { methodsDescriptionText        } from '../subworkflows/local/utils_umcugenetics_dxnextflowrna_pipeline'
 include { paramsSummaryMap              } from 'plugin/nf-schema'
 include { paramsSummaryMultiqc          } from '../subworkflows/nf-core/utils_nfcore_pipeline'
