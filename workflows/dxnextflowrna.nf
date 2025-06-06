@@ -3,16 +3,16 @@
     IMPORT MODULES / SUBWORKFLOWS / FUNCTIONS
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
-// MODULES, alphabetical order
+// MODULES
 include { MULTIQC                          } from '../modules/nf-core/multiqc/main'
-include { OUTRIDER as OUTRIDER_GENE        } from '../modules/local/outrider/main'
 
-// SUBWORKFLOWS, alphabetical order
+// SUBWORKFLOWS
 include { BAM_QUANTIFICATION_FEATURECOUNTS } from '../subworkflows/local/bam_quantification_featurecounts'
-include { FASTQ_BAM_QC                  } from '../subworkflows/local/fastq_bam_qc'
-include { FASTQ_TRIM_FILTER_ALIGN_DEDUP } from '../subworkflows/local/fastq_trim_filter_align_dedup'
+include { FASTQ_BAM_QC                     } from '../subworkflows/local/fastq_bam_qc'
+include { FASTQ_TRIM_FILTER_ALIGN_DEDUP    } from '../subworkflows/local/fastq_trim_filter_align_dedup'
+include { GENE_EXON_OUTRIDER               } from '../subworkflows/local/gene_exon_outrider'
 
-// FUNCTIONS, alphabetical order
+// FUNCTIONS
 include { methodsDescriptionText        } from '../subworkflows/local/utils_umcugenetics_dxnextflowrna_pipeline'
 include { paramsSummaryMap              } from 'plugin/nf-schema'
 include { paramsSummaryMultiqc          } from '../subworkflows/nf-core/utils_nfcore_pipeline'
@@ -153,39 +153,22 @@ workflow DXNEXTFLOWRNA {
     )
 
 
+    //
+    // SUBWORKFLOW: Run bam_outrider for genes and exons
+    //
 
-    ch_outrider_gene_chx_set1 = Channel.fromPath("${params.outrider_gene_chx_parents}/")
-    ch_outrider_gene_chx_set2 = Channel.fromPath("${params.outrider_gene_chx_index}/")
-
-    ch_outrider_gene_cntrl_set1 = Channel.fromPath("${params.outrider_gene_cntrl_parents}/")
-    ch_outrider_gene_cntrl_set2 = Channel.fromPath("${params.outrider_gene_cntrl_index}/")
-
-    ch_outrider_refset_gene_chx = ch_outrider_gene_chx_set1
-        .concat(ch_outrider_gene_chx_set2)
-    ch_outrider_refset_gene_cntrl = ch_outrider_gene_cntrl_set1
-        .concat(ch_outrider_gene_cntrl_set2)
-
-
-    ch_feature_counts_genes = BAM_QUANTIFICATION_FEATURECOUNTS.out.gene_counts
-            .map{ meta, counts -> counts }
-
-    ch_feature_counts_genes_chx = ch_feature_counts_genes
-        .filter{ it.toString().contains('CHX') }
-        .collect()
-        .combine(ch_outrider_refset_gene_chx)
-
-    ch_feature_counts_genes_cntrl = ch_feature_counts_genes
-        .filter{ it.toString().contains('cntrl') }
-        .collect()
-        .combine(ch_outrider_refset_gene_cntrl)
-
-      OUTRIDER_GENE(
-        ch_feature_counts_genes_chx,
+    GENE_EXON_OUTRIDER(
+        BAM_QUANTIFICATION_FEATURECOUNTS.out.gene_counts,
+        BAM_QUANTIFICATION_FEATURECOUNTS.out.exon_counts,
         ch_gtf
     )
+    ch_versions = ch_versions.mix(GENE_EXON_OUTRIDER.out.versions)
 
+    ch_multiqc_files = ch_multiqc_files.mix(
+        GENE_EXON_OUTRIDER.out.gene_multiqc.map{meta, counts -> counts}.collect()
+    )
 
-
+    ch_multiqc_files.view()
     //
     // Collate and save software versions
     //
@@ -237,6 +220,8 @@ workflow DXNEXTFLOWRNA {
     )
     // Collate software versions
     ch_multiqc_files = ch_multiqc_files.mix(ch_collated_versions)
+
+    ch_multiqc_files.view()
 
     MULTIQC(
         ch_multiqc_files.collect(),

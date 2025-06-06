@@ -7,12 +7,15 @@ process OUTRIDER {
 
 
     input:
-    tuple path(counts), path(refset)
-    tuple val(meta), path(gtf)
+    tuple val(meta), path(query), path(refset)
+    tuple val(meta2), path(gtf)
 
     output:
-    tuple val(meta), path("*.outrider_result.tsv"), emit: tsv
-    tuple val(meta), path("counts_heatplots.pdf"), emit: psv
+    tuple val(meta), path("*_outrider_result_full.tsv")      , emit: tsv_full
+    tuple val(meta), path("*_outrider_result_signif.tsv")    , emit: tsv_signif
+    tuple val(meta), path("*_outrider_result_signif_mqc.tsv"), emit: multiqc_tsv
+    tuple val(meta), path("*volcano_plots")                  , emit: volcano_plots
+    path "versions.yml"                                      , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
@@ -21,14 +24,20 @@ process OUTRIDER {
     def prefix = task.ext.prefix ?: "${meta.id}"
     def args = task.ext.args ?: ""
     def nthreads = task.cpus ?: 1
-    def count_files = counts.join(" ")
     """
     outrider.R \\
         ${args} \\
         --ref ${refset} \\
-        --pref ${prefix} \\
         --gtf ${gtf} \\
         --threads ${nthreads} \\
-        ${count_files} \\
+        --queries ${query} \\
+        --prefix ${prefix}
+
+    cp ${prefix}_outrider_result_signif.tsv ${prefix}_outrider_result_signif_mqc.tsv
+
+    cat <<- END_VERSIONS > versions.yml
+    "${task.process}":
+        outrider: \$(outrider.R --version)
+    END_VERSIONS
     """
 }

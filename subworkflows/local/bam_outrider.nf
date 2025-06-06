@@ -1,3 +1,0 @@
-workflow BAM_OUTRIDER {
-
-}
