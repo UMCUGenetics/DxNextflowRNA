@@ -164,11 +164,21 @@ workflow DXNEXTFLOWRNA {
     )
     ch_versions = ch_versions.mix(GENE_EXON_OUTRIDER.out.versions)
 
+
     ch_multiqc_files = ch_multiqc_files.mix(
-        GENE_EXON_OUTRIDER.out.gene_multiqc.map{meta, counts -> counts}.collect()
+        GENE_EXON_OUTRIDER.out.gene_multiqc
+            .map{meta, counts -> counts}
+            .collect()
     )
 
-    ch_multiqc_files.view()
+    ch_multiqc_files = ch_multiqc_files.mix(
+        GENE_EXON_OUTRIDER.out.exon_multiqc
+            .map{meta, counts -> counts}
+            .collect()
+    )
+
+
+
     //
     // Collate and save software versions
     //
@@ -221,7 +231,7 @@ workflow DXNEXTFLOWRNA {
     // Collate software versions
     ch_multiqc_files = ch_multiqc_files.mix(ch_collated_versions)
 
-    ch_multiqc_files.view()
+    // ch_multiqc_files.view()
 
     MULTIQC(
         ch_multiqc_files.collect(),

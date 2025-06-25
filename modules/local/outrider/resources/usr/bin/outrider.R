@@ -93,7 +93,7 @@ make_query_plots <- function(query_files, ods, prefix, outdir = "./"){
   dir.create(volcano_dir, showWarnings = FALSE)
 
   for (query in query_files){
-    file_name <- paste0(volcano_dir, query, ".pdf")
+    file_name <- paste0(volcano_dir, query, ".png")
     message(paste("Plotting volcano for: ", file_name, "In:", volcano_dir ))
     pdf(file_name)
     print(plotVolcano(ods, sampleID=query, basePlot=T))
@@ -138,12 +138,12 @@ main <- function(args){
 
   write.table(
     res_full,
-    quote=F, sep="\t",
+    quote=F, sep="\t", row.names=F,
     file=paste0(args$prefix,"_outrider_result_full.tsv")
   )
   write.table(
     res_signif,
-    quote=F, sep="\t",
+    quote=F, sep="\t", row.names=F,
     file=paste0(args$prefix,"_outrider_result_signif.tsv")
   )
 

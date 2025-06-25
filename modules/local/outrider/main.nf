@@ -33,7 +33,11 @@ process OUTRIDER {
         --queries ${query} \\
         --prefix ${prefix}
 
-    cp ${prefix}_outrider_result_signif.tsv ${prefix}_outrider_result_signif_mqc.tsv
+
+    echo "# parent_id: OUTRIDER - ${task.ext.mode}" >> ${prefix}_outrider_result_signif_mqc.tsv
+    echo "# parent_name: OUTRIDER - ${task.ext.mode}" >> ${prefix}_outrider_result_signif_mqc.tsv
+    echo "# section_name: ${prefix}" >> ${prefix}_outrider_result_signif_mqc.tsv
+    cat ${prefix}_outrider_result_signif.tsv >> ${prefix}_outrider_result_signif_mqc.tsv
 
     cat <<- END_VERSIONS > versions.yml
     "${task.process}":
