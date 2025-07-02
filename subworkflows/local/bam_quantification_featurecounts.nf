@@ -4,8 +4,8 @@
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 // MODULES
-include { SUBREAD_FEATURECOUNTS as SUBREAD_FEATURECOUNTS_GENE } from '../../../modules/nf-core/subread/featurecounts/main'
-include { SUBREAD_FEATURECOUNTS as SUBREAD_FEATURECOUNTS_EXON } from '../../../modules/nf-core/subread/featurecounts/main'
+include { SUBREAD_FEATURECOUNTS as SUBREAD_FEATURECOUNTS_GENE } from '../../modules/nf-core/subread/featurecounts/main'
+include { SUBREAD_FEATURECOUNTS as SUBREAD_FEATURECOUNTS_EXON } from '../../modules/nf-core/subread/featurecounts/main'
 
 workflow BAM_QUANTIFICATION_FEATURECOUNTS {
     take:
@@ -15,8 +15,9 @@ workflow BAM_QUANTIFICATION_FEATURECOUNTS {
     main:
     // Create empty versions channel, and fill with each tools version
     ch_versions = Channel.empty()
-    path_gtf = ch_gtf.map { meta, gtf -> [gtf] }
-    ch_bam_gtf = ch_bam_bai.map { meta, bam, bai -> [meta, bam, path_gtf] }
+    path_gtf = ch_gtf.map { meta, gtf -> gtf }.collect()
+    ch_bam_gtf = ch_bam_bai.combine(path_gtf).map { meta, bam, bai, gtf -> [meta, bam, gtf] }
+
 
     // Run subread featurecounts with different meta_features.
     SUBREAD_FEATURECOUNTS_GENE(ch_bam_gtf)
