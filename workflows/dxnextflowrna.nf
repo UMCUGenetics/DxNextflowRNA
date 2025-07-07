@@ -11,6 +11,7 @@ include { BAM_QUANTIFICATION_FEATURECOUNTS } from '../subworkflows/local/bam_qua
 include { FASTQ_BAM_QC                     } from '../subworkflows/local/fastq_bam_qc'
 include { FASTQ_TRIM_FILTER_ALIGN_DEDUP    } from '../subworkflows/local/fastq_trim_filter_align_dedup'
 include { GENE_EXON_OUTRIDER               } from '../subworkflows/local/gene_exon_outrider'
+include { RARE_SPLICING                    } from '../subworkflows/local/fraser'
 
 // FUNCTIONS
 include { methodsDescriptionText        } from '../subworkflows/local/utils_umcugenetics_dxnextflowrna_pipeline'
@@ -157,24 +158,30 @@ workflow DXNEXTFLOWRNA {
     // SUBWORKFLOW: Run bam_outrider for genes and exons
     //
 
-    GENE_EXON_OUTRIDER(
-        BAM_QUANTIFICATION_FEATURECOUNTS.out.gene_counts,
-        BAM_QUANTIFICATION_FEATURECOUNTS.out.exon_counts,
-        ch_gtf
-    )
-    ch_versions = ch_versions.mix(GENE_EXON_OUTRIDER.out.versions)
+    // GENE_EXON_OUTRIDER(
+    //     BAM_QUANTIFICATION_FEATURECOUNTS.out.gene_counts,
+    //     BAM_QUANTIFICATION_FEATURECOUNTS.out.exon_counts,
+    //     ch_gtf
+    // )
+    // ch_versions = ch_versions.mix(GENE_EXON_OUTRIDER.out.versions)
 
 
-    ch_multiqc_files = ch_multiqc_files.mix(
-        GENE_EXON_OUTRIDER.out.gene_multiqc
-            .map{meta, counts -> counts}
-            .collect()
-    )
+    // ch_multiqc_files = ch_multiqc_files.mix(
+    //     GENE_EXON_OUTRIDER.out.gene_multiqc
+    //         .map{meta, couts -> counts}
+    //         .collect()
+    // )
 
-    ch_multiqc_files = ch_multiqc_files.mix(
-        GENE_EXON_OUTRIDER.out.exon_multiqc
-            .map{meta, counts -> counts}
-            .collect()
+    // ch_multiqc_files = ch_multiqc_files.mix(
+    //     GENE_EXON_OUTRIDER.out.exon_multiqc
+    //         .map{meta, counts -> counts}
+    //         .collect()
+    // )
+
+
+    RARE_SPLICING(
+        FASTQ_TRIM_FILTER_ALIGN_DEDUP.out.ch_bam_bai,
+        "/home/cog/jvansteenbrugge/workdir/RNA/test_data/full_bam/*.{bam,bai}"
     )
 
 
