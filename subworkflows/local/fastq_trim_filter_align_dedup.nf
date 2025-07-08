@@ -42,24 +42,17 @@ workflow FASTQ_TRIM_FILTER_ALIGN_DEDUP {
     SORTMERNA_READS(TRIMGALORE.out.reads, ch_sortmerna_fastas, ch_sortmerna_index)
     ch_versions = ch_versions.mix(SORTMERNA_READS.out.versions.first())
 
-    SORTMERNA_READS.out.reads.view() // [meta], [fwd, rev]
-    SORTMERNA_READS.out.reads
-        .map { meta, [fwd, rev] ->
+
+    grouped_reads = SORTMERNA_READS.out.reads
+        .map { meta, reads ->
             new_id = meta.id.split('_')[0]
-            [meta + [id: new_id], [fwd, rev]]
+            [meta + [id: new_id], [reads[0], reads[1]]]
         }
-        .groupTuple()
-        .view()
+        .groupTuple() // Group multiple lanes of the same sample, to use together in star-align
+        .map {meta, reads -> [meta, reads.flatten()]}
 
 
-    /*
-    [[id:2024L00564plusCHX_A22WMGNLT3_S2_L001, single_end:false],
-    [/hpc/diaggen/users/joris/RNA/star_fusion/work/86/b0ab4cbe8f98e0032d19dcb111bfa4/2024L00564plusCHX_A22WMGNLT3_S2_L001_1.non_rRNA.fastq.gz,
-        /hpc/diaggen/users/joris/RNA/star_fusion/work/86/b0ab4cbe8f98e0032d19dcb111bfa4/2024L00564plusCHX_A22WMGNLT3_S2_L001_2.non_rRNA.fastq.gz]]
-    */
-
-
-    STAR_ALIGN(SORTMERNA_READS.out.reads, ch_star_index, ch_gtf, star_ignore_sjdbgtf, seq_platform, seq_center)
+    STAR_ALIGN(grouped_reads, ch_star_index, ch_gtf, star_ignore_sjdbgtf, seq_platform, seq_center)
     ch_versions = ch_versions.mix(STAR_ALIGN.out.versions.first())
 
     SAMTOOLS_MERGE(
