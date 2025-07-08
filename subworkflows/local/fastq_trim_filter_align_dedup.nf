@@ -3,17 +3,16 @@
     IMPORT MODULES / SUBWORKFLOWS / FUNCTIONS
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
-// MODULES, alphabetical order
+// MODULES
 include { SAMTOOLS_CONVERT                  } from '../../modules/nf-core/samtools/convert/main'
 include { SAMTOOLS_INDEX                    } from '../../modules/nf-core/samtools/index/main'
 include { SAMTOOLS_MERGE                    } from '../../modules/nf-core/samtools/merge/main'
-// Different ext.args are provided bedepending on using sortmerna to create an index only (SORTMERNA_INDEX)
-// or run sortmerna to filter the reads (SORTMERNA_READS).
+
 include { SORTMERNA as SORTMERNA_READS      } from '../../modules/nf-core/sortmerna/main'
-include { STAR_ALIGN                        } from '../../modules/nf-core/star/align/main.nf'
+include { STAR_ALIGN                        } from '../../modules/nf-core/star/align/main'
 include { TRIMGALORE                        } from '../../modules/nf-core/trimgalore/main'
 
-// SUBWORKFLOWS, alphabetical order
+// SUBWORKFLOWS
 include { BAM_DEDUP_STATS_SAMTOOLS_UMITOOLS } from '../../subworkflows/nf-core/bam_dedup_stats_samtools_umitools/main'
 
 /*
@@ -42,6 +41,23 @@ workflow FASTQ_TRIM_FILTER_ALIGN_DEDUP {
 
     SORTMERNA_READS(TRIMGALORE.out.reads, ch_sortmerna_fastas, ch_sortmerna_index)
     ch_versions = ch_versions.mix(SORTMERNA_READS.out.versions.first())
+
+    SORTMERNA_READS.out.reads.view() // [meta], [fwd, rev]
+    SORTMERNA_READS.out.reads
+        .map { meta, [fwd, rev] ->
+            new_id = meta.id.split('_')[0]
+            [meta + [id: new_id], [fwd, rev]]
+        }
+        .groupTuple()
+        .view()
+
+
+    /*
+    [[id:2024L00564plusCHX_A22WMGNLT3_S2_L001, single_end:false],
+    [/hpc/diaggen/users/joris/RNA/star_fusion/work/86/b0ab4cbe8f98e0032d19dcb111bfa4/2024L00564plusCHX_A22WMGNLT3_S2_L001_1.non_rRNA.fastq.gz,
+        /hpc/diaggen/users/joris/RNA/star_fusion/work/86/b0ab4cbe8f98e0032d19dcb111bfa4/2024L00564plusCHX_A22WMGNLT3_S2_L001_2.non_rRNA.fastq.gz]]
+    */
+
 
     STAR_ALIGN(SORTMERNA_READS.out.reads, ch_star_index, ch_gtf, star_ignore_sjdbgtf, seq_platform, seq_center)
     ch_versions = ch_versions.mix(STAR_ALIGN.out.versions.first())
