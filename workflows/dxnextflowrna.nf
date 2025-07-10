@@ -6,10 +6,12 @@
 // MODULES
 include { MULTIQC                       } from '../modules/nf-core/multiqc/main'
 
+
 // SUBWORKFLOWS
 include { BAM_QUANTIFICATION_FEATURECOUNTS } from '../subworkflows/local/bam_quantification_featurecounts'
-include { FASTQ_BAM_QC                  } from '../subworkflows/local/fastq_bam_qc'
-include { FASTQ_TRIM_FILTER_ALIGN_DEDUP } from '../subworkflows/local/fastq_trim_filter_align_dedup'
+include { FASTQ_BAM_QC                     } from '../subworkflows/local/fastq_bam_qc'
+include { FASTQ_TRIM_FILTER_ALIGN_DEDUP    } from '../subworkflows/local/fastq_trim_filter_align_dedup'
+include { GENE_FUSION                      } from "../subworkflows/local/gene_fusion"
 
 // FUNCTIONS
 include { methodsDescriptionText        } from '../subworkflows/local/utils_umcugenetics_dxnextflowrna_pipeline'
@@ -45,6 +47,11 @@ workflow DXNEXTFLOWRNA {
         .fromPath(params.star_index)
         .map(createMetaWithIdSimpleName)
         .first()
+    ch_star_fusion_index = Channel
+        .fromPath(params.star_fusion_genome)
+        .map(createMetaWithIdSimpleName)
+        .first()
+
     ch_ref_flat = Channel.fromPath(params.ref_flat).first()
     ch_rrna_interval = Channel.fromPath(params.rrna_intervals).first()
     ch_sortmerna_fastas = Channel
@@ -148,6 +155,13 @@ workflow DXNEXTFLOWRNA {
         BAM_QUANTIFICATION_FEATURECOUNTS.out.gene_counts_summary.collect { it[1] }.ifEmpty([]),
         BAM_QUANTIFICATION_FEATURECOUNTS.out.exon_counts_summary.collect { it[1] }.ifEmpty([]),
     )
+
+    GENE_FUSION(
+        FASTQ_TRIM_FILTER_ALIGN_DEDUP.out.star_align_junction,
+        ch_star_fusion_index
+    )
+
+    ch_versions = ch_versions.mix(GENE_FUSION.out.versions)
 
     //
     // Collate and save software versions

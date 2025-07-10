@@ -55,22 +55,14 @@ workflow FASTQ_TRIM_FILTER_ALIGN_DEDUP {
     STAR_ALIGN(grouped_reads, ch_star_index, ch_gtf, star_ignore_sjdbgtf, seq_platform, seq_center)
     ch_versions = ch_versions.mix(STAR_ALIGN.out.versions.first())
 
-    SAMTOOLS_MERGE(
-        STAR_ALIGN.out.bam_sorted_aligned.map { meta, bam ->
-            new_id = meta.id.split('_')[0]
-            [meta + [id: new_id], bam]
-        }.groupTuple(),
-        [[id: 'null'], []],
-        [[id: 'null'], []],
-    )
-    ch_versions = ch_versions.mix(SAMTOOLS_MERGE.out.versions.first())
+    
 
     // samtools index will create a .bai. RSeQC, and maybe other tools as well, requires .bai instead of .csi.
-    SAMTOOLS_INDEX(SAMTOOLS_MERGE.out.bam)
+    SAMTOOLS_INDEX(STAR_ALIGN.out.bam_sorted_aligned)
     ch_versions = ch_versions.mix(SAMTOOLS_INDEX.out.versions.first())
 
     BAM_DEDUP_STATS_SAMTOOLS_UMITOOLS(
-        SAMTOOLS_MERGE.out.bam.join(SAMTOOLS_INDEX.out.bai),
+        STAR_ALIGN.out.bam_sorted_aligned.join(SAMTOOLS_INDEX.out.bai),
         true,
     )
     ch_versions = ch_versions.mix(BAM_DEDUP_STATS_SAMTOOLS_UMITOOLS.out.versions)
