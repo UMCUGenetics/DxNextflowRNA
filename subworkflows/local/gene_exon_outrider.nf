@@ -35,7 +35,7 @@ workflow GENE_EXON_OUTRIDER {
             .map { meta, counts -> counts }
             .branch { v ->
                 chx: v.toString().contains('CHX')
-                cntrl: v.toString().contains("cntrl")
+                cntrl: v.toString().contains("control")
             }
 
     ch_outrider_gene_chx_input = ch_feature_counts_genes.chx
@@ -65,7 +65,7 @@ workflow GENE_EXON_OUTRIDER {
             .map { meta, counts -> counts }
             .branch { v ->
                 chx: v.toString().contains('CHX')
-                cntrl: v.toString().contains("cntrl")
+                cntrl: v.toString().contains("control")
             }
 
     ch_outrider_exon_chx_set1 = Channel.fromPath("${params.outrider_exon_chx_parents}/*")
