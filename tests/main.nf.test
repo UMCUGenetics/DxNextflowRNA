@@ -1,0 +1,17 @@
+nextflow_pipeline {
+    name "Test pipeline stubbed"
+    script "main.nf"
+
+    tag "pipeline"
+    tag "local"
+    tag "pipeline/local"
+    tag "stub"
+
+    test ("Run pipeline stubbed") {
+        config "tests/nextflow.config"
+        options "-stub-run"
+        then {
+            assert workflow.success
+        }
+    }
+}
