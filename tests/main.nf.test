@@ -9,7 +9,8 @@ nextflow_pipeline {
 
     test ("Run pipeline stubbed") {
         config "tests/nextflow.config"
-        options "-stub-run"
+        options "-stub-run -with-dag stub_dag.html"
+
         then {
             assert workflow.success
         }
