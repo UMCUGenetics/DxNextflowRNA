@@ -76,6 +76,14 @@ For more details and further functionality, please refer to the [usage documenta
 For more details about the output files and reports, please refer to the
 [output documentation](docs/output.md).
 
+## Pipeline testing
+A pipeline level test can be executed using:
+``` bash
+cd DxNextflowRNA
+nf-test test ./tests/main.nf.test 
+```
+This will test the pipeline execution using the `-stub-run` option; mocking process execution.
+
 ## Developers: Instructions and reminders when changing DxNextflowRNA
 > [!WARNING]
 > Please, try to keep using nfcore tools and guidelines!
