@@ -4,7 +4,7 @@
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 // MODULES
-include { MULTIQC                          } from '../modules/nf-core/multiqc/main'
+include { MULTIQC                       } from '../modules/nf-core/multiqc/main'
 
 // SUBWORKFLOWS
 include { BAM_QUANTIFICATION_FEATURECOUNTS } from '../subworkflows/local/bam_quantification_featurecounts'
@@ -33,6 +33,8 @@ workflow DXNEXTFLOWRNA {
         .fromPath(params.fasta)
         .combine(Channel.fromPath(params.fai))
         .map { fasta, fai -> [[id: fasta.getSimpleName()], fasta, fai] }
+        .collect()
+
     ch_gene_bed = Channel
         .fromPath(params.gene_bed)
         .collect()
