@@ -14,7 +14,7 @@ parser <- ArgumentParser(description = "Run OUTRIDER")
 parser$add_argument("-q", "--queries", metavar="query_files", nargs="+",
                     help="Files containing the query input files.")
 
-parser$add_argument("-o", "--output_path", metavar="output_path", default="./"
+parser$add_argument("-o", "--output_path", metavar="output_path", default="./",
                     help="Path where output will be stored.")
 
 parser$add_argument("-r", "--ref", metavar="reference_files", nargs="+",
@@ -42,16 +42,18 @@ parser$add_argument("--fpkm_cutoff", type="double", default=1.0,
 parser$add_argument("--fpkm_percentile", type="double", default=0.95,
                     help="Only used when --filter_mode is fpkm.")
 
+
 parser$add_argument("-v", "--version", action="version", version=as.character(packageVersion("OUTRIDER")))
 
 args <- parser$parse_args()
-
+set.seed(1)
+bp <- MulticoreParam(args$threads, RNGseed=13243223)
 
 run_outrider <- function(count_matrix, metadata, args){
 
   ods <- OutriderDataSet(countData = count_matrix)
 
-  if(args$modemode == "gene"){
+  if(args$mode == "gene"){
       if( args$filter_mode == "minCounts"){
           ods <- filterExpression(ods, minCounts=TRUE, filterGenes=TRUE)
       } else {
@@ -68,8 +70,8 @@ run_outrider <- function(count_matrix, metadata, args){
     mcols(ods)$basepairs <- metadata$Length # add exon length to the outrider dataset to ensure FPKM is correctly estimated
     ods <- filterExpression(
       ods,
-      fpkmCutoff = 0.5,
-      percentile  = 0.90,
+      fpkmCutoff = args$fpkm_cutoff,
+      percentile  = args$fpkm_percentile,
       filterGenes = TRUE
     )
   }
@@ -77,7 +79,7 @@ run_outrider <- function(count_matrix, metadata, args){
   # Runs the outrider pipeline in parallel
   ods <- OUTRIDER(
     ods,
-    BPPARAM=MulticoreParam(threads)
+    BPPARAM=bp
   )
 
   return(ods)
@@ -112,7 +114,7 @@ main <- function(args){
 
   rownames(count_matrix) <- metadata$Geneid
 
-  ods <- run_outrider(count_matrix, metadata, mode=args$mode, gtf=args$gtf, threads=args$threads)
+  ods <- run_outrider(count_matrix, metadata, args)
   res_full <- results(ods, all=TRUE)
   res_signif <- results(ods, all=FALSE)
 
@@ -130,6 +132,6 @@ main <- function(args){
 
 }
 
-set.seed(1)
-bp <- MulticoreParam(args$threads, RNGseed=123)
+
+
 main(args)
