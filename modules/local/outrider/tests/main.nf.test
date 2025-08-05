@@ -1,0 +1,46 @@
+nextflow_process {
+
+    name "Test Process OUTRIDER"
+    script "../main.nf"
+    process "OUTRIDER"
+    config "nextflow.config"
+
+    tag "modules"
+    tag "modules/local"
+    tag "local"
+    tag "outrider"
+    tag "modules/outrider"
+
+
+    test("Test outrider with simulated data") {
+        when {
+            process {
+                """
+                input[0] = Channel
+                    .fromPath(params.outrider_test_data + "sim_strong/ref/*.tsv",
+                    checkIfExists: true)
+                    .toList()
+                    .map { files ->
+                        [
+                [id: "test"],
+                        file(params.outrider_test_data + "sim_strong/query/S01.tsv"),
+                        files
+                        ]
+      }
+                input[1] = [
+                    [id: "gencodev44"],
+                    file(params.outrider_test_data + "/sim_strong/sim.gtf")
+                ]
+                """
+            }
+        }
+        then {
+
+            assertAll (
+                {assert process.success},
+                {assert snapshot(process.out.tsv_signif).match()}
+            )
+        }
+    }
+
+}
