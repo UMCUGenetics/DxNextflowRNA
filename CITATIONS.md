@@ -14,9 +14,9 @@
 
   > Andrews, S. (2010). FastQC: A Quality Control Tool for High Throughput Sequence Data [Online].
 
-<!-- - [featureCounts](https://pubmed.ncbi.nlm.nih.gov/24227677/)
+- [featureCounts](https://pubmed.ncbi.nlm.nih.gov/24227677/)
 
-  > Liao Y, Smyth GK, Shi W. featureCounts: an efficient general purpose program for assigning sequence reads to genomic features. Bioinformatics. 2014 Apr 1;30(7):923-30. doi: 10.1093/bioinformatics/btt656. Epub 2013 Nov 13. PubMed PMID: 24227677. -->
+  > Liao Y, Smyth GK, Shi W. featureCounts: an efficient general purpose program for assigning sequence reads to genomic features. Bioinformatics. 2014 Apr 1;30(7):923-30. doi: 10.1093/bioinformatics/btt656. Epub 2013 Nov 13. PubMed PMID: 24227677.
 
 - [MultiQC](https://pubmed.ncbi.nlm.nih.gov/27312411/)
 

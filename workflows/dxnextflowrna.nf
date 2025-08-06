@@ -7,14 +7,15 @@
 include { MULTIQC                       } from '../modules/nf-core/multiqc/main'
 
 // SUBWORKFLOWS
+include { BAM_QUANTIFICATION_FEATURECOUNTS } from '../subworkflows/local/bam_quantification_featurecounts'
 include { FASTQ_BAM_QC                  } from '../subworkflows/local/fastq_bam_qc'
 include { FASTQ_TRIM_FILTER_ALIGN_DEDUP } from '../subworkflows/local/fastq_trim_filter_align_dedup'
 
 // FUNCTIONS
+include { methodsDescriptionText        } from '../subworkflows/local/utils_umcugenetics_dxnextflowrna_pipeline'
 include { paramsSummaryMap              } from 'plugin/nf-schema'
 include { paramsSummaryMultiqc          } from '../subworkflows/nf-core/utils_nfcore_pipeline'
 include { softwareVersionsToYAML        } from '../subworkflows/nf-core/utils_nfcore_pipeline'
-include { methodsDescriptionText        } from '../subworkflows/local/utils_umcugenetics_dxnextflowrna_pipeline'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -131,6 +132,21 @@ workflow DXNEXTFLOWRNA {
         FASTQ_BAM_QC.out.tin_txt.collect { it[1] }.ifEmpty([]),
         FASTQ_BAM_QC.out.rna_metrics.collect { it[1] }.ifEmpty([]),
         FASTQ_BAM_QC.out.lc_extrap.collect { it[1] }.ifEmpty([]),
+    )
+
+    //
+    // SUBWORKFLOW: Run bam_quantification_featurecounts
+    //
+    BAM_QUANTIFICATION_FEATURECOUNTS(
+        FASTQ_TRIM_FILTER_ALIGN_DEDUP.out.ch_bam_bai,
+        ch_gtf
+    )
+    ch_versions = ch_versions.mix(BAM_QUANTIFICATION_FEATURECOUNTS.out.versions)
+
+    // Add bam_quantification_featurecounts results to MultiQC files
+    ch_multiqc_files = ch_multiqc_files.mix(
+        BAM_QUANTIFICATION_FEATURECOUNTS.out.gene_counts_summary.collect { it[1] }.ifEmpty([]),
+        BAM_QUANTIFICATION_FEATURECOUNTS.out.exon_counts_summary.collect { it[1] }.ifEmpty([]),
     )
 
     //
