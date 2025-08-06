@@ -1,0 +1,19 @@
+{
+    "Test outrider with simulated data": {
+        "content": [
+            [
+                [
+                    {
+                        "id": "test"
+                    },
+                    "test_gene_outrider_result_signif.tsv:md5,af9253f88c1cdde0a9a826c4b03609fd"
+                ]
+            ]
+        ],
+        "meta": {
+            "nf-test": "0.9.2",
+            "nextflow": "25.04.6"
+        },
+        "timestamp": "2025-08-06T14:00:54.29771523"
+    }
+}

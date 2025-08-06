@@ -45,7 +45,7 @@ parser$add_argument("--fpkm_percentile", type="double", default=0.95,
 parser$add_argument("--mask_samples", metavar="mask_samples", nargs="+",
                     help=paste(c("OUTRIDER expects that each sample is independent.",
                                  "To avoid overfitting in the autoencoder, dependent samples can be masked to exclude ",
-                                 "them in the training step. Using this option will keep them in the final output of OUTRIDER"))
+                                 "them in the training step. Using this option will keep them in the final output of OUTRIDER")))
 
 parser$add_argument("-v", "--version", action="version", version=as.character(packageVersion("OUTRIDER")))
 
