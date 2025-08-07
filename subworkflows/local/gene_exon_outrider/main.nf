@@ -1,6 +1,6 @@
 
-include { OUTRIDER as OUTRIDER_EXON        } from '../../modules/local/outrider/main'
-include { OUTRIDER as OUTRIDER_GENE        } from '../../modules/local/outrider/main'
+include { OUTRIDER as OUTRIDER_EXON        } from '../../../modules/local/outrider/main'
+include { OUTRIDER as OUTRIDER_GENE        } from '../../../modules/local/outrider/main'
 
 workflow GENE_EXON_OUTRIDER {
     take:
