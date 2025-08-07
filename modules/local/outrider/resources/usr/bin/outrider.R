@@ -122,7 +122,7 @@ main <- function(args){
   res_full <- results(ods, all=TRUE)
   res_signif <- results(ods, all=FALSE)
 
-  # Output both the unfiltered results, as the filtered results
+  # Output both the unfiltered results, and the filtered results
   write.table(
     res_full,
     quote=F, sep="\t", row.names=F,
