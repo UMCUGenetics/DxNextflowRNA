@@ -36,10 +36,10 @@ parser$add_argument("--filter_mode", choices=c("minCounts","fpkm"), default="min
                     help=paste(c("Gene/Exon filter mode. minCounts filters only genes/exons with zero expression,",
                                  "whereas fpkg filters also lowly epxressed genes/exons")))
 
-parser$add_argument("--fpkm_cutoff", type="double", default=1.0,
+parser$add_argument("--fpkm_cutoff", type="double", default=0.5,
                     help="Only used when --filter_mode is fpkm.")
 
-parser$add_argument("--fpkm_percentile", type="double", default=0.95,
+parser$add_argument("--fpkm_percentile", type="double", default=0.90,
                     help="Only used when --filter_mode is fpkm.")
 
 parser$add_argument("--mask_samples", metavar="mask_samples", nargs="+",
@@ -115,6 +115,7 @@ main <- function(args){
   count_matrix <- map_dfc(all_data, "counts") %>%
     set_names(basename(count_files)) %>%
     as.matrix()
+
 
   rownames(count_matrix) <- metadata$Geneid
 

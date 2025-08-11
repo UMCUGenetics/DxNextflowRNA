@@ -1,0 +1,64 @@
+nextflow_workflow {
+
+    name "Test Subworkflow OUTRIDER"
+    script "../main.nf"
+    workflow "GENE_EXON_OUTRIDER"
+
+    tag "subworkflows"
+    tag "subworkflows/gene_exon_outrider"
+    tag "local"
+    tag "subworkflows/local"
+
+
+    test("Test correct split chx/cntrl") {
+        when {
+            workflow {
+            """
+                input[0] = Channel
+                    .fromPath( params.outrider_test_data + "/subworkflow/*.gene.tsv",
+                        checkIfExists: true)
+                    .map{ file -> [[id: file.getSimpleName()], file] }
+                input[1] = Channel
+                    .fromPath(params.outrider_test_data + "/subworkflow/*.exon.tsv",
+                        checkIfExists: true)
+                    .map{ file -> [[id: file.getSimpleName()], file] }
+
+                input[2] = [[id: "annotations"], file(params.outrider_test_data + "/subworkflow/annotation.gtf", checkIfExists: true)]
+            """
+            }
+        }
+        then {
+            assertAll (
+                {assert workflow.success},
+                {assert workflow.out.gene_tsv_full.size() == 4},
+                {assert workflow.out.exon_tsv_full.size() == 4}
+            )
+        }
+    }
+
+
+    test("Test correct split chx/cntrl - stub") {
+        options "-stub-run"
+
+        when {
+            workflow {
+            """
+                input[0] = Channel
+                    .fromPath(params.outrider_workflow_test_data + "/subworkflow/*.gene.tsv",
+                        checkIfExists: true)
+                    .map{ file -> [[id: file.getSimpleName()], file] }
+                input[1] = Channel
+                    .fromPath(params.outrider_workflow_test_data + "/subworkflow/*.exon.tsv",
+                        checkIfExists: true)
+                    .map{ file -> [[id: file.getSimpleName()], file] }
+                input[2] = [[id: "annotations"], file(params.outrider_test_data + "/subworkflow/annotation.gtf", checkIfExists: true)]
+            """
+            }
+        }
+        then {
+            assertAll (
+                {assert workflow.success}
+            )
+        }
+    }
+}

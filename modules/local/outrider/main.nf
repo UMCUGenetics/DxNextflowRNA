@@ -44,4 +44,17 @@ process OUTRIDER {
         outrider: \$(outrider.R --version)
     END_VERSIONS
     """
+
+    stub:
+    def prefix = task.ext.prefix ?: "${meta.id}"
+    """
+    touch ${prefix}_outrider_result_full.tsv
+    touch ${prefix}_outrider_result_signif.tsv
+    touch ${prefix}_outrider_result_signif_mqc.tsv
+
+    cat <<- END_VERSIONS > versions.yml
+    "${task.process}":
+        outrider: \$(outrider.R --version)
+    END_VERSIONS
+    """
 }

@@ -84,6 +84,17 @@ nf-test test ./tests/main.nf.test
 ```
 This will test the pipeline execution using the `-stub-run` option; mocking process execution.
 
+Similarly, individual units of the pipeline can be tested using:
+``` bash
+cd DxNextflowRNA
+nf-test test . --tag=local
+
+# Or individual components. E.g.,
+nf-test test . --tag=subworkflows/local 
+nf-test test . --tag=modules/local
+```
+`--tag=local` ensures that non-local elements (such as nf-core modules/subworkflows) are ignored
+
 ## Developers: Instructions and reminders when changing DxNextflowRNA
 > [!WARNING]
 > Please, try to keep using nfcore tools and guidelines!
