@@ -11,6 +11,24 @@ nextflow_pipeline {
         config "tests/nextflow.config"
         options "-stub-run -with-dag stub_dag.html"
 
+        setup {
+            def input_dir = new File("${launchDir}/input/")
+            input_dir.mkdirs()
+
+            def fetch = { String url, File dst -> dst.withOutputStream { it << new URL(url).openStream() } }
+
+            fetch("https://raw.githubusercontent.com/UMCUGenetics/DxNextflowTestData/main/DxNextflowRNA/fastq/ERR188041_subset_chr1_L001_R1_001.fastq.gz",
+                  new File(input_dir, "ERR188041_subset_chr1_L001_R1_001.fastq.gz"))
+            fetch("https://raw.githubusercontent.com/UMCUGenetics/DxNextflowTestData/main/DxNextflowRNA/fastq/ERR188041_subset_chr1_L001_R2_001.fastq.gz",
+                  new File(input_dir, "ERR188041_subset_chr1_L001_R2_001.fastq.gz"))
+        }
+
+        when {
+            params {
+                input = "${launchDir}/input/"
+            }
+        }
+
         then {
             assert workflow.success
         }
