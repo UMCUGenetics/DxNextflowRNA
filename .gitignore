@@ -333,6 +333,6 @@ fabric.properties
 .idea/caches/build_file_checksums.ser
 
 # NF-test
-.nftest/
-.nftest/*
-.nftest*
+.nf-test/
+.nf-test/*
+.nf-test*
