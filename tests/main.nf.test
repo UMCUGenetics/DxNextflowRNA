@@ -12,20 +12,30 @@ nextflow_pipeline {
         options "-stub-run -with-dag stub_dag.html"
 
         setup {
+            def test_data_base = "https://raw.githubusercontent.com/UMCUGenetics/DxNextflowTestData/main/DxNextflowRNA/"
             def input_dir = new File("${launchDir}/input/")
-            input_dir.mkdirs()
+            def star_index = new File("${launchDir}/star_index")
+            [input_dir, star_index]*.mkdirs()
 
             def fetch = { String url, File dst -> dst.withOutputStream { it << new URL(url).openStream() } }
 
-            fetch("https://raw.githubusercontent.com/UMCUGenetics/DxNextflowTestData/main/DxNextflowRNA/fastq/ERR188041_subset_chr1_L001_R1_001.fastq.gz",
-                  new File(input_dir, "ERR188041_subset_chr1_L001_R1_001.fastq.gz"))
-            fetch("https://raw.githubusercontent.com/UMCUGenetics/DxNextflowTestData/main/DxNextflowRNA/fastq/ERR188041_subset_chr1_L001_R2_001.fastq.gz",
-                  new File(input_dir, "ERR188041_subset_chr1_L001_R2_001.fastq.gz"))
+            fetch("${test_data_base}/fastq/ERR188041_subset_chr1_L001_R1_001.fastq.gz",
+                new File(input_dir, "ERR188041_subset_chr1_L001_R1_001.fastq.gz"))
+            fetch("${test_data_base}/fastq/ERR188041_subset_chr1_L001_R2_001.fastq.gz",
+                new File(input_dir, "ERR188041_subset_chr1_L001_R2_001.fastq.gz"))
+
+            fetch("${test_data_base}/main/star_index/ref_genome.fa",
+                  new File(star_index, "ref_genome.fa"))
+            fetch("${test_data_base}/main/annotation.gtf",
+                  new File(input_dir, "annotation.gtf"))
         }
 
         when {
             params {
-                input = "${launchDir}/input/"
+                input      = "${launchDir}/input/"
+                fasta      = "${launchDir}/star_index/ref_genome.fa"
+                star_index = "${launchDir}/star_index/"
+                gtf        = "${launchDir}/input/annotation.gtf"
             }
         }
 
