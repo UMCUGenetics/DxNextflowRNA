@@ -2,9 +2,9 @@ name: CI Tests
 
 on:
   push:
-    branches: [main, develop, feature/nf-test]
+    branches: [develop, feature/*, hotfix/*]
   pull_request:
-    branches: [main, develop, feature/nf-test]
+    branches: [main, develop, release/*]
 
 jobs:
   example:
@@ -46,7 +46,23 @@ jobs:
           mkdir -p $NXF_SINGULARITY_CACHEDIR
           mkdir -p $NXF_SINGULARITY_LIBRARYDIR
 
-      - name: Run Tests
+      # We can decide to test differently between pushes and pull requests in the future
+      - name: Run Tests (push)
+        if: ${{ github.event_name == 'push' }}
+        run: |
+          NFT_WORKDIR=~
+
+          nf-test test \
+              --profile test \
+              --tap=test.tap \
+              --ci \
+              --verbose \
+              --tag=local
+
+
+          echo "tap_file_path=$(realpath test.tap)" >> $GITHUB_OUTPUT
+      - name: Run Tests (Pull-request)
+        if: ${{ github.event_name == 'pull_request' }}
         run: |
           NFT_WORKDIR=~
 
