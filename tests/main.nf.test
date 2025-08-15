@@ -27,6 +27,8 @@ nextflow_pipeline {
 
             fetch("${test_data_base}/main/star_index/ref_genome.fa",
                   new File(star_index, "ref_genome.fa"))
+            fetch("${test_data_base}/main/star_index/ref_genome.fa.fai",
+                  new File(star_index, "ref_genome.fa.fai"))
             fetch("${test_data_base}/main/annotation.gtf",
                   new File(input_dir, "annotation.gtf"))
 
@@ -38,6 +40,7 @@ nextflow_pipeline {
             params {
                 input      = "${launchDir}/input/"
                 fasta      = "${launchDir}/star_index/ref_genome.fa"
+                fai        = "${launchDir}/star_index/ref_genome.fa.fai"
                 star_index = "${launchDir}/star_index/"
                 gtf        = "${launchDir}/input/annotation.gtf"
                 rrna_database_manifest = "${launchDir}/input/sortmerna-db-test.txt"
