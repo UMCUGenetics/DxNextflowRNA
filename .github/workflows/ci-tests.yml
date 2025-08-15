@@ -59,6 +59,7 @@ jobs:
               --ci \
               --verbose \
               --tag=local \
+              --filter=module/workflow
               --changed-since="$BASE"
 
           echo "tap_file_path=$(realpath test.tap)" >> $GITHUB_OUTPUT
