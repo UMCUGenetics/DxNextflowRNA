@@ -58,8 +58,8 @@ jobs:
               --tap=test.tap \
               --ci \
               --verbose \
-              --tag=local
-              --changed-since "$BASE"
+              --tag=local \
+              --changed-since="$BASE"
 
           echo "tap_file_path=$(realpath test.tap)" >> $GITHUB_OUTPUT
 
