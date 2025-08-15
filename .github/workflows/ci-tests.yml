@@ -31,33 +31,33 @@ jobs:
           version: 0.9.2
           install-pdiff: true
 
-    - name: Set up apptainer
-      shell: bash
-      run: |
-        sudo apt update
-        sudo apt install -y software-properties-common
-        sudo add-apt-repository -y ppa:apptainer/ppa
-        sudo apt update
-        sudo apt install -y apptainer apptainer-suid
-        mkdir -p $NXF_SINGULARITY_CACHEDIR
-        mkdir -p $NXF_SINGULARITY_LIBRARYDIR
+      - name: Set up apptainer
+        shell: bash
+        run: |
+          sudo apt update
+          sudo apt install -y software-properties-common
+          sudo add-apt-repository -y ppa:apptainer/ppa
+          sudo apt update
+          sudo apt install -y apptainer apptainer-suid
+          mkdir -p $NXF_SINGULARITY_CACHEDIR
+          mkdir -p $NXF_SINGULARITY_LIBRARYDIR
 
       - name: Run Tests
         run: |
-        NFT_WORKDIR=~
+          NFT_WORKDIR=~
 
-        nf-test test \
-            --profile singularity \
-            --tap=test.tap \
-            --ci \
-            --verbose \
-            --tag=local
+          nf-test test \
+              --profile singularity \
+              --tap=test.tap \
+              --ci \
+              --verbose \
+              --tag=local
 
 
-        echo "tap_file_path=$(realpath test.tap)" >> $GITHUB_OUTPUT
+          echo "tap_file_path=$(realpath test.tap)" >> $GITHUB_OUTPUT
 
-    - name: Clean up
-      if: always()
-      shell: bash
-      run: |
-        sudo rm -rf /home/ubuntu/tests/
+      - name: Clean up
+        if: always()
+        shell: bash
+        run: |
+          sudo rm -rf /home/ubuntu/tests/
