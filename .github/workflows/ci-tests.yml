@@ -51,7 +51,7 @@ jobs:
           NFT_WORKDIR=~
 
           nf-test test \
-              --profile singularity \
+              --profile test \
               --tap=test.tap \
               --ci \
               --verbose \
