@@ -25,7 +25,7 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: Setup Nextflow latest-edge
+      - name: Setup Nextflow 25.04
         uses: nf-core/setup-nextflow@v2
         with:
           version: "25.04"
