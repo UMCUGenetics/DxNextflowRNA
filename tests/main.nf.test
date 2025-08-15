@@ -15,7 +15,8 @@ nextflow_pipeline {
             def test_data_base = "https://raw.githubusercontent.com/UMCUGenetics/DxNextflowTestData/main/DxNextflowRNA/"
             def input_dir = new File("${launchDir}/input/")
             def star_index = new File("${launchDir}/star_index")
-            [input_dir, star_index]*.mkdirs()
+            def sortmerna_index = new File("${launchDir}/sortmerna_index")
+            [input_dir, star_index, sortmerna_index]*.mkdirs()
 
             def fetch = { String url, File dst -> dst.withOutputStream { it << new URL(url).openStream() } }
 
@@ -28,6 +29,9 @@ nextflow_pipeline {
                   new File(star_index, "ref_genome.fa"))
             fetch("${test_data_base}/main/annotation.gtf",
                   new File(input_dir, "annotation.gtf"))
+
+            fetch("${test_data_base}/main/sortmerna-db-test.txt",
+                  new File(input_dir, "sortmerna-db-test.txt"))
         }
 
         when {
@@ -36,6 +40,8 @@ nextflow_pipeline {
                 fasta      = "${launchDir}/star_index/ref_genome.fa"
                 star_index = "${launchDir}/star_index/"
                 gtf        = "${launchDir}/input/annotation.gtf"
+                rrna_database_manifest = "${launchDir}/input/sortmerna-db-test.txt"
+                sortmerna_index = "${launchDir}/sortmerna_index/"
             }
         }
 
