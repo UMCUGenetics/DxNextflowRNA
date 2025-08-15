@@ -73,7 +73,7 @@ jobs:
               --tap=test.tap \
               --ci \
               --verbose \
-              --tag=local/pipeline
+              --tag=pipeline/local
 
           echo "tap_file_path=$(realpath test.tap)" >> $GITHUB_OUTPUT
 
