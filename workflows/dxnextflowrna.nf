@@ -233,7 +233,6 @@ workflow DXNEXTFLOWRNA {
     // Collate software versions
     ch_multiqc_files = ch_multiqc_files.mix(ch_collated_versions)
 
-    // ch_multiqc_files.view()
 
     MULTIQC(
         ch_multiqc_files.collect(),
