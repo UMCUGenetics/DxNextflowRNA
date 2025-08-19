@@ -34,11 +34,10 @@ and produces an extensive QC report.
 6. Merge, sort and index alignments ([`SAMtools`](https://sourceforge.net/projects/samtools/files/samtools/))
 7. UMI-based deduplication ([`UMI-tools`](https://github.com/CGATOxford/UMI-tools))
 8. Convert to CRAM ([`SAMtools`](https://sourceforge.net/projects/samtools/files/samtools/))
-9.  Extensive quality control:
+9. Extensive quality control:
     1. [`RSeQC`](http://rseqc.sourceforge.net/)
     2. [`Preseq`](http://smithlabresearch.org/software/preseq/)
 10. Present QC ([`MultiQC`](http://multiqc.info/))
-
 
 ## Usage
 
@@ -48,9 +47,11 @@ and produces an extensive QC report.
 1. Create an input directory with sample's fastq files (paired, multiple lanes allowed.)
 2. Clone the github repository and all dependencies if required.
 3. Install
+
 ```bash
 sh install.sh
 ```
+
 4. Now, you can run the pipeline using:
 
 ```bash
@@ -77,14 +78,18 @@ For more details about the output files and reports, please refer to the
 [output documentation](docs/output.md).
 
 ## Pipeline testing
+
 A pipeline level test can be executed using:
+
 ``` bash
 cd DxNextflowRNA
 nf-test test ./tests/main.nf.test 
 ```
+
 This will test the pipeline execution using the `-stub-run` option; mocking process execution.
 
 Similarly, individual units of the pipeline can be tested using:
+
 ``` bash
 cd DxNextflowRNA
 nf-test test . --tag=local
@@ -93,13 +98,16 @@ nf-test test . --tag=local
 nf-test test . --tag=subworkflows/local 
 nf-test test . --tag=modules/local
 ```
+
 `--tag=local` ensures that non-local elements (such as nf-core modules/subworkflows) are ignored
 
 ## Developers: Instructions and reminders when changing DxNextflowRNA
+>
 > [!WARNING]
 > Please, try to keep using nfcore tools and guidelines!
 
 ### Update files
+
 - Update all type of citations:
   - [`CITATIONS.md`](CITATIONS.md) file.
   - toolCitationText and toolBibliographyText in [`utils_umcugenetics_dxnextflowrna_pipeline/main.nf`](./subworkflows/local/utils_umcugenetics_dxnextflowrna_pipeline/main.nf)
@@ -107,12 +115,13 @@ nf-test test . --tag=modules/local
 - Update [`metro map`](./docs/images/umcugenetics-dxnextflowrna_metro_map.png)
 
 ### When updating Nextflow
+
 - Update version by using `nf-core pipelines bump-version --nextflow <new_nextflow_version>`
 - Update version in [`install.sh`](./install.sh) and
+
     ```bash
     sh install.sh
     ```
-
 
 ## Credits
 
@@ -121,7 +130,6 @@ umcugenetics/dxnextflowrna was originally written by UMCU Genetics.
 <!-- We thank the following people for their extensive assistance in the development of this pipeline: -->
 
 <!-- TODO nf-core: If applicable, make list of people who have also contributed -->
-
 
 ## Citations
 
