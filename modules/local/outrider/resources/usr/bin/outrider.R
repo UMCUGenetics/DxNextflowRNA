@@ -8,50 +8,55 @@ suppressPackageStartupMessages(library(readr))
 suppressPackageStartupMessages(library(argparse))
 suppressPackageStartupMessages(library(BiocParallel))
 
-
-
-parser <- ArgumentParser(description = "Run OUTRIDER")
-parser$add_argument("-q", "--queries", metavar="query_files", nargs="+",
-                    help="Files containing the query input files.")
-
-parser$add_argument("-o", "--output_path", metavar="output_path", default="./",
-                    help="Path where output will be stored.")
-
-parser$add_argument("-r", "--ref", metavar="reference_files", nargs="+",
-                    help="Files containing the reference input files.")
-
-parser$add_argument("-m", "--mode", metavar="mode", default="gene",
-                    help="Running mode, gene or exon")
-
-parser$add_argument("-g", "--gtf", metavar="genome_gtf",
-                    help="Genome gtf file")
-
-parser$add_argument( "-t", "--threads", metavar="threads", default=12, type="integer",
-                    help="Number of parallel threads")
-
-parser$add_argument("-p", "--prefix", metavar="prefix",
-                    help="Number of parallel threads")
-
-parser$add_argument("--filter_mode", choices=c("minCounts","fpkm"), default="minCounts",
-                    help=paste(c("Gene/Exon filter mode. minCounts filters only genes/exons with zero expression,",
-                                 "whereas fpkg filters also lowly epxressed genes/exons")))
-
-parser$add_argument("--fpkm_cutoff", type="double", default=0.5,
-                    help="Only used when --filter_mode is fpkm.")
-
-parser$add_argument("--fpkm_percentile", type="double", default=0.90,
-                    help="Only used when --filter_mode is fpkm.")
-
-parser$add_argument("--mask_samples", metavar="mask_samples", nargs="+",
-                    help=paste(c("OUTRIDER expects that each sample is independent.",
-                                 "To avoid overfitting in the autoencoder, dependent samples can be masked to exclude ",
-                                 "them in the training step. Using this option will keep them in the final output of OUTRIDER")))
-
-parser$add_argument("-v", "--version", action="version", version=as.character(packageVersion("OUTRIDER")))
-
-args <- parser$parse_args()
 set.seed(1)
-bp <- MulticoreParam(args$threads, RNGseed=13243223)
+
+
+
+get_arguments <- function() {
+  parser <- ArgumentParser(description = "Run OUTRIDER")
+  parser$add_argument("-q", "--queries", metavar="query_files", nargs="+",
+                      help="Files containing the query input files.")
+
+  parser$add_argument("-o", "--output_path", metavar="output_path", default="./",
+                      help="Path where output will be stored.")
+
+  parser$add_argument("-r", "--ref", metavar="reference_files", nargs="+",
+                      help="Files containing the reference input files.")
+
+  parser$add_argument("-m", "--mode", metavar="mode", default="gene",
+                      help="Running mode, gene or exon")
+
+  parser$add_argument("-g", "--gtf", metavar="genome_gtf",
+                      help="Genome gtf file")
+
+  parser$add_argument( "-t", "--threads", metavar="threads", default=12, type="integer",
+                      help="Number of parallel threads")
+
+  parser$add_argument("-p", "--prefix", metavar="prefix",
+                      help="Number of parallel threads")
+
+  parser$add_argument("--filter_mode", choices=c("minCounts","fpkm"), default="minCounts",
+                      help=paste(c("Gene/Exon filter mode. minCounts filters only genes/exons with zero expression,",
+                                   "whereas fpkg filters also lowly epxressed genes/exons")))
+
+  parser$add_argument("--fpkm_cutoff", type="double", default=0.5,
+                      help="Only used when --filter_mode is fpkm.")
+
+  parser$add_argument("--fpkm_percentile", type="double", default=0.90,
+                      help="Only used when --filter_mode is fpkm.")
+
+  parser$add_argument("--mask_samples", metavar="mask_samples", nargs="+",
+                      help=paste(c("OUTRIDER expects that each sample is independent.",
+                                   "To avoid overfitting in the autoencoder, dependent samples can be masked to exclude ",
+                                   "them in the training step. Using this option will keep them in the final output of OUTRIDER")))
+
+  parser$add_argument("-v", "--version", action="version", version=as.character(packageVersion("OUTRIDER")))
+
+  return(parser$parse_args())
+}
+
+args <- get_arguments()
+  bp <- MulticoreParam(args$threads, RNGseed=13243223)
 
 run_outrider <- function(count_matrix, metadata, args){
 
@@ -96,7 +101,8 @@ read_and_split_counts <- function(file) {
     list(metadata = meta_cols, counts = count_col)
 }
 
-main <- function(args){
+main <- function(){
+
 
   count_files <- c(args$queries, args$ref)
 
@@ -139,4 +145,4 @@ main <- function(args){
 
 
 
-main(args)
+main()

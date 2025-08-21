@@ -3,7 +3,10 @@ process OUTRIDER {
     label 'process_medium'
 
     conda "${moduleDir}/environment.yml"
-    container "oras://community.wave.seqera.io/library/bioconductor-outrider_r-argparse_r-tidyverse:bf4b6d86b39e3c3e"
+    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
+        'oras://community.wave.seqera.io/library/bioconductor-outrider_r-argparse_r-tidyverse:bf4b6d86b39e3c3e' :
+        'community.wave.seqera.io/library/bioconductor-outrider_r-argparse_r-tidyverse:7658fd7a410ca8f5' }"
+
 
 
     input:

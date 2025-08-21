@@ -124,6 +124,11 @@
                         "branch": "master",
                         "git_sha": "0b27602842d3d79fd0e8db79f4afa764967fc3d1",
                         "installed_by": ["bam_dedup_stats_samtools_umitools", "modules"]
+                    },
+                    "unzip": {
+                        "branch": "master",
+                        "git_sha": "41dfa3f7c0ffabb96a6a813fe321c6d1cc5b6e46",
+                        "installed_by": ["modules"]
                     }
                 }
             },
