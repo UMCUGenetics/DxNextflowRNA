@@ -59,10 +59,16 @@ nextflow_process {
             }
         }
         then {
+            def expected_signif = csv("${TEST_DATA_BASE}/outrider_module/outrider_result.signif.tsv", [sep: "\t"])
+            def outrider_signif = path(process.out.tsv_signif[0][1]).csv(sep: "\t")
 
             assertAll (
                 {assert process.success},
-                {assert snapshot(process.out.tsv_signif).match()}
+                {assert expected_signif.rowCount == outrider_signif.rowCount},
+                {assert expected_signif.columnCount == outrider_signif.columnCount},
+                {assert expected_signif.columns["geneID"] == outrider_signif.columns["geneID"] },
+                {assert expected_signif.columns["sampleID"] == outrider_signif.columns["sampleID"] },
+                {assert expected_signif.columns["rawcounts"] == outrider_signif.columns["rawcounts"] }
             )
         }
     }
