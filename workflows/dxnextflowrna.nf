@@ -4,14 +4,15 @@
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 // MODULES
-include { MULTIQC                          } from '../modules/nf-core/multiqc/main'
+include { MULTIQC                       } from '../modules/nf-core/multiqc/main'
 
 // SUBWORKFLOWS
 include { BAM_QUANTIFICATION_FEATURECOUNTS } from '../subworkflows/local/bam_quantification_featurecounts'
 include { FASTQ_BAM_QC                     } from '../subworkflows/local/fastq_bam_qc'
 include { FASTQ_TRIM_FILTER_ALIGN_DEDUP    } from '../subworkflows/local/fastq_trim_filter_align_dedup'
-include { GENE_EXON_OUTRIDER               } from '../subworkflows/local/gene_exon_outrider'
+include { GENE_EXON_OUTRIDER               } from '../subworkflows/local/gene_exon_outrider/main'
 include { RARE_SPLICING                    } from '../subworkflows/local/fraser'
+
 
 // FUNCTIONS
 include { methodsDescriptionText        } from '../subworkflows/local/utils_umcugenetics_dxnextflowrna_pipeline'
@@ -34,6 +35,8 @@ workflow DXNEXTFLOWRNA {
         .fromPath(params.fasta)
         .combine(Channel.fromPath(params.fai))
         .map { fasta, fai -> [[id: fasta.getSimpleName()], fasta, fai] }
+        .collect()
+
     ch_gene_bed = Channel
         .fromPath(params.gene_bed)
         .collect()
@@ -238,7 +241,6 @@ workflow DXNEXTFLOWRNA {
     // Collate software versions
     ch_multiqc_files = ch_multiqc_files.mix(ch_collated_versions)
 
-    // ch_multiqc_files.view()
 
     MULTIQC(
         ch_multiqc_files.collect(),

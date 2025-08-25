@@ -1,0 +1,50 @@
+import static TestData.*
+import static TestDefaults.TEST_DATA_BASE
+
+nextflow_pipeline {
+    name "Test pipeline stubbed"
+    script "main.nf"
+
+    tag "pipeline"
+    tag "local"
+    tag "pipeline/local"
+    tag "stub"
+
+    test ("Run pipeline stubbed") {
+        options "-stub-run"
+
+        setup {
+            def input_dir = stageDir(launchDir, "input")
+            def star_index = stageDir(launchDir, "star_index")
+            def sortmerna_index = stageDir(launchDir, "sortmerna_index")
+
+
+            def fastqs = ["ERR188041_subset_chr1_L001_R2_001.fastq.gz", "ERR188041_subset_chr1_L001_R1_001.fastq.gz"]
+            fetchAll("${TEST_DATA_BASE}/fastq/", fastqs, input_dir)
+
+            def genome = ["ref_genome.fa", "ref_genome.fa.fai"]
+            fetchAll("${TEST_DATA_BASE}/main/star_index/", genome, star_index)
+
+            def misc = ["annotation.gtf", "sortmerna-db-test.txt"]
+            fetchAll("${TEST_DATA_BASE}/main/", misc, input_dir)
+
+        }
+
+        when {
+            params {
+                input      = "${launchDir}/input/"
+                fasta      = "${launchDir}/star_index/ref_genome.fa"
+                fai        = "${launchDir}/star_index/ref_genome.fa.fai"
+                star_index = "${launchDir}/star_index/"
+                gtf        = "${launchDir}/input/annotation.gtf"
+                rrna_database_manifest = "${launchDir}/input/sortmerna-db-test.txt"
+                sortmerna_index = "${launchDir}/sortmerna_index/"
+            }
+        }
+
+        then {
+            assert workflow.trace.succeeded().size() == 24 // check if all steps are executed
+            assert workflow.success
+        }
+    }
+}
