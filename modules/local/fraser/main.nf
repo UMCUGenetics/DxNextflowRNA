@@ -4,15 +4,17 @@ process FRASER {
     label 'process_high'
 
     conda "${moduleDir}/environment.yml"
-    container "oras://community.wave.seqera.io/library/bioconductor-fraser_r-argparse:f6da91bb26f0dbed"
+    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
+        'oras://community.wave.seqera.io/library/bioconductor-fraser_bioconductor-org.ag.eg.db_bioconductor-org.hs.eg.db_bioconductor-txdb.hsapiens.ucsc.hg38.knowngene_r-argparse:3d3e34783fd3bcc9' :
+        'community.wave.seqera.io/library/bioconductor-fraser_bioconductor-org.hs.eg.db_bioconductor-txdb.hsapiens.ucsc.hg38.knowngene_r-argparse:6ff8a97056de00fa'}"
 
     input:
     tuple val(meta), path(bam), path(bai)
-    tuple path(ref_bam), path(ref_bai)
+    tuple val(meta2), path(ref_bam), path(ref_bai)
+    tuple val(meta3), path(gtf)
 
     output:
     tuple val(meta), path("*.tsv"), emit: tsv
-    tuple val(meta), path("*_heatmap.pdf"), emit: heatmap
     path  "versions.yml"           , emit: versions
 
     when:
@@ -26,6 +28,7 @@ process FRASER {
         --refset ${ref_bam} \\
         --prefix ${prefix} \\
         --threads ${task.cpus} \\
+        --gtf ${gtf} \\
         --paired TRUE
 
     cat <<- END_VERSIONS > versions.yml
