@@ -102,7 +102,7 @@ run_fraser <- function(sampleTable, threads, prefix, txdb, orgdb){
     quantileMinExpression = 10,
     quantile = 0.95,
     minDeltaPsi = 0.05,
-    filter = FALSE
+    filter = TRUE
   )
 
 
