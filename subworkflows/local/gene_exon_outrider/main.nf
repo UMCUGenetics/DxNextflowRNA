@@ -83,7 +83,5 @@ workflow GENE_EXON_OUTRIDER {
     gene_tsv_signif = OUTRIDER_GENE.out.tsv_signif // channel: [ val(meta), path(*_outrider_results.tsv) ]
     exon_tsv_full   = OUTRIDER_EXON.out.tsv_full // channel: [ val(meta), path(*_outrider_results.tsv) ]
     exon_tsv_signif = OUTRIDER_EXON.out.tsv_signif // channel: [ val(meta), path(*_outrider_results.tsv) ]
-    gene_multiqc    = OUTRIDER_GENE.out.multiqc_tsv
-    exon_multiqc    = OUTRIDER_EXON.out.multiqc_tsv
     versions        = ch_versions
 }
