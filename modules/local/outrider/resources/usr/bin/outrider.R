@@ -166,7 +166,8 @@ run_outrider <- function(count_matrix, metadata, mode, gtf, filter_mode, fpkm_cu
       }
 
   } else if(mode == "exon") {
-    mcols(ods)$basepairs <- metadata$Length # add exon length to the outrider dataset to ensure FPKM is correctly estimated
+    # Add exon length to the outrider dataset to ensure FPKM is correctly estimated
+    mcols(ods)$basepairs <- metadata$Length
     ods <- filterExpression(
       ods,
       fpkmCutoff = fpkm_cutoff,
