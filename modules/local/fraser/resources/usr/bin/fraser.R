@@ -94,8 +94,10 @@ run_fraser <- function(sampleTable, threads, prefix, txdb, orgdb){
   # count reads
   fds <- countRNAData(fds, BPPARAM = bp)
 
+  message("Counting done")
   fds <- calculatePSIValues(fds, BPPARAM = bp)
 
+  message("PSI values done")
   fds <- filterExpressionAndVariability(
     fds,
     minExpressionInOneSample = 20,
@@ -114,8 +116,11 @@ run_fraser <- function(sampleTable, threads, prefix, txdb, orgdb){
     keytype = "ENTREZID",
     featureName = "hgncs_symbol"
   )
-  fds <- FRASER(fds, BPPARAM = bp)
 
+  message("Running fraser")
+  fds <- FRASER(fds, BPPARAM = bp)
+  message("Fraser itself is done")
+  save(fds, file=paste0(c("prefix_","fraser_data.RData")))
   return(fds)
 }
 
@@ -147,6 +152,8 @@ main <- function(args){
   taxdb <- TxDb.Hsapiens.UCSC.hg38.knownGene
   orgdb <- org.Hs.eg.db
   sampleTable <- create_sample_table(args$input, args$refset, args$paired)
+
+  save(sampleTable, taxdb, orgdb, file="sample_table.RData")
   fds <- run_fraser(sampleTable, args$threads, args$prefix, taxdb, orgdb)
   write_fraser_output(fds, args$prefix)
 }
