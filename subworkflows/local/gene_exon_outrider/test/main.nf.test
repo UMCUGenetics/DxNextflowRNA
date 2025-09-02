@@ -5,6 +5,7 @@ nextflow_workflow {
 
     name "Test Subworkflow OUTRIDER"
     script "../main.nf"
+    config "nextflow.config"
     workflow "GENE_EXON_OUTRIDER"
 
     tag "subworkflows"
@@ -21,16 +22,16 @@ nextflow_workflow {
             def input_dir = stageDir(launchDir, "outrider_subworkflow/")
             def query_dir = stageDir(launchDir, "outrider_subworkflow/query")
 
-            def gene_chx_parents = stageDir(launchDir, "outrider_subworkflow/ref_gene/chx_parents")
-            def gene_chx_index = stageDir(launchDir, "outrider_subworkflow/ref_gene/chx_index")
+            def gene_chx_parents   = stageDir(launchDir, "outrider_subworkflow/ref_gene/chx_parents")
+            def gene_chx_index     = stageDir(launchDir, "outrider_subworkflow/ref_gene/chx_index")
             def gene_cntrl_parents = stageDir(launchDir, "outrider_subworkflow/ref_gene/cntrl_parents")
-            def gene_cntrl_index = stageDir(launchDir, "outrider_subworkflow/ref_gene/cntrl_index")
+            def gene_cntrl_index   = stageDir(launchDir, "outrider_subworkflow/ref_gene/cntrl_index")
 
 
-            def exon_chx_parents = stageDir(launchDir, "outrider_subworkflow/ref_exon/chx_parents")
-            def exon_chx_index = stageDir(launchDir, "outrider_subworkflow/ref_exon/chx_index")
+            def exon_chx_parents   = stageDir(launchDir, "outrider_subworkflow/ref_exon/chx_parents")
+            def exon_chx_index     = stageDir(launchDir, "outrider_subworkflow/ref_exon/chx_index")
             def exon_cntrl_parents = stageDir(launchDir, "outrider_subworkflow/ref_exon/cntrl_parents")
-            def exon_cntrl_index = stageDir(launchDir, "outrider_subworkflow/ref_exon/cntrl_index")
+            def exon_cntrl_index   = stageDir(launchDir, "outrider_subworkflow/ref_exon/cntrl_index")
 
             // Fetch Query samples
             def query_samples = ["querysamplecntrl.cntrl.gene.tsv", "querysamplecntrl.cntrl.exon.tsv",
@@ -41,10 +42,14 @@ nextflow_workflow {
             fetch("${TEST_DATA_BASE}/outrider_subworkflow/annotation.gtf", new File(input_dir, "annotation.gtf"))
 
             // Fetch gene ref sets
-            def files_gene_chx_parents = ["A1plusCHX.chx.gene.tsv","A2plusCHX.chx.gene.tsv","A3plusCHX.chx.gene.tsv","A4plusCHX.chx.gene.tsv","A5plusCHX.chx.gene.tsv","A6plusCHX.chx.gene.tsv"]
-            def files_gene_chx_index = ["B1plusCHX.chx.gene.tsv","B2plusCHX.chx.gene.tsv","B3plusCHX.chx.gene.tsv","B4plusCHX.chx.gene.tsv","B5plusCHX.chx.gene.tsv","B6plusCHX.chx.gene.tsv"]
-            def files_gene_cntrl_parents = ["D1cntrl.cntrl.gene.tsv","D2cntrl.cntrl.gene.tsv","D3cntrl.cntrl.gene.tsv","D4cntrl.cntrl.gene.tsv","D5cntrl.cntrl.gene.tsv","D6cntrl.cntrl.gene.tsv"]
-            def files_gene_cntrl_index = ["C1cntrl.cntrl.gene.tsv","C2cntrl.cntrl.gene.tsv","C3cntrl.cntrl.gene.tsv","C4cntrl.cntrl.gene.tsv","C5cntrl.cntrl.gene.tsv","C6cntrl.cntrl.gene.tsv"]
+            def files_gene_chx_parents   = ["A1plusCHX.chx.gene.tsv","A2plusCHX.chx.gene.tsv","A3plusCHX.chx.gene.tsv",
+                                            "A4plusCHX.chx.gene.tsv","A5plusCHX.chx.gene.tsv","A6plusCHX.chx.gene.tsv"]
+            def files_gene_chx_index     = ["B1plusCHX.chx.gene.tsv","B2plusCHX.chx.gene.tsv","B3plusCHX.chx.gene.tsv",
+                                            "B4plusCHX.chx.gene.tsv","B5plusCHX.chx.gene.tsv","B6plusCHX.chx.gene.tsv"]
+            def files_gene_cntrl_parents = ["D1cntrl.cntrl.gene.tsv","D2cntrl.cntrl.gene.tsv","D3cntrl.cntrl.gene.tsv",
+                                            "D4cntrl.cntrl.gene.tsv","D5cntrl.cntrl.gene.tsv","D6cntrl.cntrl.gene.tsv"]
+            def files_gene_cntrl_index   = ["C1cntrl.cntrl.gene.tsv","C2cntrl.cntrl.gene.tsv","C3cntrl.cntrl.gene.tsv",
+                                            "C4cntrl.cntrl.gene.tsv","C5cntrl.cntrl.gene.tsv","C6cntrl.cntrl.gene.tsv"]
 
             fetchAll("${TEST_DATA_BASE}/outrider_subworkflow/ref_gene/chx_parents", files_gene_chx_parents, gene_chx_parents)
             fetchAll("${TEST_DATA_BASE}/outrider_subworkflow/ref_gene/chx_index", files_gene_chx_index, gene_chx_index)
@@ -52,10 +57,14 @@ nextflow_workflow {
             fetchAll("${TEST_DATA_BASE}/outrider_subworkflow/ref_gene/cntrl_index", files_gene_cntrl_index, gene_cntrl_index)
 
             // Fetch exon ref sets
-            def files_exon_chx_parents = ["A1plusCHX.chx.exon.tsv","A2plusCHX.chx.exon.tsv","A3plusCHX.chx.exon.tsv","A4plusCHX.chx.exon.tsv","A5plusCHX.chx.exon.tsv","A6plusCHX.chx.exon.tsv"]
-            def files_exon_chx_index = ["B1plusCHX.chx.exon.tsv","B2plusCHX.chx.exon.tsv","B3plusCHX.chx.exon.tsv","B4plusCHX.chx.exon.tsv","B5plusCHX.chx.exon.tsv","B6plusCHX.chx.exon.tsv"]
-            def files_exon_cntrl_index = ["D1cntrl.cntrl.exon.tsv","D2cntrl.cntrl.exon.tsv","D3cntrl.cntrl.exon.tsv","D4cntrl.cntrl.exon.tsv","D5cntrl.cntrl.exon.tsv","D6cntrl.cntrl.exon.tsv"]
-            def files_exon_cntrl_parents = ["C1cntrl.cntrl.exon.tsv","C2cntrl.cntrl.exon.tsv","C3cntrl.cntrl.exon.tsv","C4cntrl.cntrl.exon.tsv","C5cntrl.cntrl.exon.tsv","C6cntrl.cntrl.exon.tsv"]
+            def files_exon_chx_parents   = ["A1plusCHX.chx.exon.tsv","A2plusCHX.chx.exon.tsv","A3plusCHX.chx.exon.tsv",
+                                            "A4plusCHX.chx.exon.tsv","A5plusCHX.chx.exon.tsv","A6plusCHX.chx.exon.tsv"]
+            def files_exon_chx_index     = ["B1plusCHX.chx.exon.tsv","B2plusCHX.chx.exon.tsv","B3plusCHX.chx.exon.tsv",
+                                            "B4plusCHX.chx.exon.tsv","B5plusCHX.chx.exon.tsv","B6plusCHX.chx.exon.tsv"]
+            def files_exon_cntrl_index   = ["D1cntrl.cntrl.exon.tsv","D2cntrl.cntrl.exon.tsv","D3cntrl.cntrl.exon.tsv",
+                                            "D4cntrl.cntrl.exon.tsv","D5cntrl.cntrl.exon.tsv","D6cntrl.cntrl.exon.tsv"]
+            def files_exon_cntrl_parents = ["C1cntrl.cntrl.exon.tsv","C2cntrl.cntrl.exon.tsv","C3cntrl.cntrl.exon.tsv",
+                                            "C4cntrl.cntrl.exon.tsv","C5cntrl.cntrl.exon.tsv","C6cntrl.cntrl.exon.tsv"]
 
             fetchAll("${TEST_DATA_BASE}/outrider_subworkflow/ref_exon/chx_parents", files_exon_chx_parents, exon_chx_parents)
             fetchAll("${TEST_DATA_BASE}/outrider_subworkflow/ref_exon/chx_index", files_exon_chx_index, exon_chx_index)
@@ -64,15 +73,37 @@ nextflow_workflow {
         }
         when {
             params{
-                outrider_gene_chx_parents   = "${launchDir}/outrider_subworkflow/ref_gene/chx_parents"
-                outrider_gene_chx_index     = "${launchDir}/outrider_subworkflow/ref_gene/chx_index"
-                outrider_gene_cntrl_parents = "${launchDir}/outrider_subworkflow/ref_gene/cntrl_parents"
-                outrider_gene_cntrl_index   = "${launchDir}/outrider_subworkflow/ref_gene/cntrl_index"
+                outrider_reference_base = "${launchDir}/outrider_subworkflow/"
 
-                outrider_exon_chx_parents   = "${launchDir}/outrider_subworkflow/ref_exon/chx_parents"
-                outrider_exon_chx_index     = "${launchDir}/outrider_subworkflow/ref_exon/chx_index"
-                outrider_exon_cntrl_parents = "${launchDir}/outrider_subworkflow/ref_exon/cntrl_parents"
-                outrider_exon_cntrl_index   = "${launchDir}/outrider_subworkflow/ref_exon/cntrl_index"
+                // Outrider configuration
+                conditions = ['chx', 'ctrl']
+                condition_patterns = [
+                    chx  : ['pluschx','chx'],
+                    ctrl : ['control','cntrl','ctrl']
+                ]
+
+                outrider_refs = [
+                    gene: [
+                        chx: [
+                            [id: "parents", path: "${outrider_reference_base}/ref_gene/chx_parents/"],
+                            [id: "index",   path: "${outrider_reference_base}/ref_gene/chx_index/"],
+                        ],
+                        ctrl: [
+                            [id: "parents", path: "${outrider_reference_base}/ref_gene/cntrl_parents/"],
+                            [id: "index",   path: "${outrider_reference_base}/ref_gene/cntrl_index/"],
+                        ]
+                    ],
+                    exon: [
+                        chx: [
+                            [id: "parents", path: "${outrider_reference_base}/ref_exon/chx_parents/"],
+                            [id: "index",   path: "${outrider_reference_base}/ref_exon/chx_index/"],
+                        ],
+                        ctrl: [
+                            [id: "parents", path: "${outrider_reference_base}/ref_exon/cntrl_parents/"],
+                            [id: "index",   path: "${outrider_reference_base}/ref_exon/cntrl_index/"],
+                        ]
+                    ]
+                ]
             }
 
             workflow {
@@ -93,8 +124,7 @@ nextflow_workflow {
         then {
             assertAll (
                 {assert workflow.success},
-                {assert workflow.out.gene_tsv_full.size() == 4},
-                {assert workflow.out.exon_tsv_full.size() == 4}
+                {assert workflow.out.tsv_full.size() == 8} // process all gene and all exon refsets
             )
         }
     }
