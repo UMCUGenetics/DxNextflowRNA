@@ -73,6 +73,9 @@ nextflow_workflow {
         }
         when {
             params{
+                outrider_reference_base = null
+                outrider_refs = null
+
                 outrider_reference_base = "${launchDir}/outrider_subworkflow/"
 
                 // Outrider configuration
