@@ -1,0 +1,19 @@
+{
+    "Test FRASER with simulated data": {
+        "content": [
+            [
+                [
+                    {
+                        "id": "QuerySamples"
+                    },
+                    "QuerySamples_fraser_result_full.tsv:md5,97b699329b3f40f1b74c1b995be8fad7"
+                ]
+            ]
+        ],
+        "meta": {
+            "nf-test": "0.9.2",
+            "nextflow": "25.04.6"
+        },
+        "timestamp": "2025-09-03T16:12:42.340224"
+    }
+}
