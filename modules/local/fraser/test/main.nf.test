@@ -18,62 +18,36 @@ nextflow_process {
 
     test("Test FRASER with simulated data") {
 
-        // setup {
-        //     // Stage input directories
-        //     def input_dir = stageDir(launchDir, "fraser_module")
-        //     def ref_dir   = stageDir(launchDir, "fraser_module/ref/")
-        //     def query_dir = stageDir(launchDir, "fraser_module/query")
-
-
-            // // Download ref files into the input dir
-            // (2..30).each { i ->
-            //     def idx = String.format("%02d", i) // bv. 01..30
-            //     def name = "S${idx}.tsv"
-            //     def url  = "${TEST_DATA_BASE}/outrider_module/ref/${name}"
-            //     fetch(url, new File(ref_dir, name))
-            // }
-
-
-
-            // //Download single query file
-            // fetch("${TEST_DATA_BASE}/outrider_module/query/S01.tsv", new File( query_dir, "S01.tsv"))
-            // fetch("${TEST_DATA_BASE}/outrider_module/sim.gtf", new File(input_dir, "sim.gtf"))
-
-
-        // }
-
         when {
-            // params{
-                // input_dir = "${launchDir}/outrider_module/"
-            // }
+            params {
+                test_data_base = TEST_DATA_BASE
+            }
             process {
                 """
                 input[0] = [
                     [id: "QuerySamples"],
-                    [file("/Users/jsteenbr/tools/DxNextflowTestData/DxNextflowRNA/fraser_module/bam/sample1.bam")],
-                    [file("/Users/jsteenbr/tools/DxNextflowTestData/DxNextflowRNA/fraser_module/bam/sample1.bam.bai")],
+                    [file(params.test_data_base + "/fraser_module/bam/sample1.bam")],
+                    [file(params.test_data_base + "/fraser_module/bam/sample1.bam.bai")]
                 ]
 
                 input[1] = [
                     [id: "RefSamples"],
                     [
-                        file("/Users/jsteenbr/tools/DxNextflowTestData/DxNextflowRNA/fraser_module/bam/sample2.bam"),
-                        file("/Users/jsteenbr/tools/DxNextflowTestData/DxNextflowRNA/fraser_module/bam/sample3.bam"),
+                        file(params.test_data_base + "/fraser_module/bam/sample2.bam"),
+                        file(params.test_data_base + "/fraser_module/bam/sample3.bam")
                     ],
-                        [file("/Users/jsteenbr/tools/DxNextflowTestData/DxNextflowRNA/fraser_module/bam/sample2.bam.bai"),
-                        file("/Users/jsteenbr/tools/DxNextflowTestData/DxNextflowRNA/fraser_module/bam/sample3.bam.bai")
-                    ],
-                ]
-                input[2] = [
-                    [id: "gencodev44"],
-                    file("/Users/jsteenbr/Downloads/gencode.v44.primary_assembly.basic.annotation.gtf")
+                    [
+                        file(params.test_data_base + "/fraser_module/bam/sample2.bam.bai"),
+                        file(params.test_data_base + "/fraser_module/bam/sample3.bam.bai")
+                    ]
                 ]
                 """
             }
         }
         then {
             assertAll(
-                {assert process.success}
+                {assert process.success},
+                {assert snapshot(process.out.tsv).match()}
             )
         }
     }

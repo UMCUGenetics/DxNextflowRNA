@@ -11,25 +11,36 @@ process FRASER {
     input:
     tuple val(meta), path(bam), path(bai)
     tuple val(meta2), path(ref_bam), path(ref_bai)
-    tuple val(meta3), path(gtf)
 
     output:
     tuple val(meta), path("*.tsv"), emit: tsv
-    path  "versions.yml"           , emit: versions
+    path  "versions.yml"          , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
 
     script:
     def prefix = task.ext.prefix ?: "${meta.id}"
+    def args   = task.ext.args   ?: ""
     """
     fraser.R \\
+        ${args} \\
         --input ${bam} \\
         --refset ${ref_bam} \\
         --prefix ${prefix} \\
         --threads ${task.cpus} \\
-        --gtf ${gtf} \\
         --paired TRUE
+
+    cat <<- END_VERSIONS > versions.yml
+    "${task.process}":
+        fraser: \$(fraser.R --version)
+    END_VERSIONS
+    """
+
+    stub:
+    def prefix = task.ext.prefix ?: "${meta.id}"
+    """
+    touch
 
     cat <<- END_VERSIONS > versions.yml
     "${task.process}":
