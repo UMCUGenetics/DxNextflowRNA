@@ -158,13 +158,17 @@ workflow DXNEXTFLOWRNA {
     //
     // SUBWORKFLOW: Run bam_outrider for genes and exons
     //
+    if (params.run_outrider) {
 
-    GENE_EXON_OUTRIDER(
-        BAM_QUANTIFICATION_FEATURECOUNTS.out.gene_counts,
-        BAM_QUANTIFICATION_FEATURECOUNTS.out.exon_counts,
-        ch_gtf
-    )
-    ch_versions = ch_versions.mix(GENE_EXON_OUTRIDER.out.versions)
+        GENE_EXON_OUTRIDER(
+            BAM_QUANTIFICATION_FEATURECOUNTS.out.gene_counts,
+            BAM_QUANTIFICATION_FEATURECOUNTS.out.exon_counts,
+            ch_gtf
+        )
+
+        ch_versions = ch_versions.mix(GENE_EXON_OUTRIDER.out.versions)
+    }
+
 
 
     //
