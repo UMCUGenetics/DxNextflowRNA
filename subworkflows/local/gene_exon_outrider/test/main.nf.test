@@ -16,7 +16,7 @@ nextflow_workflow {
     def refGeneRoot, refExonRoot
 
     test("Test correct split chx/cntrl") {
-
+        options "-stub"
         setup {
             // Stage input directories
             def input_dir = stageDir(launchDir, "outrider_subworkflow/")

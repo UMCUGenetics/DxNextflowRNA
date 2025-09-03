@@ -9,7 +9,9 @@ workflow GENE_EXON_OUTRIDER {
 
     main:
 
-    reference_panels = Channel.from(params.outrider_refs
+    def refs = (params.outrider_refs ?: [:]) as Map
+
+    reference_panels = Channel.from(refs
         .collectMany { level, treatments ->
             treatments
                 .collectMany { treatment, panels ->
@@ -42,12 +44,12 @@ workflow GENE_EXON_OUTRIDER {
         [(c): rx]
     }
 
-    // check the file name and match that with the regex pattern
+    // check the file name and match that wipth the regex pattern
     def detect_condition = { String fname ->
         def hits = CONDITION_REGEX.findAll { cond, rx -> rx.matcher(fname).find() }
             .collect { it.key }
         if (hits.size() == 1) return hits[0]
-        if (hits.isEmpty())   error "No condition match for file: ${fname} (patterns: ${condition_patterns})"
+        if (hits.isEmpty())   error "No condition match for file: ${fname} (patterns: ${params.condition_patterns})"
         error "Ambiguous condition for file: ${fname}; matches: ${hits.join(', ')}"
     }
 
