@@ -265,7 +265,8 @@ main <- function(){
 
   rownames(count_matrix) <- metadata$Geneid
 
-  ods <- run_outrider(count_matrix, metadata, args$mode, args$gtf, args$filter_mode, args$fpkm_cutoff, args$fpkm_percentile, args$threads)
+  ods <- run_outrider(count_matrix, metadata, args$mode, args$gtf, args$filter_mode, args$fpkm_cutoff, args$fpkm_percentile, 
+                      args$threads)
   res_full <- results(ods, all = TRUE)
   res_signif <- results(ods, all = FALSE)
 
