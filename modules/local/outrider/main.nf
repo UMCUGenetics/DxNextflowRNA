@@ -16,7 +16,6 @@ process OUTRIDER {
     output:
     tuple val(meta), path("*_outrider_result_full.tsv")      , emit: tsv_full
     tuple val(meta), path("*_outrider_result_signif.tsv")    , emit: tsv_signif
-    tuple val(meta), path("*_outrider_result_signif_mqc.tsv"), emit: multiqc_tsv
     path "versions.yml"                                      , emit: versions
 
     when:
@@ -35,13 +34,6 @@ process OUTRIDER {
         --queries ${query} \\
         --prefix ${prefix}
 
-
-    # Add metadata to the _mqc.tsv so multiqc knows how to format them in the report
-    echo "# parent_id: OUTRIDER - ${task.ext.mode}" >> ${prefix}_outrider_result_signif_mqc.tsv
-    echo "# parent_name: OUTRIDER - ${task.ext.mode}" >> ${prefix}_outrider_result_signif_mqc.tsv
-    echo "# section_name: ${prefix}" >> ${prefix}_outrider_result_signif_mqc.tsv
-    cat ${prefix}_outrider_result_signif.tsv >> ${prefix}_outrider_result_signif_mqc.tsv
-
     cat <<- END_VERSIONS > versions.yml
     "${task.process}":
         outrider: \$(outrider.R --version)
@@ -53,7 +45,6 @@ process OUTRIDER {
     """
     touch ${prefix}_outrider_result_full.tsv
     touch ${prefix}_outrider_result_signif.tsv
-    touch ${prefix}_outrider_result_signif_mqc.tsv
 
     cat <<- END_VERSIONS > versions.yml
     "${task.process}":

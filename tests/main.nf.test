@@ -43,6 +43,7 @@ nextflow_pipeline {
         }
 
         then {
+            println  workflow.trace.succeeded().size()
             assert workflow.trace.succeeded().size() == 24 // check if all steps are executed
             assert workflow.success
         }
