@@ -1,3 +1,6 @@
+import static TestData.*
+import static TestDefaults.TEST_DATA_BASE
+
 nextflow_pipeline {
     name "Test pipeline stubbed"
     script "main.nf"
@@ -8,32 +11,23 @@ nextflow_pipeline {
     tag "stub"
 
     test ("Run pipeline stubbed") {
-        config "tests/nextflow.config"
-        options "-stub-run -with-dag stub_dag.html"
+        options "-stub-run"
 
         setup {
-            def test_data_base = "https://raw.githubusercontent.com/UMCUGenetics/DxNextflowTestData/main/DxNextflowRNA/"
-            def input_dir = new File("${launchDir}/input/")
-            def star_index = new File("${launchDir}/star_index")
-            def sortmerna_index = new File("${launchDir}/sortmerna_index")
-            [input_dir, star_index, sortmerna_index]*.mkdirs()
+            def input_dir = stageDir(launchDir, "input")
+            def star_index = stageDir(launchDir, "star_index")
+            def sortmerna_index = stageDir(launchDir, "sortmerna_index")
 
-            def fetch = { String url, File dst -> dst.withOutputStream { it << new URL(url).openStream() } }
 
-            fetch("${test_data_base}/fastq/ERR188041_subset_chr1_L001_R1_001.fastq.gz",
-                new File(input_dir, "ERR188041_subset_chr1_L001_R1_001.fastq.gz"))
-            fetch("${test_data_base}/fastq/ERR188041_subset_chr1_L001_R2_001.fastq.gz",
-                new File(input_dir, "ERR188041_subset_chr1_L001_R2_001.fastq.gz"))
+            def fastqs = ["ERR188041_subset_chr1_L001_R2_001.fastq.gz", "ERR188041_subset_chr1_L001_R1_001.fastq.gz"]
+            fetchAll("${TEST_DATA_BASE}/fastq/", fastqs, input_dir)
 
-            fetch("${test_data_base}/main/star_index/ref_genome.fa",
-                  new File(star_index, "ref_genome.fa"))
-            fetch("${test_data_base}/main/star_index/ref_genome.fa.fai",
-                  new File(star_index, "ref_genome.fa.fai"))
-            fetch("${test_data_base}/main/annotation.gtf",
-                  new File(input_dir, "annotation.gtf"))
+            def genome = ["ref_genome.fa", "ref_genome.fa.fai"]
+            fetchAll("${TEST_DATA_BASE}/main/star_index/", genome, star_index)
 
-            fetch("${test_data_base}/main/sortmerna-db-test.txt",
-                  new File(input_dir, "sortmerna-db-test.txt"))
+            def misc = ["annotation.gtf", "sortmerna-db-test.txt"]
+            fetchAll("${TEST_DATA_BASE}/main/", misc, input_dir)
+
         }
 
         when {
@@ -49,6 +43,7 @@ nextflow_pipeline {
         }
 
         then {
+            println  workflow.trace.succeeded().size()
             assert workflow.trace.succeeded().size() == 24 // check if all steps are executed
             assert workflow.success
         }
