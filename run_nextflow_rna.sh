@@ -50,7 +50,7 @@ fi
 
 sbatch <<EOT
 #!/bin/bash
-#SBATCH --time=12:00:00
+#SBATCH --time=24:00:00
 #SBATCH --nodes=1
 #SBATCH --mem 10G
 #SBATCH --gres=tmpspace:10G
