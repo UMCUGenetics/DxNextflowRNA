@@ -40,7 +40,7 @@ process FRASER {
     stub:
     def prefix = task.ext.prefix ?: "${meta.id}"
     """
-    touch
+    touch ${prefix}.tsv
 
     cat <<- END_VERSIONS > versions.yml
     "${task.process}":

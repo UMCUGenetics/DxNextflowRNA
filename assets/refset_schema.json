@@ -1,0 +1,33 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "nf-core/prs pipeline - params.input schema",
+    "description": "Schema for the file provided with params.fraser_samplesheet",
+    "type": "array",
+    "items": {
+        "type": "object",
+        "properties": {
+            "SampleName": {
+                "type": "string",
+                "pattern": "^\\S+$",
+                "errorMessage": "Sample name must be provided and cannot contain spaces",
+                "meta": ["id"]
+            },
+            "FileName": {
+                "type": "string",
+                "pattern": "^\\S+\\.bam$",
+                "errorMessage": "BAM file must be provided"
+            },
+            "Treatment": {
+                "type": "string",
+                "errorMessage": "Treatment must be provided. If not required fill in 'control'",
+                "meta": ["treatment"]
+            },
+            "Set": {
+                "type": "string",
+                "errorMessage": "Set must be provided. If not required fill in 'Set1'",
+                "meta": ["Set"]
+            }
+        },
+        "required": ["SampleName", "FileName", "Treatment", "Set"]
+    }
+}

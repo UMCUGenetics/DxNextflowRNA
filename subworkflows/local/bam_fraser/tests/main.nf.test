@@ -1,0 +1,39 @@
+nextflow_workflow {
+
+    name "Test Workflow FRASER"
+    script "../main.nf"
+    config "nextflow.config"
+    workflow "BAM_FRASER"
+
+    tag "subworkflows"
+    tag "subworkflows/bam_fraser"
+    tag "local"
+    tag "subworkflows/local"
+
+    test("Test correct reference import") {
+        options "-stub"
+
+        when {
+            params {
+                fraser_samplesheet = "https://raw.githubusercontent.com/UMCUGenetics/DxNextflowTestData/main/DxNextflowRNA/fraser_module/refset_samplesheet.csv"
+            }
+            workflow {
+                """
+                input[0] = [
+                    ['id': "input_bamfiles"],
+                    [file("https://raw.githubusercontent.com/UMCUGenetics/DxNextflowTestData/main/DxNextflowRNA/fraser_module/bam/sample1.bam", checkIfExists: true)],
+                    [file("https://raw.githubusercontent.com/UMCUGenetics/DxNextflowTestData/main/DxNextflowRNA/fraser_module/bam/sample1.bam.bai", checkIfExists: true)]
+
+                ]
+                """
+            }
+        }
+
+        then {
+            assertAll {
+                {assert workflow.success}
+            }
+        }
+
+    }
+}
