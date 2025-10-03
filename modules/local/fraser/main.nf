@@ -10,7 +10,7 @@ process FRASER {
 
     input:
     tuple val(meta), path(bam), path(bai)
-    tuple val(meta2), path(ref_bam), path(ref_bai)
+    tuple val(meta2), path(ref_junctions), path(ref_splice_sites)
 
     output:
     tuple val(meta), path("*.tsv"), emit: tsv
@@ -26,7 +26,8 @@ process FRASER {
     fraser.R \\
         ${args} \\
         --input ${bam} \\
-        --refset ${ref_bam} \\
+        --ref_junctions ${ref_junctions} \\
+        --ref_splice_sites ${ref_splice_sites} \\
         --prefix ${prefix} \\
         --threads ${task.cpus} \\
         --paired TRUE

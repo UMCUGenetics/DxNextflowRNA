@@ -8,6 +8,7 @@ include { MULTIQC                       } from '../modules/nf-core/multiqc/main'
 
 // SUBWORKFLOWS
 include { BAM_QUANTIFICATION_FEATURECOUNTS } from '../subworkflows/local/bam_quantification_featurecounts'
+include { BAM_FRASER                       } from '../subworkflows/local/bam_fraser/main'
 include { FASTQ_BAM_QC                     } from '../subworkflows/local/fastq_bam_qc'
 include { FASTQ_TRIM_FILTER_ALIGN_DEDUP    } from '../subworkflows/local/fastq_trim_filter_align_dedup'
 include { GENE_EXON_OUTRIDER               } from '../subworkflows/local/gene_exon_outrider/main'
@@ -167,6 +168,14 @@ workflow DXNEXTFLOWRNA {
         )
 
         ch_versions = ch_versions.mix(GENE_EXON_OUTRIDER.out.versions)
+    }
+
+    if (params.run_fraser) {
+
+        BAM_FRASER(
+            FASTQ_TRIM_FILTER_ALIGN_DEDUP.out.ch_bam_bai
+        )
+
     }
 
 

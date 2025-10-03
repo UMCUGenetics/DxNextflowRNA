@@ -51,10 +51,16 @@ suppressPackageStartupMessages({
     help    = "Input bam files"
   )
   parser$add_argument(
-    "-r", "--refset",
-    metavar = "refset",
+    "--ref_junctions",
+    metavar = "refset precalculated junction counts",
     nargs   = "+",
-    help    = "Refset bam files"
+    help    = "Refset junction files"
+  )
+  parser$add_argument(
+    "--ref_splice_sites",
+    metavar = "refset precalculated splice sites counts",
+    nargs   = "+",
+    help    = "Refset splice site files"
   )
   parser$add_argument(
     "--prefix",
@@ -303,8 +309,10 @@ write_fraser_output <- function(fds, prefix, test_mode=FALSE){
     row.names = FALSE,
     file = paste0(prefix, "_fraser_result_full.tsv")
   )
+}
 
 
+import_refset <- function(junctions, splice_sites) {
 
 }
 
@@ -353,7 +361,12 @@ main <- function(args){
 
   taxdb <- TxDb.Hsapiens.UCSC.hg38.knownGene
   orgdb <- org.Hs.eg.db
-  sampleTable <- create_sample_table(args$input, args$refset, args$paired)
+
+  refset <- import_refset(args$ref_junctions, args$ref_splice_sites)
+
+  sampleTable <- create_sample_table(args$input, args$paired)
+
+
 
   save(sampleTable, taxdb, orgdb, file="sample_table.RData")
 

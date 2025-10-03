@@ -16,6 +16,7 @@ nextflow_workflow {
         when {
             params {
                 fraser_samplesheet = "https://raw.githubusercontent.com/UMCUGenetics/DxNextflowTestData/main/DxNextflowRNA/fraser_module/refset_samplesheet.csv"
+                fraser_reference_base = "https://raw.githubusercontent.com/UMCUGenetics/DxNextflowTestData/main/DxNextflowRNA/fraser_module/counts/"
             }
             workflow {
                 """

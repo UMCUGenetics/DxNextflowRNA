@@ -12,10 +12,10 @@
                 "errorMessage": "Sample name must be provided and cannot contain spaces",
                 "meta": ["id"]
             },
-            "FileName": {
+            "FileBaseName": {
                 "type": "string",
                 "pattern": "^\\S+\\.bam$",
-                "errorMessage": "BAM file must be provided"
+                "errorMessage": "FileBaseName must be provided (e.g. when filename is 'samplex.bam' basename is: 'samplex')"
             },
             "Treatment": {
                 "type": "string",
@@ -28,6 +28,6 @@
                 "meta": ["Set"]
             }
         },
-        "required": ["SampleName", "FileName", "Treatment", "Set"]
+        "required": ["SampleName", "FileBaseName", "Treatment", "Set"]
     }
 }
