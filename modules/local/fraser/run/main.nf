@@ -9,8 +9,7 @@ process FRASER {
         'community.wave.seqera.io/library/bioconductor-fraser_bioconductor-org.hs.eg.db_bioconductor-txdb.hsapiens.ucsc.hg38.knowngene_r-argparse:6ff8a97056de00fa'}"
 
     input:
-    tuple val(meta), path(bam), path(bai)
-    tuple val(meta2), path(ref_junctions), path(ref_splice_sites)
+    tuple val(meta), path(countTable), path(spliceCounts), path(junctionCounts)
 
     output:
     tuple val(meta), path("*.tsv"), emit: tsv
@@ -25,9 +24,9 @@ process FRASER {
     """
     fraser.R \\
         ${args} \\
-        --input ${bam} \\
-        --ref_junctions ${ref_junctions} \\
-        --ref_splice_sites ${ref_splice_sites} \\
+        --junctionCounts ${junctionCounts} \\
+        --spliceCounts ${spliceCounts} \\
+        --countTable ${countTable} \\
         --prefix ${prefix} \\
         --threads ${task.cpus} \\
         --paired TRUE

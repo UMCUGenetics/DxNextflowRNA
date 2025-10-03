@@ -45,22 +45,20 @@ suppressPackageStartupMessages({
   parser <- ArgumentParser(description="Run FRASER")
 
   parser$add_argument(
-    "-i", "--input",
-    metavar = "input",
-    nargs   = "+",
-    help    = "Input bam files"
+    "-i", "--countTable",
+    metavar = "countTable",
+    help    = "Input countTable with sample metadata"
   )
   parser$add_argument(
-    "--ref_junctions",
-    metavar = "refset precalculated junction counts",
-    nargs   = "+",
-    help    = "Refset junction files"
+    "--junctionCounts",
+    metavar = "junctionCounts",
+    help    = "Precalculated junction counts"
   )
   parser$add_argument(
-    "--ref_splice_sites",
-    metavar = "refset precalculated splice sites counts",
+    "--spliceCounts",
+    metavar = "spliceCounts",
     nargs   = "+",
-    help    = "Refset splice site files"
+    help    = "Precalculated splice site counts"
   )
   parser$add_argument(
     "--prefix",
@@ -237,14 +235,9 @@ create_sample_table <- function(sample, ref, paired_end){
 #'
 #' @seealso \code{\link[FRASER]{FraserDataSet}}, \code{\link[FRASER]{FRASER}}
 #' @export
-run_fraser <- function(sampleTable, threads, prefix, txdb, orgdb, minExpressionInOneSample = 20, quantileMinExpression = 10,
+run_fraser <- function(fds, threads, prefix, txdb, orgdb, minExpressionInOneSample = 20, quantileMinExpression = 10,
                        quantile = 0.95, minDeltaPsi = 0.05, filter = TRUE){
   bp <- MulticoreParam(threads, RNGseed=13243223)
-
-
-  fds <- FraserDataSet(colData=sampleTable, workingDir="./FRASER_output")
-
-  fds <- countRNAData(fds, BPPARAM = bp)
 
   fds <- calculatePSIValues(fds, BPPARAM = bp)
 
@@ -312,8 +305,19 @@ write_fraser_output <- function(fds, prefix, test_mode=FALSE){
 }
 
 
-import_refset <- function(junctions, splice_sites) {
+import_fraser_data <- function(countTable, junctions, splice_sites) {
+  sampleTable <- fread(countTable)
+  junctions   <- fread(junctions)
+  spliceSites <- fread(splice_sites)
 
+  fds <- FraserDataSet(
+    colData    = sampleTable,
+    junctions  = junctions,
+    spliceSites= spliceSites,
+    workingDir = "FRASER_output"
+  )
+
+  return(fds)
 }
 
 #' Run the full FRASER analysis pipeline from command-line arguments
@@ -362,15 +366,10 @@ main <- function(args){
   taxdb <- TxDb.Hsapiens.UCSC.hg38.knownGene
   orgdb <- org.Hs.eg.db
 
-  refset <- import_refset(args$ref_junctions, args$ref_splice_sites)
-
-  sampleTable <- create_sample_table(args$input, args$paired)
+  fds <- import_fraser_data(args$countTable, args$junctionCounts, args$spliceCounts)
 
 
-
-  save(sampleTable, taxdb, orgdb, file="sample_table.RData")
-
-  fds <- run_fraser(sampleTable, args$threads, args$prefix, taxdb, orgdb, args$minExpressionInOneSample,
+  fds <- run_fraser(fds, args$threads, args$prefix, taxdb, orgdb, args$minExpressionInOneSample,
     args$quantileMinExpression, args$quantile, args$minDeltaPsi, args$filter
   )
 

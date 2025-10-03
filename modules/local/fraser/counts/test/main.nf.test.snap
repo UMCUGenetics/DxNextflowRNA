@@ -1,0 +1,35 @@
+{
+    "Test FRASER_BUILDCOUNTS": {
+        "content": [
+            [
+                [
+                    {
+                        "id": "refset"
+                    },
+                    "refset_sampleTable_countTable.tsv:md5,27088c90d46e83cd73c797c04917af69"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "refset"
+                    },
+                    "refset_spliceSite_counts.tsv.gz:md5,82d65de4ce332b2c6dd8c0d30428c3d6"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "refset"
+                    },
+                    "refset_junction_counts.tsv.gz:md5,14e396725255ccb4f1ff38079b4d02e7"
+                ]
+            ]
+        ],
+        "meta": {
+            "nf-test": "0.9.2",
+            "nextflow": "25.04.7"
+        },
+        "timestamp": "2025-10-03T15:52:25.749559"
+    }
+}

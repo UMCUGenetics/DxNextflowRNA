@@ -1,0 +1,66 @@
+import static TestData.*
+import static TestDefaults.TEST_DATA_BASE
+
+nextflow_process {
+
+    name "Test Process FRASER"
+    script "../main.nf"
+    process "FRASER"
+
+    config "./nextflow.config"
+
+    tag "modules"
+    tag "modules/local"
+    tag "local"
+    tag "fraser"
+    tag "modules/fraser"
+
+
+    test("Test FRASER with simulated data") {
+
+        setup {
+            params {
+                test_data_base = TEST_DATA_BASE
+            }
+
+            run("FRASER_BUILDCOUNTS") {
+                script "../../counts/main.nf"
+                process {
+                """
+                input[0] = [
+                    [id: "refset"],
+                    [
+                        file(params.test_data_base + "/fraser_module/counts/sample1_junction_counts.tsv", checkIfExists: true),
+                        file(params.test_data_base + "/fraser_module/counts/sample2_junction_counts.tsv", checkIfExists: true)
+                    ]
+                ]
+                input[1] = [
+                    [id: "new_sample"],
+                    [
+                        file(params.test_data_base + "/fraser_module/counts/sample3_junction_counts.tsv", checkIfExists: true)
+                    ]
+                ]
+                """
+                }
+            }
+        }
+        when {
+            process {
+                """
+                input[0] = [
+                    [id: "fraser_set"],
+                    FRASER_BUILDCOUNTS.out.countTable,
+                    FRASER_BUILDCOUNTS.out.spliceCounts,
+                    FRASER_BUILDCOUNTS.out.junctionCounts
+                ]
+                """
+            }
+        }
+        then {
+            assertAll(
+                {assert process.success},
+                {assert snapshot(process.out.tsv).match()}
+            )
+        }
+    }
+}

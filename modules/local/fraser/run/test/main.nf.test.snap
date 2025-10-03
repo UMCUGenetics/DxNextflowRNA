@@ -1,0 +1,14 @@
+{
+    "Test FRASER with simulated data": {
+        "content": [
+            [
+                
+            ]
+        ],
+        "meta": {
+            "nf-test": "0.9.2",
+            "nextflow": "25.04.7"
+        },
+        "timestamp": "2025-10-03T16:19:50.734087"
+    }
+}
