@@ -47,12 +47,13 @@ nextflow_process {
         when {
             process {
                 """
-                input[0] = [
-                    [id: "fraser_set"],
-                    FRASER_BUILDCOUNTS.out.countTable,
-                    FRASER_BUILDCOUNTS.out.spliceCounts,
-                    FRASER_BUILDCOUNTS.out.junctionCounts
-                ]
+                input[0] = FRASER_BUILDCOUNTS.out.countTable
+                    .join(FRASER_BUILDCOUNTS.out.spliceCounts)
+                    .join(FRASER_BUILDCOUNTS.out.junctionCounts)
+                    .map { meta, countTable, spliceCounts, junctionCounts ->
+                        [meta, countTable, spliceCounts, junctionCounts]
+                    }
+
                 """
             }
         }

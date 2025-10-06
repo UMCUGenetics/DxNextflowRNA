@@ -2,13 +2,18 @@
     "Test FRASER with simulated data": {
         "content": [
             [
-                
+                [
+                    {
+                        "id": "refset"
+                    },
+                    "refset_fraser_result_full.tsv:md5,ffd1d58f71b0746fba021ddda1f75af1"
+                ]
             ]
         ],
         "meta": {
             "nf-test": "0.9.2",
             "nextflow": "25.04.7"
         },
-        "timestamp": "2025-10-03T16:19:50.734087"
+        "timestamp": "2025-10-06T10:32:07.243166"
     }
 }

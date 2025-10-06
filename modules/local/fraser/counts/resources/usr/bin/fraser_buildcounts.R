@@ -154,14 +154,6 @@ fwrite(sampleTable, paste0(args$prefix, "_sampleTable_countTable.tsv"), sep="\t"
 ## library(data.table)
 
 ## # Lees tabellen
-## sampleTable <- fread("sampleTable_countTable.tsv")
-## junctions   <- fread("junction_counts.tsv.gz")
-## spliceSites <- fread("spliceSite_counts.tsv.gz")
+
 
 ## # Maak FraserDataSet
-## fds <- FraserDataSet(
-##   colData    = sampleTable,
-##   junctions  = junctions,
-##   spliceSites= spliceSites,
-##   workingDir = "FRASER_output"
-## )
