@@ -1,7 +1,10 @@
-include { FRASER            } from "../../../modules/local/fraser/main"
-include { samplesheetToList } from 'plugin/nf-schema'
+include { FRASER             } from "../../../modules/local/fraser/run/main"
+include { FRASER_BUILDCOUNTS } from "../../../modules/local/fraser/counts/main"
+include { FRASER_CALC_COUNTS } from "../../../modules/local/fraser/calc_counts/main"
+include { samplesheetToList  } from 'plugin/nf-schema'
 
 workflow BAM_FRASER {
+
     take:
     ch_bam_bai
 
@@ -12,22 +15,31 @@ workflow BAM_FRASER {
             file(params.fraser_samplesheet),
             "${projectDir}/assets/refset_schema.json"))
         .map{ meta, basename ->
-            junction_counts    = file("${params.fraser_reference_base}/${basename}_junction_counts.tsv.gz", checkIfExists: true)
-            splice_site_counts = file("${params.fraser_reference_base}/${basename}_splice_counts.tsv.gz", checkIfExists: true)
+            def junction_counts = file("${params.fraser_reference_base}/${basename}_junction_counts.tsv.gz", checkIfExists: true)
+            def key =  "${meta.treatment}_${meta.Set}"
 
-            key = [ "${meta.treatment}_${meta.Set}"]
-
-            [key, junction_counts, splice_site_counts]
+            [key, junction_counts]
         }
         .groupTuple() // group on treatment & set together
-        .map { group_id, bams, bais ->
+        .map { group_id, junction_counts ->
             def meta = [id: group_id]
-            [meta, bams, bais]
+            [meta, junction_counts]
         }
 
+    FRASER_CALC_COUNTS(
+        ch_bam_bai
+    )
+
+
+    FRASER_BUILDCOUNTS(
+        ch_refset,
+        FRASER_CALC_COUNTS.out.junctionCounts.collect()
+    )
+
     FRASER(
-        ch_bam_bai,
-        ch_refset
+        FRASER_BUILDCOUNTS.out.countTable
+            .join(FRASER_BUILDCOUNTS.out.spliceCounts)
+            .join(FRASER_BUILDCOUNTS.out.junctionCounts)
     )
 
     ch_versions = Channel.empty()

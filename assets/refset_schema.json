@@ -14,7 +14,6 @@
             },
             "FileBaseName": {
                 "type": "string",
-                "pattern": "^\\S+\\.bam$",
                 "errorMessage": "FileBaseName must be provided (e.g. when filename is 'samplex.bam' basename is: 'samplex')"
             },
             "Treatment": {

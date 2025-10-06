@@ -30,7 +30,14 @@ process FRASER_BUILDCOUNTS {
         --prefix ${prefix} \\
         --refset_junctions ${refset_junctions} \\
         --sample_junctions ${sample_junctions}
+    """
 
+    stub:
+    def prefix = task.ext.prefix ?: "${meta.id}"
+    """
+    touch ${prefix}_countTable.tsv
+    touch ${prefix}_spliceSite_counts.tsv.gz
+    touch ${prefix}_junction_counts.tsv.gz
     """
 
 }

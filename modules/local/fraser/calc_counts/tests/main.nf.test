@@ -1,0 +1,36 @@
+import static TestDefaults.TEST_DATA_BASE
+
+nextflow_process {
+
+    name "Test Process FRASER_CALC_COUNT"
+    script "../main.nf"
+    process "FRASER_CALC_COUNTS"
+
+    tag "modules"
+    tag "modules/local"
+    tag "local"
+    tag "fraser"
+    tag "fraser/calc_counts"
+
+    test("Test FRASER_CALC_COUNTS with simulated data") {
+        when {
+            params{
+                test_data_base = TEST_DATA_BASE
+            }
+            process {
+                """
+                input[0] = [
+                    [id: 'test_sample'], //meta map
+                    file('https://raw.githubusercontent.com/nf-core/test-datasets/modules/data/genomics/homo_sapiens/illumina/bam/test.rna.paired_end.sorted.bam', checkIfExists: true),
+                    file('https://raw.githubusercontent.com/nf-core/test-datasets/modules/data/genomics/homo_sapiens/illumina/bam/test.rna.paired_end.sorted.bam.bai', checkIfExists: true)
+                ]
+                """
+            }
+        }
+        then {
+            assertAll(
+                {assert process.success}
+            )
+        }
+    }
+}
