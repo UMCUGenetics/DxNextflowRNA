@@ -1,5 +1,5 @@
-include { OUTRIDER      } from '../../../modules/local/outrider/main'
-
+include { OUTRIDER           } from '../../../modules/local/outrider/main'
+include { samplesheetToList  } from 'plugin/nf-schema'
 
 workflow GENE_EXON_OUTRIDER {
     take:
@@ -9,23 +9,26 @@ workflow GENE_EXON_OUTRIDER {
 
     main:
 
-    def refs = (params.outrider_refs ?: [:]) as Map
 
-    reference_panels = Channel.from(refs
-        .collectMany { level, treatments ->
-            treatments
-                .collectMany { treatment, panels ->
-                    panels.collect { p ->
-                        def meta = [level: level, treatment: treatment, panel:
-                                        (p.id as String)]
-                        tuple(meta, (p.path ?: p.glob))
-                    }
-                }
+    ch_refset = Channel.fromList(
+        samplesheetToList(file(params.outrider_samplesheet), "${projectDir}/assets/refset_schema.json"))
+        .flatMap{ meta, basename -> // Duplicate samples and add 'gene' and 'exon' to meta map
+            params.outrider_levels.collect { level ->
+                [meta.clone() + [level: level], basename]
+            }}
+        .map{ meta, basename ->
+            def suffix = null
+            if (meta.level == "gene") {
+                suffix = ".gene.tsv"
+            } else if (meta.level == "exon") {
+                suffix = ".exon.tsv"
+            }
+            def featureCounts = file("${params.outrider_reference_base}/${basename}${suffix}", checkIfExists: true)
+            [meta, featureCounts]
         }
-    )
-    .map { meta, path ->
-        [meta, files("${path}/*", checkIfExists: true)]
-    }
+
+
+
 
 
     // create a regex to match a treatment condition out of multiple possible options
@@ -65,32 +68,30 @@ workflow GENE_EXON_OUTRIDER {
         .map{meta, file -> [[*: meta, level: "gene"], file]}
     ch_exons = ch_exon_counts.map(add_treatment)
         .map{meta, file -> [[*: meta, level: "exon"], file]}
-
-
     ch_samples = ch_genes.concat(ch_exons)
 
     // channel: [meta, query, [ref_files]]
     // meta: [id: <sample_name> , level: exon|gene,  treatment: cntrl|..., panel: <name>]
-    ch_outrider_inputs = ch_samples
-        .combine(reference_panels)
-        .filter { sample_meta, sample_file, ref_meta, ref_files ->
-            sample_meta.level == ref_meta.level &&
-            sample_meta.treatment == ref_meta.treatment
-        }.map{ sample_meta, sample_file, ref_meta, ref_files ->
-        [[*:sample_meta, panel: ref_meta.panel], sample_file, ref_files]
-        }
+    // ch_outrider_inputs = ch_samples
+    //     .combine(reference_panels)
+    //     .filter { sample_meta, sample_file, ref_meta, ref_files ->
+    //         sample_meta.level == ref_meta.level &&
+    //         sample_meta.treatment == ref_meta.treatment
+    //     }.map{ sample_meta, sample_file, ref_meta, ref_files ->
+    //     [[*:sample_meta, panel: ref_meta.panel], sample_file, ref_files]
+    //     }
 
 
 
-    OUTRIDER(ch_outrider_inputs, ch_gtf)
+    // OUTRIDER(ch_outrider_inputs, ch_gtf)
 
 
-    ch_versions = OUTRIDER.out.versions
+    // ch_versions = OUTRIDER.out.versions
 
-    emit:
-    tsv_full   = OUTRIDER.out.tsv_full ?: [:] // channel: [ val(meta), path(*_outrider_results.tsv) ]
-    tsv_signif = OUTRIDER.out.tsv_signif ?: [:]// channel: [ val(meta), path(*_outrider_results.tsv) ]
-    versions        = ch_versions ?: [:]
+    // emit:
+    // tsv_full   = OUTRIDER.out.tsv_full ?: [:] // channel: [ val(meta), path(*_outrider_results.tsv) ]
+    // tsv_signif = OUTRIDER.out.tsv_signif ?: [:]// channel: [ val(meta), path(*_outrider_results.tsv) ]
+    // versions        = ch_versions ?: [:]
 
 
 

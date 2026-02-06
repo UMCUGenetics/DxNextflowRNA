@@ -11,9 +11,7 @@ workflow BAM_FRASER {
     main:
 
     ch_refset = Channel.fromList(
-        samplesheetToList(
-            file(params.fraser_samplesheet),
-            "${projectDir}/assets/refset_schema.json"))
+        samplesheetToList(file(params.fraser_samplesheet), "${projectDir}/assets/refset_schema.json"))
         .map{ meta, basename ->
             def junction_counts = file("${params.fraser_reference_base}/${basename}_junction_counts.tsv.gz", checkIfExists: true)
             def key =  "${meta.treatment}_${meta.Set}"
