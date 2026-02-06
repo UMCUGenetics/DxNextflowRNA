@@ -30,6 +30,7 @@ nextflow_pipeline {
 
         }
 
+        
         when {
             params {
                 input      = "${launchDir}/input/"
