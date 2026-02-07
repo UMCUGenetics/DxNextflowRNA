@@ -20,8 +20,8 @@ workflow BAM_GENE_FUSION {
     )
 
     ARRIBA_ARRIBA(
-        ch_bam,
-        ch_genome_fasta,
+        ch_bam.map{ meta, bam, _bai -> [meta, bam] },
+        ch_genome_fasta.map{ meta, fasta, _fai -> [meta, fasta] },
         ch_genome_gtf,
         [], //blacklist
         [], //known fusions

@@ -157,13 +157,15 @@ workflow DXNEXTFLOWRNA {
 
     if (params.run_gene_fusion){
         ch_starfusion_ref = Channel.fromPath(params.starfusion_ref)
-        ch_ariba_ref = Channel.fromPath(params.ariba_ref)
+        
         
         BAM_GENE_FUSION(
             FASTQ_TRIM_FILTER_ALIGN_DEDUP.out.star_align_junction,
             ch_starfusion_ref,
-            FASTQ_TRIM_FILTER_ALIGN_DEDUP.out.trim_reads,
-            ch_ariba_ref
+            FASTQ_TRIM_FILTER_ALIGN_DEDUP.out.ch_bam_bai,
+            ch_fasta_fai,
+            ch_gtf
+            
         )
     }
     
