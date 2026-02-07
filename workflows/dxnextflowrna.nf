@@ -10,7 +10,7 @@ include { MULTIQC                       } from '../modules/nf-core/multiqc/main'
 include { BAM_QUANTIFICATION_FEATURECOUNTS } from '../subworkflows/local/bam_quantification_featurecounts'
 include { FASTQ_BAM_QC                     } from '../subworkflows/local/fastq_bam_qc'
 include { FASTQ_TRIM_FILTER_ALIGN_DEDUP    } from '../subworkflows/local/fastq_trim_filter_align_dedup'
-include { GENE_EXON_OUTRIDER               } from '../subworkflows/local/gene_exon_outrider/main.nf'
+include { GENE_EXON_OUTRIDER               } from '../subworkflows/local/gene_exon_outrider/main'
 include { BAM_GENE_FUSION                  } from '../subworkflows/local/bam_gene_fusion/main'
 // FUNCTIONS
 include { methodsDescriptionText        } from '../subworkflows/local/utils_umcugenetics_dxnextflowrna_pipeline'
@@ -156,8 +156,14 @@ workflow DXNEXTFLOWRNA {
 
 
     if (params.run_gene_fusion){
+        ch_starfusion_ref = Channel.fromPath(params.starfusion_ref)
+        ch_ariba_ref = Channel.fromPath(params.ariba_ref)
+        
         BAM_GENE_FUSION(
             FASTQ_TRIM_FILTER_ALIGN_DEDUP.out.star_align_junction,
+            ch_starfusion_ref,
+            FASTQ_TRIM_FILTER_ALIGN_DEDUP.out.trim_reads,
+            ch_ariba_ref
         )
     }
     

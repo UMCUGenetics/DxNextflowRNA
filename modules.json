@@ -5,6 +5,11 @@
         "https://github.com/nf-core/modules.git": {
             "modules": {
                 "nf-core": {
+                    "arriba/arriba": {
+                        "branch": "master",
+                        "git_sha": "025a6f75e1f72e4ab60abb4bd65b3f289d4ad910",
+                        "installed_by": ["modules"]
+                    },
                     "fastqc": {
                         "branch": "master",
                         "git_sha": "dc94b6ee04a05ddb9f7ae050712ff30a13149164",
