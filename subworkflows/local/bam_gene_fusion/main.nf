@@ -25,10 +25,10 @@ workflow BAM_GENE_FUSION {
         ch_bam.map{ meta, bam, _bai -> [meta, bam] },
         ch_genome_fasta.map{ meta, fasta, _fai -> [meta, fasta] },
         ch_genome_gtf,
-        [], //blacklist
-        [], //known fusions
-        [], //cytobands
-        [] //protein domains
+        params.arriba_blacklist, 
+        params.arriba_known_fusions, 
+        params.arriba_cytobands, 
+        params.arriba_protein 
     )
 
     def ch_fusions = ARRIBA_ARRIBA.out.fusions
