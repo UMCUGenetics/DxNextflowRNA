@@ -1,26 +1,13 @@
-/*
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    IMPORT MODULES / SUBWORKFLOWS / FUNCTIONS
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-*/
-// MODULES, alphabetical order
-include { SAMTOOLS_CONVERT                  } from '../../modules/nf-core/samtools/convert/main'
-include { SAMTOOLS_INDEX                    } from '../../modules/nf-core/samtools/index/main'
-include { SAMTOOLS_MERGE                    } from '../../modules/nf-core/samtools/merge/main'
-// Different ext.args are provided bedepending on using sortmerna to create an index only (SORTMERNA_INDEX)
-// or run sortmerna to filter the reads (SORTMERNA_READS).
-include { SORTMERNA as SORTMERNA_READS      } from '../../modules/nf-core/sortmerna/main'
-include { STAR_ALIGN                        } from '../../modules/nf-core/star/align/main.nf'
-include { TRIMGALORE                        } from '../../modules/nf-core/trimgalore/main'
+include { SAMTOOLS_CONVERT                  } from '../../../modules/nf-core/samtools/convert/main'
+include { SAMTOOLS_INDEX                    } from '../../../modules/nf-core/samtools/index/main'
+include { SAMTOOLS_MERGE                    } from '../../../modules/nf-core/samtools/merge/main'
+include { SORTMERNA as SORTMERNA_READS      } from '../../../modules/nf-core/sortmerna/main'
+include { STAR_ALIGN                        } from '../../../modules/nf-core/star/align/main'
+include { TRIMGALORE                        } from '../../../modules/nf-core/trimgalore/main'
 
-// SUBWORKFLOWS, alphabetical order
-include { BAM_DEDUP_STATS_SAMTOOLS_UMITOOLS } from '../../subworkflows/nf-core/bam_dedup_stats_samtools_umitools/main'
+include { BAM_DEDUP_STATS_SAMTOOLS_UMITOOLS } from '../../../subworkflows/nf-core/bam_dedup_stats_samtools_umitools/main'
 
-/*
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    FASTQ_TRIM_FILTER_ALIGN_DEDUP (sub)workflow
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-*/
+
 workflow FASTQ_TRIM_FILTER_ALIGN_DEDUP {
     take:
     ch_fasta_fai        // channel: [ val(meta), path(fa), path(fai) ]
@@ -43,25 +30,34 @@ workflow FASTQ_TRIM_FILTER_ALIGN_DEDUP {
     SORTMERNA_READS(TRIMGALORE.out.reads, ch_sortmerna_fastas, ch_sortmerna_index)
     ch_versions = ch_versions.mix(SORTMERNA_READS.out.versions.first())
 
-    STAR_ALIGN(SORTMERNA_READS.out.reads, ch_star_index, ch_gtf, star_ignore_sjdbgtf, seq_platform, seq_center)
+    
+    
+    
+    STAR_ALIGN(
+        SORTMERNA_READS.out.reads.map {meta, reads ->
+            def new_id = meta.id.split('_')[0]
+            [meta + [id: new_id], reads]}
+        .groupTuple()
+        .map{
+                meta, reads ->
+                def reads_flat = reads.flatten()
+                [meta, reads_flat]
+            },
+        ch_star_index,
+        ch_gtf,
+        star_ignore_sjdbgtf,
+        seq_platform,
+        seq_center
+    )
     ch_versions = ch_versions.mix(STAR_ALIGN.out.versions.first())
 
-    SAMTOOLS_MERGE(
-        STAR_ALIGN.out.bam_sorted_aligned.map { meta, bam ->
-            new_id = meta.id.split('_')[0]
-            [meta + [id: new_id], bam]
-        }.groupTuple(),
-        [[id: 'null'], []],
-        [[id: 'null'], []],
-    )
-    ch_versions = ch_versions.mix(SAMTOOLS_MERGE.out.versions.first())
 
     // samtools index will create a .bai. RSeQC, and maybe other tools as well, requires .bai instead of .csi.
-    SAMTOOLS_INDEX(SAMTOOLS_MERGE.out.bam)
+    SAMTOOLS_INDEX(STAR_ALIGN.out.bam_sorted_aligned)
     ch_versions = ch_versions.mix(SAMTOOLS_INDEX.out.versions.first())
 
     BAM_DEDUP_STATS_SAMTOOLS_UMITOOLS(
-        SAMTOOLS_MERGE.out.bam.join(SAMTOOLS_INDEX.out.bai),
+        STAR_ALIGN.out.bam.join(SAMTOOLS_INDEX.out.bai),
         true,
     )
     ch_versions = ch_versions.mix(BAM_DEDUP_STATS_SAMTOOLS_UMITOOLS.out.versions)

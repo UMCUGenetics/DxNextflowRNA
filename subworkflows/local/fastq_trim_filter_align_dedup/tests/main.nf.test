@@ -1,0 +1,177 @@
+import static TestData.*
+import static TestDefaults.TEST_DATA_BASE
+
+nextflow_workflow {
+    name "Test trim filter align dedup"
+    script "../main.nf"
+    workflow "FASTQ_TRIM_FILTER_ALIGN_DEDUP"
+
+    tag "subworkflows/local"
+    tag "local"
+    tag "align"
+
+    setup {
+            def input_dir = stageDir(launchDir, "input")
+            def star_index = stageDir(launchDir, "star_index")
+            def sortmerna_index = stageDir(launchDir, "sortmerna_index")
+
+            def fastqs = [
+                "ERR188041_subset_chr1_L001_R2_001.fastq.gz",
+                "ERR188041_subset_chr1_L001_R1_001.fastq.gz",
+                "ERR188041_subset_chr1_L002_R1_001.fastq.gz",
+                "ERR188041_subset_chr1_L002_R2_001.fastq.gz",
+                "ERR188042_subset_chr1_L001_R1_001.fastq.gz",
+                "ERR188042_subset_chr1_L001_R2_001.fastq.gz"
+            ]
+            fetchAll("${TEST_DATA_BASE}/fastq/", fastqs, input_dir)
+
+            def genome = ["ref_genome.fa", "ref_genome.fa.fai"]
+            fetchAll("${TEST_DATA_BASE}/main/star_index/", genome, star_index)
+            
+            def misc = ["annotation.gtf", "sortmerna-db-test.txt"]
+            fetchAll("${TEST_DATA_BASE}/main/", misc, input_dir)
+        }
+
+    test("Test single lane samples") {
+        options "-stub-run"
+
+
+
+        when {
+            params{
+                input                  = "${launchDir}/input/"
+                fasta                  = "${launchDir}/star_index/ref_genome.fa"
+                fai                    = "${launchDir}/star_index/ref_genome.fa.fai"
+                star_index             = "${launchDir}/star_index/"
+                starfusion_ref         = "${launchDir}/star_index/"
+                gtf                    = "${launchDir}/input/annotation.gtf"
+                rrna_database_manifest = "${launchDir}/input/sortmerna-db-test.txt"
+                sortmerna_index        = "${launchDir}/sortmerna_index/"
+            }
+
+            workflow {
+                """
+                input[0] = Channel.of([
+                    [id:'genome'],
+                    file(params.fasta),
+                    file(params.fai)
+            ]).collect()
+                input[1] = Channel.of([
+                    [id: 'ERR188041_L001'],
+                    [
+                        file("${params.input}/ERR188041_subset_chr1_L001_R1_001.fastq.gz"),
+                        file("${params.input}/ERR188041_subset_chr1_L001_R2_001.fastq.gz")
+                    ]
+            ]).concat(Channel.of([
+                    [id: 'ERR188042_L001'],
+                    [
+                        file("${params.input}/ERR188042_subset_chr1_L001_R1_001.fastq.gz"),
+                        file("${params.input}/ERR188042_subset_chr1_L001_R2_001.fastq.gz")
+                    ]
+            ]))
+                input[2] = Channel.of([
+                    [id:'genome'],
+                    file(params.gtf),
+                ]).collect()
+                input[3] = Channel.of([
+                    [id:'sortmerna_fasta'],
+                    file(params.fasta)
+                ]).collect()
+                input[4] = Channel.of([
+                    [id:'sortmerna_index'],
+                    file(params.sortmerna_index)
+                ]).collect()
+                input[5] = Channel.of([
+                    [id:'star_index'],
+                    file(params.star_index)
+                ]).collect()
+                input[6] = Channel.value("illumina")
+                input[7] = Channel.value("UMCU")
+                input[8] = true
+                """
+            }
+            
+        }
+        then {
+            def n_samples = workflow.out.ch_bam_bai.toList().size()
+            def n_junctions = workflow.out.star_align_junction.toList().size()
+            
+            assertAll(
+                { assert workflow.success },
+                { assert n_samples == 2   },
+                { assert n_junctions == 2 }
+            )
+        }
+    }
+    test("Test two-lane samples") {
+        options "-stub-run"
+
+
+
+        when {
+            params{
+                input                  = "${launchDir}/input/"
+                fasta                  = "${launchDir}/star_index/ref_genome.fa"
+                fai                    = "${launchDir}/star_index/ref_genome.fa.fai"
+                star_index             = "${launchDir}/star_index/"
+                starfusion_ref         = "${launchDir}/star_index/"
+                gtf                    = "${launchDir}/input/annotation.gtf"
+                rrna_database_manifest = "${launchDir}/input/sortmerna-db-test.txt"
+                sortmerna_index        = "${launchDir}/sortmerna_index/"
+            }
+
+            workflow {
+                """
+                input[0] = Channel.of([
+                    [id:'genome'],
+                    file(params.fasta),
+                    file(params.fai)
+            ]).collect()
+                input[1] = Channel.of([
+                    [id: 'ERR188041_L001'],
+                    [
+                        file("${params.input}/ERR188041_subset_chr1_L001_R1_001.fastq.gz"),
+                        file("${params.input}/ERR188041_subset_chr1_L001_R2_001.fastq.gz")
+                    ]
+            ]).concat(Channel.of([
+                    [id: 'ERR188041_L002'],
+                    [
+                        file("${params.input}/ERR188041_subset_chr1_L002_R1_001.fastq.gz"),
+                        file("${params.input}/ERR188041_subset_chr1_L002_R2_001.fastq.gz")
+                    ]
+            ]))
+                input[2] = Channel.of([
+                    [id:'genome'],
+                    file(params.gtf),
+                ]).collect()
+                input[3] = Channel.of([
+                    [id:'sortmerna_fasta'],
+                    file(params.fasta)
+                ]).collect()
+                input[4] = Channel.of([
+                    [id:'sortmerna_index'],
+                    file(params.sortmerna_index)
+                ]).collect()
+                input[5] = Channel.of([
+                    [id:'star_index'],
+                    file(params.star_index)
+                ]).collect()
+                input[6] = Channel.value("illumina")
+                input[7] = Channel.value("UMCU")
+                input[8] = true
+                """
+            }
+            
+        }
+        then {
+            def n_bam = workflow.out.ch_bam_bai.toList().size()
+            def n_junctions = workflow.out.star_align_junction.toList().size()
+            
+            assertAll(
+                { assert workflow.success },
+                { assert n_samples == 1 },
+                { assert n_junctions == 1 }
+            )
+        }
+    }
+}
