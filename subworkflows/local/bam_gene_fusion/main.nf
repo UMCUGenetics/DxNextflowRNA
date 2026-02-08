@@ -1,5 +1,7 @@
-include { STARFUSION_DETECT } from '../../../modules/nf-core/starfusion/detect/main'
-include { ARRIBA_ARRIBA } from '../../../modules/nf-core/arriba/arriba/main' 
+include { STARFUSION_DETECT   } from '../../../modules/nf-core/starfusion/detect/main'
+include { ARRIBA_ARRIBA       } from '../../../modules/nf-core/arriba/arriba/main'
+include { FUSIONREPORT_DETECT } from '../../../modules/nf-core/fusionreport/detect/main'
+include { FUSIONREPORT_DOWNLOAD } from '../../../modules/nf-core/fusionreport/download/main'
 
 
 workflow BAM_GENE_FUSION {
@@ -29,6 +31,21 @@ workflow BAM_GENE_FUSION {
         [] //protein domains
     )
 
+    def ch_fusions = ARRIBA_ARRIBA.out.fusions
+        .join(STARFUSION_DETECT.out.fusions, failOnMismatch:true, failOnDuplicate:true)
+        .map{ meta, arriba, starfusion -> [meta, arriba, starfusion, []] }
+
+    FUSIONREPORT_DOWNLOAD()
+
+    ch_fusionreport_db = FUSIONREPORT_DOWNLOAD.out.fusionreport_ref.collect()
+
+    FUSIONREPORT_DETECT(
+        ch_fusions,
+        ch_fusionreport_db,
+        params.fusion_tools_cutoff
+    )
+
+    
     emit:
     starfusion_fusions       = STARFUSION_DETECT.out.fusions
     starfusion_abridged      = STARFUSION_DETECT.out.abridged
