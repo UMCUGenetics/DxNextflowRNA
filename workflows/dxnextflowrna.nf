@@ -156,7 +156,7 @@ workflow DXNEXTFLOWRNA {
 
 
     if (params.run_gene_fusion){
-        ch_starfusion_ref = Channel.fromPath(params.starfusion_ref)
+        ch_starfusion_ref = Channel.fromPath(params.starfusion_ref).collect()
         
         
         BAM_GENE_FUSION(
