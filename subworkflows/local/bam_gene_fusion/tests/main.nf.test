@@ -1,3 +1,6 @@
+import static TestData.*
+import static TestDefaults.TEST_DATA_BASE
+
 nextflow_workflow {
     name "Test Subworkflow BAM_GENE_FUSION"
     script "../main.nf"
@@ -35,7 +38,6 @@ nextflow_workflow {
                     file(params.nfcore_modules_testdata + 'genomics/homo_sapiens/genome/test_starfusion_dfam.hmm.h3p')
                 ]
                 input[6] = "https://data.broadinstitute.org/Trinity/CTAT_RESOURCE_LIB/AnnotFilterRule.pm"
-                
                 """
             }
         }
@@ -47,12 +49,30 @@ nextflow_workflow {
             workflow {
                 """
                 input[0] = Channel.of([
-                    [id:'test'],
-                    file("${projectDir}/assets/test-data/Chimeric.out.junction", checkIfExists: true)
-            ] )
+                    [id:'sample1'],
+                    file("${projectDir}/assets/test-data/Chimeric.out.junction")
+                ])
                 input[1] = STARFUSION_BUILD.out.reference.map{ it[1] }
-            """
-        }
+                input[2] = Channel.of([
+                    [id:'sample1'],
+                    file("${TEST_DATA_BASE}/fraser_module/bam/sample1.bam"),
+                    file("${TEST_DATA_BASE}/fraser_module/bam/sample1.bam.bai")
+                ])
+                input[3] = Channel.of([
+                    [ id:'minigenome_fasta' ],
+                    file(params.nfcore_modules_testdata + 'genomics/homo_sapiens/genome/minigenome.fa'),
+                    file(params.nfcore_modules_testdata + 'genomics/homo_sapiens/genome/minigenome.fa.fai')
+                ])
+                input[4] = Channel.of([
+                    [ id:'minigenome_gtf' ],
+                    file(params.nfcore_modules_testdata + 'genomics/homo_sapiens/genome/minigenome.gtf')
+                ])
+                input[5] = []
+                input[6] = []
+                input[7] = []
+                input[8] = []
+                """
+            }
         }
 
         then {

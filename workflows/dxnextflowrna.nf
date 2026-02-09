@@ -164,8 +164,11 @@ workflow DXNEXTFLOWRNA {
             ch_starfusion_ref,
             FASTQ_TRIM_FILTER_ALIGN_DEDUP.out.ch_bam_bai,
             ch_fasta_fai,
-            ch_gtf
-            
+            ch_gtf,
+            params.arriba_blacklist,
+            params.arriba_known_fusions,
+            params.arriba_cytobands,
+            params.arriba_protein        
         )
     }
     
