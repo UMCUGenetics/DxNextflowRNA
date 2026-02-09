@@ -56,14 +56,20 @@ workflow FASTQ_TRIM_FILTER_ALIGN_DEDUP {
     SAMTOOLS_INDEX(STAR_ALIGN.out.bam_sorted_aligned)
     ch_versions = ch_versions.mix(SAMTOOLS_INDEX.out.versions.first())
 
-    BAM_DEDUP_STATS_SAMTOOLS_UMITOOLS(
-        STAR_ALIGN.out.bam.join(SAMTOOLS_INDEX.out.bai),
-        true,
-    )
-    ch_versions = ch_versions.mix(BAM_DEDUP_STATS_SAMTOOLS_UMITOOLS.out.versions)
+    if (params.run_umitools_dedup) {
+        BAM_DEDUP_STATS_SAMTOOLS_UMITOOLS(
+            STAR_ALIGN.out.bam.join(SAMTOOLS_INDEX.out.bai),
+            true,
+        )
+        ch_versions = ch_versions.mix(BAM_DEDUP_STATS_SAMTOOLS_UMITOOLS.out.versions)
 
-    // Create variable to use in emit as well.
-    ch_bam_bai = BAM_DEDUP_STATS_SAMTOOLS_UMITOOLS.out.bam.join(BAM_DEDUP_STATS_SAMTOOLS_UMITOOLS.out.bai)
+        ch_bam_bai = BAM_DEDUP_STATS_SAMTOOLS_UMITOOLS.out.bam.join(BAM_DEDUP_STATS_SAMTOOLS_UMITOOLS.out.bai)
+        
+    } else {
+        ch_bam_bai = STAR_ALIGN.out.bam.join(SAMTOOLS_INDEX.out.bai)
+    }
+
+    
 
     SAMTOOLS_CONVERT(
         ch_bam_bai,
