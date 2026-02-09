@@ -169,7 +169,7 @@ nextflow_workflow {
             
             assertAll(
                 { assert workflow.success },
-                { assert n_samples == 1 },
+                { assert n_bam == 1 },
                 { assert n_junctions == 1 }
             )
         }
