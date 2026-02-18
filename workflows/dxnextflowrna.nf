@@ -158,11 +158,11 @@ workflow DXNEXTFLOWRNA {
     if (params.run_gene_fusion){
         ch_starfusion_ref = Channel.fromPath(params.starfusion_ref).collect()
         
-        
         BAM_GENE_FUSION(
             FASTQ_TRIM_FILTER_ALIGN_DEDUP.out.star_align_junction,
             ch_starfusion_ref,
             FASTQ_TRIM_FILTER_ALIGN_DEDUP.out.ch_bam_bai,
+            FASTQ_TRIM_FILTER_ALIGN_DEDUP.out.ch_fastq,
             ch_fasta_fai,
             ch_gtf,
             params.arriba_blacklist,

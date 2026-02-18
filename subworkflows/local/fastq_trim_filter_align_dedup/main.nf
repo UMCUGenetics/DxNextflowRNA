@@ -31,18 +31,17 @@ workflow FASTQ_TRIM_FILTER_ALIGN_DEDUP {
     ch_versions = ch_versions.mix(SORTMERNA_READS.out.versions.first())
 
     
-    
-    
-    STAR_ALIGN(
-        SORTMERNA_READS.out.reads.map {meta, reads ->
+    ch_fastq = SORTMERNA_READS.out.reads
+        .map {meta, reads ->
             def new_id = meta.id.split('_')[0]
             [meta + [id: new_id], reads]}
         .groupTuple()
-        .map{
-                meta, reads ->
-                def reads_flat = reads.flatten()
-                [meta, reads_flat]
-            },
+        .map { meta, reads ->
+              def reads_flat = reads.flatten()
+              [meta, reads_flat]}
+    
+    STAR_ALIGN(
+        ch_fastq,
         ch_star_index,
         ch_gtf,
         star_ignore_sjdbgtf,
@@ -91,6 +90,7 @@ workflow FASTQ_TRIM_FILTER_ALIGN_DEDUP {
     emit:
     trim_reads                   = TRIMGALORE.out.reads // channel: [ val(meta), path(fq.gz) ]
     trim_unpaired                = TRIMGALORE.out.unpaired // channel: [ val(meta), path(fq.gz) ]
+    ch_fastq                     = ch_fastq
     trim_html                    = TRIMGALORE.out.html // channel: [ val(meta), path(html) ]
     trim_zip                     = TRIMGALORE.out.zip // channel: [ val(meta), path(zip) ]
     trim_log                     = TRIMGALORE.out.log // channel: [ val(meta), path(txt) ]
