@@ -64,10 +64,12 @@ workflow BAM_GENE_FUSION {
 
     HGNC_DOWNLOAD()
 
-    FUSIONINSPECTOR.out.tsv
-            .join(FUSIONINSPECTOR.out.out_gtf)
-            .join(FUSIONREPORT_DETECT.out.report)
-        .join(FUSIONREPORT_DETECT.out.csv).view()
+    FUSIONINSPECTOR.out.tsv.view()
+
+    
+       
+    FUSIONREPORT_DETECT.out.report.view()
+        
 
     
     VCF_COLLECT(
