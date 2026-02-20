@@ -5,6 +5,11 @@
         "https://github.com/nf-core/modules.git": {
             "modules": {
                 "nf-core": {
+                    "agat/convertspgff2tsv": {
+                        "branch": "master",
+                        "git_sha": "55ed5f4aabcdcd7a4cc44e1700f956756c7e8532",
+                        "installed_by": ["modules"]
+                    },
                     "arriba/arriba": {
                         "branch": "master",
                         "git_sha": "025a6f75e1f72e4ab60abb4bd65b3f289d4ad910",
