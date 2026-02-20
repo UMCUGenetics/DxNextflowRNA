@@ -3,7 +3,8 @@ include { ARRIBA_ARRIBA         } from '../../../modules/nf-core/arriba/arriba/m
 include { FUSIONINSPECTOR       } from '../../../modules/nf-core/fusioninspector/main'
 include { FUSIONREPORT_DETECT   } from '../../../modules/nf-core/fusionreport/detect/main'
 include { FUSIONREPORT_DOWNLOAD } from '../../../modules/nf-core/fusionreport/download/main'
-
+include { VCF_COLLECT           } from '../../../modules/local/vcf_collect/main'
+include { HGNC_DOWNLOAD         } from '../../../modules/local/hgnc_download/main'
 
 workflow BAM_GENE_FUSION {
     take:
@@ -54,15 +55,30 @@ workflow BAM_GENE_FUSION {
         .map{ meta, reads -> [meta, reads] }
         .join(FUSIONREPORT_DETECT.out.fusion_list
               .map{meta, fusion_list -> [meta,[fusion_list]]})
-
-    ch_reads_fusions.view()
-
-    ch_starfusion_ref.view()
     
     FUSIONINSPECTOR(
         ch_reads_fusions,
         ch_starfusion_ref.map{fusion_ref ->
             [[id: "starfusion_index"], fusion_ref]}
+    )
+
+    HGNC_DOWNLOAD()
+
+    FUSIONINSPECTOR.out.tsv
+            .join(FUSIONINSPECTOR.out.out_gtf)
+            .join(FUSIONREPORT_DETECT.out.report)
+        .join(FUSIONREPORT_DETECT.out.csv).view()
+
+    
+    VCF_COLLECT(
+        FUSIONINSPECTOR.out.tsv
+            .join(FUSIONINSPECTOR.out.out_gtf)
+            .join(FUSIONREPORT_DETECT.out.report)
+            .join(FUSIONREPORT_DETECT.out.csv),
+        HGNC_DOWNLOAD.out.hgnc_ref
+            .map{ hgnc_ref -> [[id: hgnc_ref.getSimpleName()], hgnc_ref]},
+        HGNC_DOWNLOAD.out.hgnc_date
+            .map{ hgnc_date -> [[id: hgnc_date.getSimpleName()], hgnc_date]}  
     )
 
     
