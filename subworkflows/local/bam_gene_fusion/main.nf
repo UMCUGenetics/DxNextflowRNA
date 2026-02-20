@@ -1,4 +1,5 @@
 include { STARFUSION_DETECT     } from '../../../modules/nf-core/starfusion/detect/main'
+include { AGAT_CONVERTSPGFF2TSV } from '../../../modules/nf-core/agat/convertspgff2tsv/main'
 include { ARRIBA_ARRIBA         } from '../../../modules/nf-core/arriba/arriba/main'
 include { FUSIONINSPECTOR       } from '../../../modules/nf-core/fusioninspector/main'
 include { FUSIONREPORT_DETECT   } from '../../../modules/nf-core/fusionreport/detect/main'
@@ -64,17 +65,15 @@ workflow BAM_GENE_FUSION {
 
     HGNC_DOWNLOAD()
 
-    FUSIONINSPECTOR.out.tsv.view()
-
-    
-       
-    FUSIONREPORT_DETECT.out.report.view()
-        
-
+    AGAT_CONVERTSPGFF2TSV(
+        FUSIONINSPECTOR.out.out_gtf
+            .filter { _meta, file -> file.exists() && file.size() > 0 }
+    )
     
     VCF_COLLECT(
-        FUSIONINSPECTOR.out.tsv
-            .join(FUSIONINSPECTOR.out.out_gtf)
+        FUSIONINSPECTOR.out.abridged_tsv
+            .filter{ _meta, file -> file.exists() && file.size() > 0 }
+            .join(AGAT_CONVERTSPGFF2TSV.out.tsv)
             .join(FUSIONREPORT_DETECT.out.report)
             .join(FUSIONREPORT_DETECT.out.csv),
         HGNC_DOWNLOAD.out.hgnc_ref
