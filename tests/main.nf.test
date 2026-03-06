@@ -30,21 +30,22 @@ nextflow_pipeline {
 
         }
 
+        
         when {
             params {
-                input      = "${launchDir}/input/"
-                fasta      = "${launchDir}/star_index/ref_genome.fa"
-                fai        = "${launchDir}/star_index/ref_genome.fa.fai"
-                star_index = "${launchDir}/star_index/"
-                gtf        = "${launchDir}/input/annotation.gtf"
+                input                  = "${launchDir}/input/"
+                fasta                  = "${launchDir}/star_index/ref_genome.fa"
+                fai                    = "${launchDir}/star_index/ref_genome.fa.fai"
+                star_index             = "${launchDir}/star_index/"
+                starfusion_ref         = "${launchDir}/star_index/"
+                gtf                    = "${launchDir}/input/annotation.gtf"
                 rrna_database_manifest = "${launchDir}/input/sortmerna-db-test.txt"
-                sortmerna_index = "${launchDir}/sortmerna_index/"
+                sortmerna_index        = "${launchDir}/sortmerna_index/"
             }
         }
 
         then {
-            println  workflow.trace.succeeded().size()
-            assert workflow.trace.succeeded().size() == 24 // check if all steps are executed
+            assert workflow.trace.succeeded().size() == 27 // check if all steps are executed
             assert workflow.success
         }
     }
