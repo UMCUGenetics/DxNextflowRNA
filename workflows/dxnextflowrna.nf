@@ -111,36 +111,40 @@ workflow DXNEXTFLOWRNA {
     //
     // SUBWORKFLOW: Run fastq_bam_qc
     //
-    FASTQ_BAM_QC(
-        FASTQ_TRIM_FILTER_ALIGN_DEDUP.out.ch_bam_bai,
-        ch_fasta_fai.map { meta, fasta, fai -> [fasta] },
-        ch_fastq,
-        ch_gene_bed,
-        ch_ref_flat,
-        ch_rrna_interval,
-    )
-    ch_versions = ch_versions.mix(FASTQ_BAM_QC.out.versions)
+    if (params.run_fastq_bam_qc){
+        FASTQ_BAM_QC(
+            FASTQ_TRIM_FILTER_ALIGN_DEDUP.out.ch_bam_bai,
+            ch_fasta_fai.map { meta, fasta, fai -> [fasta] },
+            ch_fastq,
+            ch_gene_bed,
+            ch_ref_flat,
+            ch_rrna_interval,
+        )
+        ch_versions = ch_versions.mix(FASTQ_BAM_QC.out.versions)
+        // Add fastq_bam_qc results to MultiQC files
+        ch_multiqc_files = ch_multiqc_files.mix(
+            FASTQ_BAM_QC.out.fastqc_zip.collect { it[1] }.ifEmpty([]),
+            FASTQ_BAM_QC.out.bamstat_txt.collect { it[1] }.ifEmpty([]),
+            FASTQ_BAM_QC.out.inferexperiment_txt.collect { it[1] }.ifEmpty([]),
+            FASTQ_BAM_QC.out.innerdistance_freq.collect { it[1] }.ifEmpty([]),
+            FASTQ_BAM_QC.out.junctionannotation_all.collect { it[1] }.ifEmpty([]),
+            FASTQ_BAM_QC.out.junctionsaturation_rscript.collect { it[1] }.ifEmpty([]),
+            FASTQ_BAM_QC.out.readdistribution_txt.collect { it[1] }.ifEmpty([]),
+            FASTQ_BAM_QC.out.readduplication_pos_xls.collect { it[1] }.ifEmpty([]),
+            FASTQ_BAM_QC.out.tin_txt.collect { it[1] }.ifEmpty([]),
+            FASTQ_BAM_QC.out.rna_metrics.collect { it[1] }.ifEmpty([]),
+            FASTQ_BAM_QC.out.lc_extrap.collect { it[1] }.ifEmpty([]),
+        )
+    }
 
-    // Add fastq_bam_qc results to MultiQC files
-    ch_multiqc_files = ch_multiqc_files.mix(
-        FASTQ_BAM_QC.out.fastqc_zip.collect { it[1] }.ifEmpty([]),
-        FASTQ_BAM_QC.out.bamstat_txt.collect { it[1] }.ifEmpty([]),
-        FASTQ_BAM_QC.out.inferexperiment_txt.collect { it[1] }.ifEmpty([]),
-        FASTQ_BAM_QC.out.innerdistance_freq.collect { it[1] }.ifEmpty([]),
-        FASTQ_BAM_QC.out.junctionannotation_all.collect { it[1] }.ifEmpty([]),
-        FASTQ_BAM_QC.out.junctionsaturation_rscript.collect { it[1] }.ifEmpty([]),
-        FASTQ_BAM_QC.out.readdistribution_txt.collect { it[1] }.ifEmpty([]),
-        FASTQ_BAM_QC.out.readduplication_pos_xls.collect { it[1] }.ifEmpty([]),
-        FASTQ_BAM_QC.out.tin_txt.collect { it[1] }.ifEmpty([]),
-        FASTQ_BAM_QC.out.rna_metrics.collect { it[1] }.ifEmpty([]),
-        FASTQ_BAM_QC.out.lc_extrap.collect { it[1] }.ifEmpty([]),
-    )
+
+
 
     //
     // SUBWORKFLOW: Run bam_quantification_featurecounts
     //
 
-    
+
     BAM_QUANTIFICATION_FEATURECOUNTS(
         FASTQ_TRIM_FILTER_ALIGN_DEDUP.out.ch_bam_bai,
         ch_gtf
@@ -157,8 +161,8 @@ workflow DXNEXTFLOWRNA {
 
     if (params.run_gene_fusion){
         ch_starfusion_ref = Channel.fromPath(params.starfusion_ref).collect()
-        
-        
+
+
         BAM_GENE_FUSION(
             FASTQ_TRIM_FILTER_ALIGN_DEDUP.out.star_align_junction,
             ch_starfusion_ref,
@@ -168,11 +172,11 @@ workflow DXNEXTFLOWRNA {
             params.arriba_blacklist,
             params.arriba_known_fusions,
             params.arriba_cytobands,
-            params.arriba_protein        
+            params.arriba_protein
         )
     }
-    
-    
+
+
     //
     // SUBWORKFLOW: Run bam_outrider for genes and exons
     //
