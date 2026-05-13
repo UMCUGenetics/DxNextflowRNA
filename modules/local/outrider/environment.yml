@@ -1,0 +1,7 @@
+channels:
+- conda-forge
+- bioconda
+dependencies:
+- bioconda::bioconductor-outrider=1.24.0
+- conda-forge::r-argparse=2.2.5
+- conda-forge::r-tidyverse=2.0.0

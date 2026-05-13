@@ -8,9 +8,10 @@ include { MULTIQC                       } from '../modules/nf-core/multiqc/main'
 
 // SUBWORKFLOWS
 include { BAM_QUANTIFICATION_FEATURECOUNTS } from '../subworkflows/local/bam_quantification_featurecounts'
-include { FASTQ_BAM_QC                  } from '../subworkflows/local/fastq_bam_qc'
-include { FASTQ_TRIM_FILTER_ALIGN_DEDUP } from '../subworkflows/local/fastq_trim_filter_align_dedup'
-
+include { FASTQ_BAM_QC                     } from '../subworkflows/local/fastq_bam_qc'
+include { FASTQ_TRIM_FILTER_ALIGN_DEDUP    } from '../subworkflows/local/fastq_trim_filter_align_dedup/main'
+include { GENE_EXON_OUTRIDER               } from '../subworkflows/local/gene_exon_outrider/main'
+include { BAM_GENE_FUSION                  } from '../subworkflows/local/bam_gene_fusion/main'
 // FUNCTIONS
 include { methodsDescriptionText        } from '../subworkflows/local/utils_umcugenetics_dxnextflowrna_pipeline'
 include { paramsSummaryMap              } from 'plugin/nf-schema'
@@ -33,6 +34,7 @@ workflow DXNEXTFLOWRNA {
         .combine(Channel.fromPath(params.fai))
         .map { fasta, fai -> [[id: fasta.getSimpleName()], fasta, fai] }
         .collect()
+
     ch_gene_bed = Channel
         .fromPath(params.gene_bed)
         .collect()
@@ -137,17 +139,55 @@ workflow DXNEXTFLOWRNA {
     //
     // SUBWORKFLOW: Run bam_quantification_featurecounts
     //
+
+    
     BAM_QUANTIFICATION_FEATURECOUNTS(
         FASTQ_TRIM_FILTER_ALIGN_DEDUP.out.ch_bam_bai,
         ch_gtf
     )
     ch_versions = ch_versions.mix(BAM_QUANTIFICATION_FEATURECOUNTS.out.versions)
 
+
     // Add bam_quantification_featurecounts results to MultiQC files
     ch_multiqc_files = ch_multiqc_files.mix(
         BAM_QUANTIFICATION_FEATURECOUNTS.out.gene_counts_summary.collect { it[1] }.ifEmpty([]),
-        BAM_QUANTIFICATION_FEATURECOUNTS.out.exon_counts_summary.collect { it[1] }.ifEmpty([]),
+        BAM_QUANTIFICATION_FEATURECOUNTS.out.exon_counts_summary.collect { it[1] }.ifEmpty([])
     )
+
+
+    if (params.run_gene_fusion){
+        ch_starfusion_ref = Channel.fromPath(params.starfusion_ref).collect()
+        
+        
+        BAM_GENE_FUSION(
+            FASTQ_TRIM_FILTER_ALIGN_DEDUP.out.star_align_junction,
+            ch_starfusion_ref,
+            FASTQ_TRIM_FILTER_ALIGN_DEDUP.out.ch_bam_bai,
+            ch_fasta_fai,
+            ch_gtf,
+            params.arriba_blacklist,
+            params.arriba_known_fusions,
+            params.arriba_cytobands,
+            params.arriba_protein        
+        )
+    }
+    
+    
+    //
+    // SUBWORKFLOW: Run bam_outrider for genes and exons
+    //
+    if (params.run_outrider) {
+
+        GENE_EXON_OUTRIDER(
+            BAM_QUANTIFICATION_FEATURECOUNTS.out.gene_counts,
+            BAM_QUANTIFICATION_FEATURECOUNTS.out.exon_counts,
+            ch_gtf
+        )
+
+        ch_versions = ch_versions.mix(GENE_EXON_OUTRIDER.out.versions)
+    }
+
+
 
     //
     // Collate and save software versions
@@ -200,6 +240,7 @@ workflow DXNEXTFLOWRNA {
     )
     // Collate software versions
     ch_multiqc_files = ch_multiqc_files.mix(ch_collated_versions)
+
 
     MULTIQC(
         ch_multiqc_files.collect(),
