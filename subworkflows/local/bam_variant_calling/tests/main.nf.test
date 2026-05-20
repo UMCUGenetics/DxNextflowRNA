@@ -1,0 +1,45 @@
+nextflow_workflow {
+    name "Test Subworkflow BAM_VARIANT_CALING"
+    script "../main.nf"
+    workflow "BAM_VARIANT_CALLING"
+
+    tag "subworkflows/local"
+    tag "subworkflows"
+    tag "local"
+    tag "variant_calling"
+
+    test ("Test scatter and merge") {
+        when {
+            workflow {
+                """
+                input[0] = channel.of([
+                    [ id:'sampleA' ],
+                    file(params.nfcore_modules_testdata + 'genomics/homo_sapiens/illumina/bam/NA12878.chr21_22.bam'),
+                    file(params.nfcore_modules_testdata + 'genomics/homo_sapiens/illumina/bam/NA12878.chr21_22.bam.bai')
+                ])
+                input[1] = channel.of([
+                    [ id:'minigenome_fasta' ],
+                    file(params.nfcore_modules_testdata + 'genomics/homo_sapiens/genome/chr21/sequence/genome.fasta'),
+                    file(params.nfcore_modules_testdata + 'genomics/homo_sapiens/genome/chr21/sequence/genome.fasta.fai')
+                ]).first()
+                input[2] = channel.of([
+                    [ id:'minigenome_gtf' ],
+                    file(params.nfcore_modules_testdata + 'genomics/homo_sapiens/genome/chr21/sequence/chr21_gencode.gtf')
+                ]).first()
+                input[3] = [[:],[]]
+                input[4] = [[:],[]]
+                """
+            }
+        }
+        then {
+            assertAll(
+                { assert workflow.success },
+                { assert snapshot(
+                    workflow.out.ch_vcf_tbi.collect() {meta, vcf, tbi ->
+                        [meta, path(vcf).vcf.variantsMD5, path(tbi).name]
+                    }
+                ).match() }
+            )
+        }
+    }
+}

@@ -66,7 +66,7 @@ workflow DXNEXTFLOWRNA {
         .map(createMetaWithIdSimpleName)
         .first()
     ch_dbsnp_tbi = channel
-        .fromPath("${paramsb.dbSNP}.tbi")
+        .fromPath("${params.dbsnp}.{tbi,csi}")
         .map(createMetaWithIdSimpleName)
         .first()
 
