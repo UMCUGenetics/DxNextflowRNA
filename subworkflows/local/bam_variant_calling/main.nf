@@ -3,10 +3,13 @@ include { GATK4_CREATESEQUENCEDICTIONARY } from '../../../modules/nf-core/gatk4/
 include { GATK4_HAPLOTYPECALLER          } from '../../../modules/nf-core/gatk4/haplotypecaller/main'
 include { GATK4_INTERVALLISTTOOLS        } from '../../../modules/nf-core/gatk4/intervallisttools/main'
 include { GATK4_SPLITNCIGARREADS         } from '../../../modules/nf-core/gatk4/splitncigarreads/main'
+include { GATK4_VARIANTFILTRATION        } from '../../../modules/nf-core/gatk4/variantfiltration/main'
 include { GTF2BED                        } from '../../../modules/local/gtf2bed/main'
 include { SAMTOOLS_MERGE                 } from '../../../modules/nf-core/samtools/merge/main'
 include { SAMTOOLS_INDEX                 } from '../../../modules/nf-core/samtools/index/main'
 
+
+// workflow adapted from github.com/nf-core/rnavar
 workflow BAM_VARIANT_CALLING {
     take:
     ch_bam_bai
@@ -88,9 +91,6 @@ workflow BAM_VARIANT_CALLING {
             [meta + [id: meta.id + "_" + interval_list_.baseName, sample: meta.id, variantcaller: 'haplotypecaller'], bam, bai, interval_list_, []]
         }
 
-        // MODULE: HaplotypeCaller from GATK4
-        // Calls germline SNPs and indels via local re-assembly of haplotypes.
-
         GATK4_HAPLOTYPECALLER(
             haplotypecaller_interval_bam,
             ch_fasta,
@@ -100,15 +100,26 @@ workflow BAM_VARIANT_CALLING {
             ch_dbsnp_tbi,
         )
 
-        def haplotypecaller_merged = GATK4_HAPLOTYPECALLER.out.vcf
+        def ch_vcf_tbi = GATK4_HAPLOTYPECALLER.out.vcf
             .join(GATK4_HAPLOTYPECALLER.out.tbi, failOnMismatch: true, failOnDuplicate: true)
             .map { meta, vcf, tbi ->
                 [groupKey(meta + [id: meta.sample] - meta.subMap('sample', "interval_count"), meta.interval_count), vcf, tbi]
             }
             .groupTuple()
 
+    GATK4_VARIANTFILTRATION(
+        ch_vcf_tbi,
+        ch_fasta,
+        ch_fai,
+        ch_dict,
+        [[:],[]]
+    )
+
+
 
     emit:
-    ch_vcf_tbi = haplotypecaller_merged
+    ch_vcf_tbi_unfiltered = ch_vcf_tbi
+    ch_vcf_filtered = GATK4_VARIANTFILTRATION.out.vcf
+    ch_tbi_filtered = GATK4_VARIANTFILTRATION.out.tbi
 
 }
