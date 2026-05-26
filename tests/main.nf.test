@@ -30,7 +30,7 @@ nextflow_pipeline {
 
         }
 
-        
+
         when {
             params {
                 input                  = "${launchDir}/input/"
@@ -45,7 +45,7 @@ nextflow_pipeline {
         }
 
         then {
-            assert workflow.trace.succeeded().size() == 27 // check if all steps are executed
+            assert workflow.trace.succeeded().size() == 37 // check if all steps are executed
             assert workflow.success
         }
     }
