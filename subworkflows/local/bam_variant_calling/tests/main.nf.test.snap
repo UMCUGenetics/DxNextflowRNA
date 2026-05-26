@@ -2,29 +2,13 @@
     "Test scatter and merge": {
         "content": [
             [
-                [
-                    {
-                        "groupSize": 2,
-                        "groupTarget": {
-                            "id": "sampleA",
-                            "variantcaller": "haplotypecaller"
-                        }
-                    },
-                    [
-                        "sampleA_2scattered.vcf.gz:md5,211e2365caeccd0cf38188c5667bbf18",
-                        "sampleA_1scattered.vcf.gz:md5,321d393676e98d5175f9bd0b99f0cf10"
-                    ],
-                    [
-                        "sampleA_2scattered.vcf.gz.tbi:md5,cd55f12b595e999c30908d8901254b26",
-                        "sampleA_1scattered.vcf.gz.tbi:md5,1549b6bac8da745c73cf37bba629e029"
-                    ]
-                ]
+                
             ]
         ],
         "meta": {
             "nf-test": "0.9.3",
             "nextflow": "25.10.4"
         },
-        "timestamp": "2026-05-20T13:44:47.782141"
+        "timestamp": "2026-05-26T14:31:27.300922"
     }
 }

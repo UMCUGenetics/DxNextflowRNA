@@ -35,9 +35,7 @@ nextflow_workflow {
             assertAll(
                 { assert workflow.success },
                 { assert snapshot(
-                    workflow.out.ch_vcf_tbi.collect() {meta, vcf, tbi ->
-                        [meta, path(vcf).vcf.variantsMD5, path(tbi).name]
-                    }
+                    workflow.out.ch_vcf_filtered
                 ).match() }
             )
         }

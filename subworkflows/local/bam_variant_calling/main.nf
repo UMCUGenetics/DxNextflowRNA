@@ -1,7 +1,9 @@
+include { BCFTOOLS_INDEX                 } from '../../../modules/nf-core/bcftools/index/main'
 include { GATK4_BEDTOINTERVALLIST        } from '../../../modules/nf-core/gatk4/bedtointervallist/main'
 include { GATK4_CREATESEQUENCEDICTIONARY } from '../../../modules/nf-core/gatk4/createsequencedictionary/main'
 include { GATK4_HAPLOTYPECALLER          } from '../../../modules/nf-core/gatk4/haplotypecaller/main'
 include { GATK4_INTERVALLISTTOOLS        } from '../../../modules/nf-core/gatk4/intervallisttools/main'
+include { GATK4_MERGEVCFS                } from '../../../modules/nf-core/gatk4/mergevcfs/main'
 include { GATK4_SPLITNCIGARREADS         } from '../../../modules/nf-core/gatk4/splitncigarreads/main'
 include { GATK4_VARIANTFILTRATION        } from '../../../modules/nf-core/gatk4/variantfiltration/main'
 include { GTF2BED                        } from '../../../modules/local/gtf2bed/main'
@@ -105,15 +107,25 @@ workflow BAM_VARIANT_CALLING {
             .map { meta, vcf, tbi ->
                 [groupKey(meta + [id: meta.sample] - meta.subMap('sample', "interval_count"), meta.interval_count), vcf, tbi]
             }
-            .groupTuple()
+        .groupTuple()
+
+
+        def haplotypecaller_raw = ch_vcf_tbi.map { meta, vcfs, _tbis -> [meta, vcfs] }
+        GATK4_MERGEVCFS(
+            haplotypecaller_raw,
+            ch_dict,
+        )
+
+    BCFTOOLS_INDEX(GATK4_MERGEVCFS.out.vcf)
 
     GATK4_VARIANTFILTRATION(
-        ch_vcf_tbi,
+        GATK4_MERGEVCFS.out.vcf.join(BCFTOOLS_INDEX.out.tbi),
         ch_fasta,
         ch_fai,
         ch_dict,
-        [[:],[]]
+        [[],[]]
     )
+
 
 
 

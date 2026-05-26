@@ -1,4 +1,4 @@
-process GATK4_BASERECALIBRATOR {
+process GATK4_MERGEVCFS {
     tag "${meta.id}"
     label 'process_low'
 
@@ -8,15 +8,12 @@ process GATK4_BASERECALIBRATOR {
         : 'community.wave.seqera.io/library/gatk4_gcnvkernel:edb12e4f0bf02cd3'}"
 
     input:
-    tuple val(meta), path(input), path(input_index), path(intervals)
-    tuple val(meta2), path(fasta)
-    tuple val(meta3), path(fai)
-    tuple val(meta4), path(dict)
-    tuple val(meta5), path(known_sites)
-    tuple val(meta6), path(known_sites_tbi)
+    tuple val(meta), path(vcf)
+    tuple val(meta2), path(dict)
 
     output:
-    tuple val(meta), path("*.table"), emit: table
+    tuple val(meta), path('*.vcf.gz'), emit: vcf
+    tuple val(meta), path("*.tbi"), emit: tbi
     tuple val("${task.process}"), val('gatk4'), eval("gatk --version | sed -n '/GATK.*v/s/.*v//p'"), topic: versions, emit: versions_gatk4
 
     when:
@@ -25,31 +22,30 @@ process GATK4_BASERECALIBRATOR {
     script:
     def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
-    def interval_command = intervals ? "--intervals ${intervals}" : ""
-    def sites_command = known_sites.collect { vcf -> "--known-sites ${vcf}" }.join(' ')
+    def input_list = vcf.collect { vcf_ -> "--INPUT ${vcf_}" }.join(' ')
+    def reference_command = dict ? "--SEQUENCE_DICTIONARY ${dict}" : ""
 
     def avail_mem = 3072
     if (!task.memory) {
-        log.info('[GATK BaseRecalibrator] Available memory not known - defaulting to 3GB. Specify process memory requirements to change this.')
+        log.info('[GATK MergeVcfs] Available memory not known - defaulting to 3GB. Specify process memory requirements to change this.')
     }
     else {
         avail_mem = (task.memory.mega * 0.8).intValue()
     }
     """
     gatk --java-options "-Xmx${avail_mem}M -XX:-UsePerfData" \\
-        BaseRecalibrator  \\
-        --input ${input} \\
-        --output ${prefix}.table \\
-        --reference ${fasta} \\
-        ${interval_command} \\
-        ${sites_command} \\
-        --tmp-dir . \\
+        MergeVcfs \\
+        ${input_list} \\
+        --OUTPUT ${prefix}.vcf.gz \\
+        ${reference_command} \\
+        --TMP_DIR . \\
         ${args}
     """
 
     stub:
     def prefix = task.ext.prefix ?: "${meta.id}"
     """
-    touch ${prefix}.table
+    echo "" | gzip > ${prefix}.vcf.gz
+    touch ${prefix}.vcf.gz.tbi
     """
 }
