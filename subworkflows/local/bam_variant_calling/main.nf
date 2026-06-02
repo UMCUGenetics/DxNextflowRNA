@@ -58,9 +58,7 @@ workflow BAM_VARIANT_CALLING {
         ch_dict,
     )
 
-    def bam_splitncigar = GATK4_SPLITNCIGARREADS.out.bam
-
-    def bam_splitncigar_interval = bam_splitncigar
+    def bam_splitncigar_interval = GATK4_SPLITNCIGARREADS.out.bam
         .map { meta, bam ->
             def new_meta = meta + [id: meta.sample] - meta.subMap('sample') - meta.subMap('interval_count')
             [groupKey(new_meta, meta.interval_count), bam]
@@ -73,17 +71,17 @@ workflow BAM_VARIANT_CALLING {
         ch_fai
     )
 
-    def splitncigar_bam = SAMTOOLS_MERGE.out.bam
+    def splitncigar_merged_bam = SAMTOOLS_MERGE.out.bam
 
-    SAMTOOLS_INDEX(splitncigar_bam)
+    SAMTOOLS_INDEX(splitncigar_merged_bam)
 
-    def splitncigar_bam_indices = SAMTOOLS_INDEX.out.bai
+    def splitncigar_merged_bam_indices = SAMTOOLS_INDEX.out.bai
         .mix(SAMTOOLS_INDEX.out.csi)
         .mix(SAMTOOLS_INDEX.out.crai)
 
-    def splitncigar_bam_bai = splitncigar_bam.join(splitncigar_bam_indices, failOnDuplicate: true, failOnMismatch: true)
+    def splitncigar_merged_bam_bai = splitncigar_merged_bam.join(splitncigar_merged_bam_indices, failOnDuplicate: true, failOnMismatch: true)
 
-    def haplotypecaller_interval_bam = splitncigar_bam_bai
+    def haplotypecaller_interval_bam = splitncigar_merged_bam_bai
         .combine(interval_list_split)
         .map { meta, bam, bai, interval_lists ->
             [meta + [interval_count: interval_lists.size()], bam, bai, interval_lists]
@@ -109,10 +107,8 @@ workflow BAM_VARIANT_CALLING {
             }
         .groupTuple()
 
-
-        def haplotypecaller_raw = ch_vcf_tbi.map { meta, vcfs, _tbis -> [meta, vcfs] }
         GATK4_MERGEVCFS(
-            haplotypecaller_raw,
+            ch_vcf_tbi.map { meta, vcfs, _tbis -> [meta, vcfs] },
             ch_dict,
         )
 
