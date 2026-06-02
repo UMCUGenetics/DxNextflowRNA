@@ -61,9 +61,9 @@ workflow BAM_VARIANT_CALLING {
     def bam_splitncigar = GATK4_SPLITNCIGARREADS.out.bam
 
     def bam_splitncigar_interval = bam_splitncigar
-        .map { meta, _bam ->
+        .map { meta, bam ->
             def new_meta = meta + [id: meta.sample] - meta.subMap('sample') - meta.subMap('interval_count')
-            [groupKey(new_meta, meta.interval_count), bam_]
+            [groupKey(new_meta, meta.interval_count), bam]
         }
         .groupTuple()
 
