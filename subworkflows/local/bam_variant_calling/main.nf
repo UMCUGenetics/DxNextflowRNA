@@ -1,12 +1,8 @@
 include { BCFTOOLS_INDEX                 } from '../../../modules/nf-core/bcftools/index/main'
-include { GATK4_BEDTOINTERVALLIST        } from '../../../modules/nf-core/gatk4/bedtointervallist/main'
-include { GATK4_CREATESEQUENCEDICTIONARY } from '../../../modules/nf-core/gatk4/createsequencedictionary/main'
 include { GATK4_HAPLOTYPECALLER          } from '../../../modules/nf-core/gatk4/haplotypecaller/main'
-include { GATK4_INTERVALLISTTOOLS        } from '../../../modules/nf-core/gatk4/intervallisttools/main'
 include { GATK4_MERGEVCFS                } from '../../../modules/nf-core/gatk4/mergevcfs/main'
 include { GATK4_SPLITNCIGARREADS         } from '../../../modules/nf-core/gatk4/splitncigarreads/main'
 include { GATK4_VARIANTFILTRATION        } from '../../../modules/nf-core/gatk4/variantfiltration/main'
-include { GTF2BED                        } from '../../../modules/local/gtf2bed/main'
 include { SAMTOOLS_MERGE                 } from '../../../modules/nf-core/samtools/merge/main'
 include { SAMTOOLS_INDEX                 } from '../../../modules/nf-core/samtools/index/main'
 
@@ -16,7 +12,8 @@ workflow BAM_VARIANT_CALLING {
     take:
     ch_bam_bai
     ch_fasta_fai
-    ch_gtf
+    ch_dict
+    interval_list_split
     ch_dbsnp
     ch_dbsnp_tbi
 
@@ -24,20 +21,6 @@ workflow BAM_VARIANT_CALLING {
     main:
     ch_fasta = ch_fasta_fai.map { meta, fasta, _fai -> [meta, fasta] }
     ch_fai   = ch_fasta_fai.map { meta, _fasta, fai -> [meta, fai] }
-
-
-    GATK4_CREATESEQUENCEDICTIONARY(ch_fasta_fai.map { meta, fasta, _fai -> [meta, fasta] })
-    def ch_dict = GATK4_CREATESEQUENCEDICTIONARY.out.dict
-
-    GTF2BED(ch_gtf, 'exon')
-
-    GATK4_BEDTOINTERVALLIST(GTF2BED.out.bed.collect(), ch_dict)
-    def interval_list = GATK4_BEDTOINTERVALLIST.out.interval_list
-
-    // MODULE: Scatter one interval-list into many interval-files using GATK4 IntervalListTools
-    GATK4_INTERVALLISTTOOLS(interval_list)
-
-    def interval_list_split = GATK4_INTERVALLISTTOOLS.out.interval_list.map { _meta, bed -> [bed] }.collect()
 
 
     def bam_interval = ch_bam_bai
@@ -91,26 +74,26 @@ workflow BAM_VARIANT_CALLING {
             [meta + [id: meta.id + "_" + interval_list_.baseName, sample: meta.id, variantcaller: 'haplotypecaller'], bam, bai, interval_list_, []]
         }
 
-        GATK4_HAPLOTYPECALLER(
-            haplotypecaller_interval_bam,
-            ch_fasta,
-            ch_fai,
-            ch_dict,
-            ch_dbsnp,
-            ch_dbsnp_tbi,
-        )
+    GATK4_HAPLOTYPECALLER(
+        haplotypecaller_interval_bam,
+        ch_fasta,
+        ch_fai,
+        ch_dict,
+        ch_dbsnp,
+        ch_dbsnp_tbi,
+    )
 
-        def ch_vcf_tbi = GATK4_HAPLOTYPECALLER.out.vcf
-            .join(GATK4_HAPLOTYPECALLER.out.tbi, failOnMismatch: true, failOnDuplicate: true)
-            .map { meta, vcf, tbi ->
-                [groupKey(meta + [id: meta.sample] - meta.subMap('sample', "interval_count"), meta.interval_count), vcf, tbi]
-            }
+    def ch_vcf_tbi = GATK4_HAPLOTYPECALLER.out.vcf
+        .join(GATK4_HAPLOTYPECALLER.out.tbi, failOnMismatch: true, failOnDuplicate: true)
+        .map { meta, vcf, tbi ->
+            [groupKey(meta + [id: meta.sample] - meta.subMap('sample', "interval_count"), meta.interval_count), vcf, tbi]
+        }
         .groupTuple()
 
-        GATK4_MERGEVCFS(
-            ch_vcf_tbi.map { meta, vcfs, _tbis -> [meta, vcfs] },
-            ch_dict,
-        )
+    GATK4_MERGEVCFS(
+        ch_vcf_tbi.map { meta, vcfs, _tbis -> [meta, vcfs] },
+        ch_dict,
+    )
 
     BCFTOOLS_INDEX(GATK4_MERGEVCFS.out.vcf)
 
@@ -121,8 +104,6 @@ workflow BAM_VARIANT_CALLING {
         ch_dict,
         [[],[]]
     )
-
-
 
 
     emit:

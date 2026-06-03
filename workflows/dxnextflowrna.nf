@@ -13,6 +13,7 @@ include { FASTQ_BAM_QC                     } from '../subworkflows/local/fastq_b
 include { FASTQ_TRIM_FILTER_ALIGN_DEDUP    } from '../subworkflows/local/fastq_trim_filter_align_dedup/main'
 include { GENE_EXON_OUTRIDER               } from '../subworkflows/local/gene_exon_outrider/main'
 include { BAM_GENE_FUSION                  } from '../subworkflows/local/bam_gene_fusion/main'
+include { PREPARE_REFERENCES               } from '../subworkflows/local/prepare_references/main'
 // FUNCTIONS
 include { methodsDescriptionText        } from '../subworkflows/local/utils_umcugenetics_dxnextflowrna_pipeline'
 include { paramsSummaryMap              } from 'plugin/nf-schema'
@@ -69,6 +70,12 @@ workflow DXNEXTFLOWRNA {
         .fromPath("${params.dbsnp}.{tbi,csi}")
         .map(createMetaWithIdSimpleName)
         .first()
+
+
+    PREPARE_REFERENCES(
+        ch_fasta_fai,
+        ch_gtf
+    )
 
     // Input channel
     ch_fastq = Channel
@@ -202,7 +209,8 @@ workflow DXNEXTFLOWRNA {
         BAM_VARIANT_CALLING(
             FASTQ_TRIM_FILTER_ALIGN_DEDUP.out.ch_bam_bai,
             ch_fasta_fai,
-            ch_gtf,
+            PREPARE_REFERENCES.out.ch_dict,
+            PREPARE_REFERENCES.out.interval_list_split,
             ch_dbsnp,
             ch_dbsnp_tbi
         )

@@ -1,0 +1,41 @@
+nextflow_workflow {
+    name "Test Subworkflow PREPARE_REFERENCES"
+    script "../main.nf"
+    workflow "PREPARE_REFERENCES"
+
+    tag "subworkflows/local"
+    tag "subworkflows"
+    tag "local"
+    tag "prepare_references"
+
+    test ("Test intervals and scatters") {
+
+        when {
+            workflow {
+                    """
+                    input[0] = channel.of([
+                    [ id:'minigenome_fasta' ],
+                    file(params.nfcore_modules_testdata + 'genomics/homo_sapiens/genome/chr21/sequence/genome.fasta'),
+                    file(params.nfcore_modules_testdata + 'genomics/homo_sapiens/genome/chr21/sequence/genome.fasta.fai')
+                ]).first()
+                    input[1] = channel.of([
+                    [ id:'minigenome_gtf' ],
+                    file(params.nfcore_modules_testdata + 'genomics/homo_sapiens/genome/chr21/sequence/chr21_gencode.gtf')
+                ]).first()
+                    """
+                }
+
+        }
+        then {
+            assertAll(
+                { assert workflow.success },
+                { assert snapshot(
+                    workflow.out.dict,
+                    workflow.out.bed,
+                    workflow.out.interval_list,
+                    workflow.out.interval_list_split
+                ).match() }
+            )
+        }
+    }
+}
