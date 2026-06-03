@@ -14,7 +14,7 @@
                     {
                         "id": "minigenome_gtf"
                     },
-                    "exome.bed:md5,f95c84914555fd4c0aa1bd9541ab5e0f"
+                    "chr21_gencode.bed:md5,6018f980c6ee0e8da905b50d6838ea40"
                 ]
             ],
             [
@@ -22,14 +22,14 @@
                     {
                         "id": "minigenome_gtf"
                     },
-                    "minigenome_gtf.interval_list:md5,0266e4cef2ca29605c6f05ab687fd1cd"
+                    "minigenome_gtf.interval_list:md5,f49045d215e5fc1dfcd4f6f79a8da0b5"
                 ]
             ],
             [
                 [
                     [
-                        "1scattered.interval_list:md5,4ef1d2d1b8d522193037e657fd664263",
-                        "2scattered.interval_list:md5,8847ce9646a754980f7dc3bb830574f1"
+                        "1scattered.interval_list:md5,7ade4bf4b27da132228553b59323db6e",
+                        "2scattered.interval_list:md5,0f3322aa6497f446b43b74144e6fbada"
                     ]
                 ]
             ]
@@ -38,6 +38,6 @@
             "nf-test": "0.9.3",
             "nextflow": "25.10.4"
         },
-        "timestamp": "2026-06-03T08:41:56.743202"
+        "timestamp": "2026-06-03T13:58:43.674297"
     }
 }
