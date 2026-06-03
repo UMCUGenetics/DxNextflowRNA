@@ -10,6 +10,7 @@ workflow PREPARE_REFERENCES {
 
     main:
 
+
     GATK4_CREATESEQUENCEDICTIONARY(ch_fasta_fai.map { meta, fasta, _fai -> [meta, fasta] })
     def ch_dict = GATK4_CREATESEQUENCEDICTIONARY.out.dict
 
@@ -18,7 +19,6 @@ workflow PREPARE_REFERENCES {
 
     // Scatter one interval-list into many interval-files using GATK4 IntervalListTools
     GATK4_INTERVALLISTTOOLS(GATK4_BEDTOINTERVALLIST.out.interval_list)
-
 
 
     emit:

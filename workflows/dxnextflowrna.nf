@@ -209,7 +209,7 @@ workflow DXNEXTFLOWRNA {
         BAM_VARIANT_CALLING(
             FASTQ_TRIM_FILTER_ALIGN_DEDUP.out.ch_bam_bai,
             ch_fasta_fai,
-            PREPARE_REFERENCES.out.ch_dict,
+            PREPARE_REFERENCES.out.dict,
             PREPARE_REFERENCES.out.interval_list_split,
             ch_dbsnp,
             ch_dbsnp_tbi
