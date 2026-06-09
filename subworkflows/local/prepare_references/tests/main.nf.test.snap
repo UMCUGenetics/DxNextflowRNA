@@ -1,0 +1,43 @@
+{
+    "Test intervals and scatters": {
+        "content": [
+            [
+                [
+                    {
+                        "id": "minigenome_fasta"
+                    },
+                    "genome.dict:md5,de4ff13287d28c1679a11ae989a3a980"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "minigenome_gtf"
+                    },
+                    "chr21_gencode.bed:md5,6018f980c6ee0e8da905b50d6838ea40"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "minigenome_gtf"
+                    },
+                    "minigenome_gtf.interval_list:md5,f49045d215e5fc1dfcd4f6f79a8da0b5"
+                ]
+            ],
+            [
+                [
+                    [
+                        "1scattered.interval_list:md5,7ade4bf4b27da132228553b59323db6e",
+                        "2scattered.interval_list:md5,0f3322aa6497f446b43b74144e6fbada"
+                    ]
+                ]
+            ]
+        ],
+        "meta": {
+            "nf-test": "0.9.3",
+            "nextflow": "25.10.4"
+        },
+        "timestamp": "2026-06-03T13:58:43.674297"
+    }
+}

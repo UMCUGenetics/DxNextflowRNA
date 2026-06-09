@@ -1,0 +1,61 @@
+nextflow_workflow {
+    name "Test Subworkflow BAM_VARIANT_CALLING"
+    script "../main.nf"
+    workflow "BAM_VARIANT_CALLING"
+
+    tag "subworkflows/local"
+    tag "subworkflows"
+    tag "local"
+    tag "variant_calling"
+
+    test ("Test scatter and merge") {
+
+        setup {
+            run("PREPARE_REFERENCES") {
+                script "../../prepare_references/main.nf"
+                workflow {
+                    """
+                    input[0] = channel.of([
+                    [ id:'minigenome_fasta' ],
+                    file(params.nfcore_modules_testdata + 'genomics/homo_sapiens/genome/chr21/sequence/genome.fasta'),
+                    file(params.nfcore_modules_testdata + 'genomics/homo_sapiens/genome/chr21/sequence/genome.fasta.fai')
+                ]).first()
+                    input[1] = channel.of([
+                    [ id:'minigenome_gtf' ],
+                    file(params.nfcore_modules_testdata + 'genomics/homo_sapiens/genome/chr21/sequence/chr21_gencode.gtf')
+                ]).first()
+                    """
+                }
+            }
+        }
+
+        when {
+            workflow {
+                """
+                input[0] = channel.of([
+                    [ id:'sampleA' ],
+                    file(params.nfcore_modules_testdata + 'genomics/homo_sapiens/illumina/bam/NA12878.chr21_22.bam'),
+                    file(params.nfcore_modules_testdata + 'genomics/homo_sapiens/illumina/bam/NA12878.chr21_22.bam.bai')
+                ])
+                input[1] = channel.of([
+                    [ id:'minigenome_fasta' ],
+                    file(params.nfcore_modules_testdata + 'genomics/homo_sapiens/genome/chr21/sequence/genome.fasta'),
+                    file(params.nfcore_modules_testdata + 'genomics/homo_sapiens/genome/chr21/sequence/genome.fasta.fai')
+                ]).first()
+                input[2] = PREPARE_REFERENCES.out.dict
+                input[3] = PREPARE_REFERENCES.out.interval_list_split
+                input[4] = [[:],[]]
+                input[5] = [[:],[]]
+                """
+            }
+        }
+        then {
+            assertAll(
+                { assert workflow.success },
+                { assert snapshot(
+                    workflow.out.ch_vcf_filtered
+                ).match() }
+            )
+        }
+    }
+}

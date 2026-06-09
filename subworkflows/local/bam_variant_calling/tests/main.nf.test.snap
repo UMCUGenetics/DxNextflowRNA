@@ -1,0 +1,14 @@
+{
+    "Test scatter and merge": {
+        "content": [
+            [
+                
+            ]
+        ],
+        "meta": {
+            "nf-test": "0.9.3",
+            "nextflow": "25.10.4"
+        },
+        "timestamp": "2026-05-26T14:31:27.300922"
+    }
+}
