@@ -43,7 +43,7 @@ workflow PREPARE_REFERENCES {
         .map(createMetaWithIdSimpleName)
         .first()
     ch_dbsnp_tbi = channel
-        .fromPath("${params.dbsnp}.{tbi,csi}")
+        .fromPath("${params.dbsnp}.tbi")
         .map(createMetaWithIdSimpleName)
         .first()
 
