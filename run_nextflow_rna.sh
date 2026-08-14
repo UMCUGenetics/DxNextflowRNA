@@ -1,80 +1,162 @@
 #!/bin/bash
 set -euo pipefail
 
-workflow_path='/hpc/diaggen/software/production/DxNextflowRNA/'
+# ---------------------------------------------------------------------------
+# Pipeline base dir = de map waar dit script staat (volgt symlinks).
+# Hierdoor werkt het script ook vanuit een feature-branch checkout.
+# ---------------------------------------------------------------------------
+script_path=$(readlink -f "${BASH_SOURCE[0]}")
+workflow_path=$(dirname "${script_path}")
+pipeline_name=$(basename "${workflow_path}")
 
-# Set input and output dirs
-input=`realpath $1`
-output=`realpath $2`
-email=$3
-optional_params=( "${@:4}" )
+usage() {
+cat <<EOF
+Usage: $(basename "$0") -i <input> -o <output> -e <email> [opties] [-- <nextflow args>]
 
-analysis_id=$(basename ${output})
+Verplicht:
+  -i, --input PATH       Input dir/file
+  -o, --output DIR       Output/analyse dir (basename wordt analysis_id)
+  -e, --email ADDR       Mail voor SLURM-fail en --email
 
-mkdir -p $output && cd $output
-mkdir -p log
+Optioneel (SLURM):
+  -j, --job-name NAME    Job naam            (default: Nextflow_${pipeline_name})
+  -t, --time HH:MM:SS    Walltime            (default: 48:00:00)
+  -m, --mem SIZE         Geheugen            (default: 10G)
+      --tmpspace SIZE    tmpspace            (default: 10G)
+      --account NAME     SLURM account       (default: diaggen)
+  -n, --dry-run          Print het job script i.p.v. submitten
+  -h, --help             Deze tekst
 
-if ! { [ -f 'workflow.running' ] || [ -f 'workflow.done' ] || [ -f 'workflow.failed' ]; }; then
-touch workflow.running
+Alle overige argumenten gaan rechtstreeks naar 'nextflow run'.
+De defaults -resume, -ansi-log false, -profile singularity en
+-c <pipeline>/nextflow.config worden alleen gezet als jij ze zelf niet
+meegeeft. Gebruik '--' als een nextflow-argument met een van de flags
+hierboven botst.
 
-output_log="${output}/log"
-file="${output_log}/nextflow_trace.txt"
-# Check if nextflow_trace.txt exists
-if [ -e "${file}" ]; then
-    current_suffix=0
-    # Get a list of all trace files WITH a suffix
-    trace_file_list=$(ls "${output_log}"/nextflow_trace*.txt 2> /dev/null)
-    # Check if any trace files with a suffix exist
-    if [ "$?" -eq 0 ]; then
-        # Check for each trace file with a suffix if the suffix is the highest and save that one as the current suffix
-        for trace_file in ${trace_file_list}; do
-            basename_trace_file=$(basename "${trace_file}")
-            if echo "${basename_trace_file}" | grep -qE '[0-9]+'; then
-                suffix=$(echo "${basename_trace_file}" | grep -oE '[0-9]+')
-            else
-                suffix=0
-            fi
+Voorbeelden:
+  $(basename "$0") -i /data/run1 -o /data/analysis/run1 -e j@umcutrecht.nl
+  $(basename "$0") -i in -o out -e j@x.nl -profile singularity,test --max_cpus 8
+  $(basename "$0") -i in -o out -e j@x.nl -t 12:00:00 -n -- -stub-run
+EOF
+}
 
-            if [ "${suffix}" -gt "${current_suffix}" ]; then
-                current_suffix=${suffix}
-            fi
-        done
-    fi
-    # Increment the suffix
-    new_suffix=$((current_suffix + 1))
-    # Create the new file name with the incremented suffix
-    new_file="${file%.*}_$new_suffix.${file##*.}"
-    # Rename the file
-    mv "${file}" "${new_file}"
+# --- defaults --------------------------------------------------------------
+input=""
+output=""
+email=""
+job_name=""
+sbatch_time="48:00:00"
+sbatch_mem="10G"
+sbatch_tmpspace="10G"
+sbatch_account="diaggen"
+dry_run=false
+extra_args=()
+
+# --- argument parsing ------------------------------------------------------
+while [ $# -gt 0 ]; do
+    case "$1" in
+        -i|--input)     input="$2";           shift 2 ;;
+        -o|--output)    output="$2";          shift 2 ;;
+        -e|--email)     email="$2";           shift 2 ;;
+        -j|--job-name)  job_name="$2";        shift 2 ;;
+        -t|--time)      sbatch_time="$2";     shift 2 ;;
+        -m|--mem)       sbatch_mem="$2";      shift 2 ;;
+        --tmpspace)     sbatch_tmpspace="$2"; shift 2 ;;
+        --account)      sbatch_account="$2";  shift 2 ;;
+        -n|--dry-run)   dry_run=true;         shift ;;
+        -h|--help)      usage; exit 0 ;;
+        --)             shift; extra_args+=( "$@" ); break ;;
+        *)              extra_args+=( "$1" ); shift ;;
+    esac
+done
+
+missing=()
+[ -n "${input}" ]  || missing+=( "--input" )
+[ -n "${output}" ] || missing+=( "--output" )
+[ -n "${email}" ]  || missing+=( "--email" )
+if [ ${#missing[@]} -gt 0 ]; then
+    echo "ERROR: ontbrekende argumenten: ${missing[*]}" >&2
+    echo >&2
+    usage >&2
+    exit 1
 fi
 
-sbatch <<EOT
+[ -n "${job_name}" ] || job_name="Nextflow_${pipeline_name}"
+
+for f in "${workflow_path}/main.nf" "${workflow_path}/tools/nextflow/nextflow"; do
+    [ -e "${f}" ] || { echo "ERROR: niet gevonden: ${f}" >&2; exit 1; }
+done
+
+# --- paden -----------------------------------------------------------------
+input=$(realpath "${input}")
+mkdir -p "${output}"
+output=$(realpath "${output}")
+analysis_id=$(basename "${output}")
+
+cd "${output}"
+mkdir -p log
+
+if [ -f 'workflow.running' ] || [ -f 'workflow.done' ] || [ -f 'workflow.failed' ]; then
+    echo "Workflow job not submitted, please check ${output} for 'workflow.status' files."
+    exit 0
+fi
+
+# --- nextflow commando opbouwen -------------------------------------------
+# helper: staat deze (nextflow) flag al in de door de user meegegeven args?
+has_flag() {
+    local needle="$1" arg
+    for arg in ${extra_args[@]+"${extra_args[@]}"}; do
+        if [ "${arg}" = "${needle}" ] || [ "${arg#${needle}=}" != "${arg}" ]; then
+            return 0
+        fi
+    done
+    return 1
+}
+
+nf_args=( run "${workflow_path}/main.nf" )
+has_flag -c        || has_flag -config || nf_args+=( -c "${workflow_path}/nextflow.config" )
+nf_args+=( --input "${input}" --outdir "${output}" --analysis_id "${analysis_id}" --email "${email}" )
+has_flag -resume   || nf_args+=( -resume )
+has_flag -ansi-log || nf_args+=( -ansi-log false )
+has_flag -profile  || nf_args+=( -profile singularity )
+nf_args+=( ${extra_args[@]+"${extra_args[@]}"} )
+
+# veilig quoten zodat het in de heredoc niet uit elkaar valt
+nf_cmd=$(printf '%q ' "${workflow_path}/tools/nextflow/nextflow" "${nf_args[@]}")
+
+# --- nextflow_trace.txt roteren -------------------------------------------
+trace_file="${output}/log/nextflow_trace.txt"
+if [ -f "${trace_file}" ]; then
+    max_suffix=0
+    for f in "${output}"/log/nextflow_trace_*.txt; do
+        [ -e "${f}" ] || continue
+        n=$(basename "${f}" .txt); n="${n##*_}"
+        case "${n}" in
+            ''|*[!0-9]*) continue ;;
+        esac
+        [ "${n}" -gt "${max_suffix}" ] && max_suffix="${n}"
+    done
+    mv "${trace_file}" "${output}/log/nextflow_trace_$((max_suffix + 1)).txt"
+fi
+
+# --- job script ------------------------------------------------------------
+job_script=$(cat <<EOT
 #!/bin/bash
-#SBATCH --time=48:00:00
+#SBATCH --time=${sbatch_time}
 #SBATCH --nodes=1
-#SBATCH --mem 10G
-#SBATCH --gres=tmpspace:10G
-#SBATCH --job-name Nextflow_RNASeq
-#SBATCH -o log/slurm_nextflow_rnaseq.%j.out
-#SBATCH -e log/slurm_nextflow_rnaseq.%j.err
-#SBATCH --mail-user $email
+#SBATCH --mem ${sbatch_mem}
+#SBATCH --gres=tmpspace:${sbatch_tmpspace}
+#SBATCH --job-name ${job_name}
+#SBATCH -o log/slurm_${job_name}.%j.out
+#SBATCH -e log/slurm_${job_name}.%j.err
+#SBATCH --mail-user ${email}
 #SBATCH --mail-type FAIL
 #SBATCH --export=NONE
-#SBATCH --account=diaggen
+#SBATCH --account=${sbatch_account}
 
-export NXF_JAVA_HOME='$workflow_path/tools/java/jdk'
+export NXF_JAVA_HOME='${workflow_path}/tools/java/jdk'
 
-${workflow_path}/tools/nextflow/nextflow run \
-$workflow_path/main.nf  \
--c $workflow_path/nextflow.config \
---input $input \
---outdir $output \
---analysis_id $analysis_id \
---email $email \
--resume \
--ansi-log false \
--profile singularity \
-${optional_params[@]:-""}
+${nf_cmd}
 
 if [ \$? -eq 0 ]; then
     echo "Nextflow done."
@@ -88,12 +170,12 @@ if [ \$? -eq 0 ]; then
     echo "Creating md5sum"
     find -type f -not -iname 'md5sum.txt' -exec md5sum {} \; > md5sum.txt
 
-    echo "RNA workflow completed successfully."
+    echo "${pipeline_name} workflow completed successfully."
     rm workflow.running
     touch workflow.done
 
     echo "Change permissions"
-    chmod 775 -R $output
+    chmod 775 -R ${output}
 
     exit 0
 else
@@ -102,11 +184,18 @@ else
     touch workflow.failed
 
     echo "Change permissions"
-    chmod 775 -R $output
+    chmod 775 -R ${output}
 
     exit 1
 fi
 EOT
-else
-echo "Workflow job not submitted, please check $output for 'workflow.status' files."
+)
+
+if [ "${dry_run}" = true ]; then
+    echo "--- dry-run: job script (niet gesubmit) ---"
+    echo "${job_script}"
+    exit 0
 fi
+
+touch workflow.running
+sbatch <<< "${job_script}"
