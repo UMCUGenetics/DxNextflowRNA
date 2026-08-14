@@ -83,7 +83,7 @@ fi
 
 [ -n "${job_name}" ] || job_name="Nextflow_${pipeline_name}"
 
-for f in "${workflow_path}/main.nf" "${workflow_path}/tools/nextflow/nextflow"; do
+for f in "${workflow_path}/main.nf" "${workflow_path}/tools/nextflow"; do
     [ -e "${f}" ] || { echo "ERROR: niet gevonden: ${f}" >&2; exit 1; }
 done
 
@@ -122,7 +122,7 @@ has_flag -profile  || nf_args+=( -profile singularity )
 nf_args+=( ${extra_args[@]+"${extra_args[@]}"} )
 
 # veilig quoten zodat het in de heredoc niet uit elkaar valt
-nf_cmd=$(printf '%q ' "${workflow_path}/tools/nextflow/nextflow" "${nf_args[@]}")
+nf_cmd=$(printf '%q ' "${workflow_path}/tools/nextflow" "${nf_args[@]}")
 
 # --- nextflow_trace.txt roteren -------------------------------------------
 trace_file="${output}/log/nextflow_trace.txt"
