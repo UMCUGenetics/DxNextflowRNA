@@ -58,8 +58,7 @@ workflow FASTQ_TRIM_FILTER_ALIGN_DEDUP {
 
     if (params.run_umitools_dedup) {
         BAM_DEDUP_STATS_SAMTOOLS_UMICOLLAPSE(
-            STAR_ALIGN.out.bam.join(SAMTOOLS_INDEX.out.bai),
-            true,
+            STAR_ALIGN.out.bam.join(SAMTOOLS_INDEX.out.bai)
         )
 
         ch_bam_bai = BAM_DEDUP_STATS_SAMTOOLS_UMICOLLAPSE.out.bam.join(BAM_DEDUP_STATS_SAMTOOLS_UMICOLLAPSE.out.index)
