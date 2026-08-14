@@ -118,7 +118,6 @@ has_flag -c        || has_flag -config || nf_args+=( -c "${workflow_path}/nextfl
 nf_args+=( --input "${input}" --outdir "${output}" --analysis_id "${analysis_id}" --email "${email}" )
 has_flag -resume   || nf_args+=( -resume )
 has_flag -ansi-log || nf_args+=( -ansi-log false )
-has_flag -profile  || nf_args+=( -profile singularity )
 nf_args+=( ${extra_args[@]+"${extra_args[@]}"} )
 
 # veilig quoten zodat het in de heredoc niet uit elkaar valt
