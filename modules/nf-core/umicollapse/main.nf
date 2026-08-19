@@ -45,6 +45,7 @@ process UMICOLLAPSE {
     java \\
         -Xmx${max_heap_size_mega}M \\
         -Xss${max_stack_size_mega}M \\
+        -Djava.io.tmpdir=\$PWD \\
         -jar \$UMICOLLAPSE_JAR \\
         ${mode} \\
         -i ${input} \\
