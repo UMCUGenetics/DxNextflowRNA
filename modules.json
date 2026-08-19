@@ -128,27 +128,23 @@
                     },
                     "samtools/convert": {
                         "branch": "master",
-                        "git_sha": "b13f07be4c508d6ff6312d354d09f2493243e208",
+                        "git_sha": "9339809fcb90af8a8b7051e6cd914894d5c52002",
                         "installed_by": ["modules"]
                     },
                     "samtools/flagstat": {
                         "branch": "master",
-                        "git_sha": "2d20463181b1c38981a02e90d3084b5f9fa8d540",
+                        "git_sha": "9339809fcb90af8a8b7051e6cd914894d5c52002",
                         "installed_by": ["bam_stats_samtools", "modules"]
                     },
                     "samtools/idxstats": {
                         "branch": "master",
-                        "git_sha": "2d20463181b1c38981a02e90d3084b5f9fa8d540",
+                        "git_sha": "9339809fcb90af8a8b7051e6cd914894d5c52002",
                         "installed_by": ["bam_stats_samtools", "modules"]
                     },
                     "samtools/index": {
                         "branch": "master",
-                        "git_sha": "b13f07be4c508d6ff6312d354d09f2493243e208",
-                        "installed_by": [
-                            "bam_dedup_stats_samtools_umicollapse",
-                            "bam_dedup_stats_samtools_umitools",
-                            "modules"
-                        ]
+                        "git_sha": "9339809fcb90af8a8b7051e6cd914894d5c52002",
+                        "installed_by": ["bam_dedup_stats_samtools_umicollapse", "modules"]
                     },
                     "samtools/merge": {
                         "branch": "master",
@@ -157,17 +153,17 @@
                     },
                     "samtools/stats": {
                         "branch": "master",
-                        "git_sha": "2d20463181b1c38981a02e90d3084b5f9fa8d540",
+                        "git_sha": "9339809fcb90af8a8b7051e6cd914894d5c52002",
                         "installed_by": ["bam_stats_samtools", "modules"]
                     },
                     "sortmerna": {
                         "branch": "master",
-                        "git_sha": "ddb0d667cf6cdee3bab9497241de4bbf6b88d8cc",
+                        "git_sha": "6d46786420b4d7bc88eba026eb389c0c5535d120",
                         "installed_by": ["modules"]
                     },
                     "star/align": {
                         "branch": "master",
-                        "git_sha": "a5ad53288c79fa52c5ae708c317e09ec2dd149ab",
+                        "git_sha": "6d46786420b4d7bc88eba026eb389c0c5535d120",
                         "installed_by": ["modules"]
                     },
                     "star/genomegenerate": {
@@ -192,18 +188,13 @@
                     },
                     "trimgalore": {
                         "branch": "master",
-                        "git_sha": "4c2d06a5e79abf08ba7f04c58e39c7dad75f094d",
+                        "git_sha": "2a30bfb6a1b4667692d734e33e000a3bd1d74a0d",
                         "installed_by": ["modules"]
                     },
                     "umicollapse": {
                         "branch": "master",
                         "git_sha": "6d46786420b4d7bc88eba026eb389c0c5535d120",
                         "installed_by": ["bam_dedup_stats_samtools_umicollapse"]
-                    },
-                    "umitools/dedup": {
-                        "branch": "master",
-                        "git_sha": "0b27602842d3d79fd0e8db79f4afa764967fc3d1",
-                        "installed_by": ["bam_dedup_stats_samtools_umitools"]
                     }
                 }
             },
@@ -221,12 +212,8 @@
                     },
                     "bam_stats_samtools": {
                         "branch": "master",
-                        "git_sha": "763d4b5c05ffda3ac1ac969dc67f7458cfb2eb1d",
-                        "installed_by": [
-                            "bam_dedup_stats_samtools_umicollapse",
-                            "bam_dedup_stats_samtools_umitools",
-                            "subworkflows"
-                        ]
+                        "git_sha": "9339809fcb90af8a8b7051e6cd914894d5c52002",
+                        "installed_by": ["bam_dedup_stats_samtools_umicollapse", "subworkflows"]
                     },
                     "utils_nextflow_pipeline": {
                         "branch": "master",

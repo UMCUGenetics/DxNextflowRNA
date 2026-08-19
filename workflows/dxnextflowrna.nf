@@ -51,12 +51,10 @@ workflow DXNEXTFLOWRNA {
         .first()
     ch_ref_flat = Channel.fromPath(params.ref_flat).first()
     ch_rrna_interval = Channel.fromPath(params.rrna_intervals).first()
-    ch_sortmerna_fastas = Channel
-        .fromPath(params.rrna_database_manifest)
-        .splitCsv(by: 1, strip: true)
-        .map { line -> file(line[0], checkIfExists: true) }
-        .collect()
-        .map { files -> [[id: file(params.rrna_database_manifest).getSimpleName()], files] }
+
+    ch_sortmerna_fastas = channel.fromPath(params.rrna_database)
+        .map(createMetaWithIdSimpleName)
+        .first()
     ch_sortmerna_index = Channel
         .fromPath(params.sortmerna_index)
         .map(createMetaWithIdSimpleName)
@@ -106,11 +104,9 @@ workflow DXNEXTFLOWRNA {
         ch_sortmerna_fastas,
         ch_sortmerna_index,
         ch_star_index,
-        params.seq_platform,
-        params.seq_center,
-        false,
+        false
     )
-    ch_versions = ch_versions.mix(FASTQ_TRIM_FILTER_ALIGN_DEDUP.out.versions)
+
 
     // Add fastq_trim_filter_align_dedup results to MultiQC files
     ch_multiqc_files = ch_multiqc_files.mix(
