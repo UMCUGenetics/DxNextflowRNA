@@ -107,7 +107,6 @@ workflow DXNEXTFLOWRNA {
         false
     )
 
-
     // Add fastq_trim_filter_align_dedup results to MultiQC files
     ch_multiqc_files = ch_multiqc_files.mix(
         FASTQ_TRIM_FILTER_ALIGN_DEDUP.out.trim_log.collect { it[1] }.ifEmpty([]),
