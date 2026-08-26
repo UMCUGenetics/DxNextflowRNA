@@ -5,7 +5,7 @@ include { SORTMERNA as SORTMERNA_READS      } from '../../../modules/nf-core/sor
 include { STAR_ALIGN                        } from '../../../modules/nf-core/star/align/main'
 include { TRIMGALORE                        } from '../../../modules/nf-core/trimgalore/main'
 
-include { BAM_DEDUP_STATS_SAMTOOLS_UMITOOLS } from '../../../subworkflows/nf-core/bam_dedup_stats_samtools_umitools/main'
+include { BAM_DEDUP_STATS_SAMTOOLS_UMICOLLAPSE } from '../../../subworkflows/nf-core/bam_dedup_stats_samtools_umicollapse/main'
 
 
 workflow FASTQ_TRIM_FILTER_ALIGN_DEDUP {
@@ -16,23 +16,14 @@ workflow FASTQ_TRIM_FILTER_ALIGN_DEDUP {
     ch_sortmerna_fastas // channel: [ val(meta), file(fastas)]
     ch_sortmerna_index  // channel: [ val(meta), path(/path/to/sortmerna/index/)
     ch_star_index       // channel: [ val(meta), path(star_index) ]
-    seq_platform        // val(seq_platform)
-    seq_center          // val(seq_center)
     star_ignore_sjdbgtf // boolean
 
     main:
     // Create empty versions channel, and fill with each tools version
-    ch_versions = Channel.empty()
-
     TRIMGALORE(ch_fastq)
-    ch_versions = ch_versions.mix(TRIMGALORE.out.versions.first())
 
     SORTMERNA_READS(TRIMGALORE.out.reads, ch_sortmerna_fastas, ch_sortmerna_index)
-    ch_versions = ch_versions.mix(SORTMERNA_READS.out.versions.first())
 
-    
-    
-    
     STAR_ALIGN(
         SORTMERNA_READS.out.reads.map {meta, reads ->
             def new_id = meta.id.split('_')[0]
@@ -45,48 +36,31 @@ workflow FASTQ_TRIM_FILTER_ALIGN_DEDUP {
             },
         ch_star_index,
         ch_gtf,
-        star_ignore_sjdbgtf,
-        seq_platform,
-        seq_center
+        star_ignore_sjdbgtf
     )
-    ch_versions = ch_versions.mix(STAR_ALIGN.out.versions.first())
+
 
 
     // samtools index will create a .bai. RSeQC, and maybe other tools as well, requires .bai instead of .csi.
     SAMTOOLS_INDEX(STAR_ALIGN.out.bam_sorted_aligned)
-    ch_versions = ch_versions.mix(SAMTOOLS_INDEX.out.versions.first())
 
-    if (params.run_umitools_dedup) {
-        BAM_DEDUP_STATS_SAMTOOLS_UMITOOLS(
-            STAR_ALIGN.out.bam.join(SAMTOOLS_INDEX.out.bai),
-            true,
-        )
-        ch_versions = ch_versions.mix(BAM_DEDUP_STATS_SAMTOOLS_UMITOOLS.out.versions)
+    BAM_DEDUP_STATS_SAMTOOLS_UMICOLLAPSE(
+        STAR_ALIGN.out.bam.join(SAMTOOLS_INDEX.out.index)
+    )
 
-        ch_bam_bai = BAM_DEDUP_STATS_SAMTOOLS_UMITOOLS.out.bam.join(BAM_DEDUP_STATS_SAMTOOLS_UMITOOLS.out.bai)
+    ch_bam_bai = BAM_DEDUP_STATS_SAMTOOLS_UMICOLLAPSE.out.bam.join(BAM_DEDUP_STATS_SAMTOOLS_UMICOLLAPSE.out.index)
 
-        ch_umitools_dedup_log = BAM_DEDUP_STATS_SAMTOOLS_UMITOOLS.out.deduplog  // channel: [ val(meta), path(log) ]
-        ch_samtools_stats     = BAM_DEDUP_STATS_SAMTOOLS_UMITOOLS.out.stats     // channel: [ val(meta), path(stats) ]
-        ch_flagstat           = BAM_DEDUP_STATS_SAMTOOLS_UMITOOLS.out.flagstat  // channel: [ val(meta), path(flagstat) ]
-        ch_idxstats           = BAM_DEDUP_STATS_SAMTOOLS_UMITOOLS.out.idxstats  // channel: [ val(meta), path(idxstats) ]
+    ch_umitools_dedup_log = BAM_DEDUP_STATS_SAMTOOLS_UMICOLLAPSE.out.dedup_stats  // channel: [ val(meta), path(log) ]
+    ch_samtools_stats     = BAM_DEDUP_STATS_SAMTOOLS_UMICOLLAPSE.out.stats     // channel: [ val(meta), path(stats) ]
+    ch_flagstat           = BAM_DEDUP_STATS_SAMTOOLS_UMICOLLAPSE.out.flagstat  // channel: [ val(meta), path(flagstat) ]
+    ch_idxstats           = BAM_DEDUP_STATS_SAMTOOLS_UMICOLLAPSE.out.idxstats  // channel: [ val(meta), path(idxstats) ]
 
-    } else {
-        ch_bam_bai = STAR_ALIGN.out.bam.join(SAMTOOLS_INDEX.out.bai)
-        
-        ch_umitools_dedup_log = []
-        ch_samtools_stats     = []
-        ch_flagstat           = []
-        ch_idxstats           = []
-    }
-
-    
 
     SAMTOOLS_CONVERT(
         ch_bam_bai,
-        ch_fasta_fai.map { meta, fasta, fai -> [meta, fasta] },
-        ch_fasta_fai.map { meta, fasta, fai -> [meta, fai] },
+        ch_fasta_fai
     )
-    ch_versions = ch_versions.mix(SAMTOOLS_CONVERT.out.versions.first())
+
 
     emit:
     trim_reads                   = TRIMGALORE.out.reads // channel: [ val(meta), path(fq.gz) ]
@@ -116,5 +90,4 @@ workflow FASTQ_TRIM_FILTER_ALIGN_DEDUP {
     idxstats                     = ch_idxstats // channel: [ val(meta), path(idxstats) ]
     ch_bam_bai                   = ch_bam_bai // channel: [ val(meta), path(bam), path(bai) ]
     ch_cram_crai                 = SAMTOOLS_CONVERT.out.cram.join(SAMTOOLS_CONVERT.out.crai) // channel: [ val(meta), path(cram), path(crai) ]
-    versions                     = ch_versions // channel: [ versions.yml, versions.yml, ... ]
 }

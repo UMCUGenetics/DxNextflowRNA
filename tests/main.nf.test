@@ -39,7 +39,7 @@ nextflow_pipeline {
                 star_index             = "${launchDir}/star_index/"
                 starfusion_ref         = "${launchDir}/star_index/"
                 gtf                    = "${launchDir}/input/annotation.gtf"
-                rrna_database_manifest = "${launchDir}/input/sortmerna-db-test.txt"
+                rrna_database          = "${launchDir}/input/sortmerna-db-test.txt"
                 sortmerna_index        = "${launchDir}/sortmerna_index/"
             }
         }

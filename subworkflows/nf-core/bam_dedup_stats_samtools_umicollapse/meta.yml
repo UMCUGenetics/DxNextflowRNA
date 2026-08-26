@@ -1,6 +1,6 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/subworkflows/yaml-schema.json
-name: "bam_dedup_stats_samtools_umitools"
-description: UMI-tools dedup, index BAM file and run samtools stats, flagstat and idxstats
+name: "bam_dedup_stats_samtools_umicollapse"
+description: umicollapse, index BAM file and run samtools stats, flagstat and idxstats
 keywords:
   - umi
   - dedup
@@ -9,7 +9,7 @@ keywords:
   - sam
   - cram
 components:
-  - umitools/dedup
+  - umicollapse
   - samtools/index
   - samtools/stats
   - samtools/idxstats
@@ -20,10 +20,6 @@ input:
       description: |
         input BAM file
         Structure: [ val(meta), path(bam), path(bai) ]
-  - val_get_dedup_stats:
-      type: boolean
-      description: |
-        Generate output stats when running "umi_tools dedup"
 output:
   - bam:
       description: |
@@ -37,10 +33,10 @@ output:
       description: |
         CSI samtools index
         Structure: [ val(meta), path(csi) ]
-  - deduplog:
+  - dedupstats:
       description: |
-        UMI-tools deduplication log
-        Structure: [ val(meta), path(log) ]
+        File containing umicollapse deduplication stats
+        Structure: [ val(meta), path(stats) ]
   - stats:
       description: |
         File containing samtools stats output
@@ -58,8 +54,6 @@ output:
         Files containing software versions
         Structure: [ path(versions.yml) ]
 authors:
-  - "@drpatelh"
-  - "@KamilMaliszArdigen"
+  - "@MatthiasZepper"
 maintainers:
-  - "@drpatelh"
-  - "@KamilMaliszArdigen"
+  - "@MatthiasZepper"
