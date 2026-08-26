@@ -2,8 +2,8 @@
 set -euo pipefail
 
 # ---------------------------------------------------------------------------
-# Pipeline base dir = de map waar dit script staat (volgt symlinks).
-# Hierdoor werkt het script ook vanuit een feature-branch checkout.
+# Pipeline base dir = the directory where this script lives (follows symlinks).
+# This way the script also works from a feature-branch checkout.
 # ---------------------------------------------------------------------------
 script_path=$(readlink -f "${BASH_SOURCE[0]}")
 workflow_path=$(dirname "${script_path}")
@@ -11,29 +11,29 @@ pipeline_name=$(basename "${workflow_path}")
 
 usage() {
 cat <<EOF
-Usage: $(basename "$0") -i <input> -o <output> -e <email> [opties] [-- <nextflow args>]
+Usage: $(basename "$0") -i <input> -o <output> -e <email> [options] [-- <nextflow args>]
 
-Verplicht:
+Required:
   -i, --input PATH       Input dir/file
-  -o, --output DIR       Output/analyse dir (basename wordt analysis_id)
-  -e, --email ADDR       Mail voor SLURM-fail en --email
+  -o, --output DIR       Output/analysis dir (basename becomes analysis_id)
+  -e, --email ADDR       Mail for SLURM failure and --email
 
-Optioneel (SLURM):
-  -j, --job-name NAME    Job naam            (default: Nextflow_${pipeline_name})
+Optional (SLURM):
+  -j, --job-name NAME    Job name            (default: Nextflow_${pipeline_name})
   -t, --time HH:MM:SS    Walltime            (default: 48:00:00)
-  -m, --mem SIZE         Geheugen            (default: 10G)
+  -m, --mem SIZE         Memory              (default: 10G)
       --tmpspace SIZE    tmpspace            (default: 10G)
       --account NAME     SLURM account       (default: diaggen)
-  -n, --dry-run          Print het job script i.p.v. submitten
-  -h, --help             Deze tekst
+  -n, --dry-run          Print the job script instead of submitting it
+  -h, --help             This text
 
-Alle overige argumenten gaan rechtstreeks naar 'nextflow run'.
-De defaults -resume, -ansi-log false, -profile singularity en
--c <pipeline>/nextflow.config worden alleen gezet als jij ze zelf niet
-meegeeft. Gebruik '--' als een nextflow-argument met een van de flags
-hierboven botst.
+All remaining arguments are passed straight through to 'nextflow run'.
+The defaults -resume, -ansi-log false, -profile singularity and
+-c <pipeline>/nextflow.config are only set if you don't supply them
+yourself. Use '--' if a nextflow argument clashes with one of the flags
+above.
 
-Voorbeelden:
+Examples:
   $(basename "$0") -i /data/run1 -o /data/analysis/run1 -e j@umcutrecht.nl
   $(basename "$0") -i in -o out -e j@x.nl -profile singularity,test --max_cpus 8
   $(basename "$0") -i in -o out -e j@x.nl -t 12:00:00 -n -- -stub-run
@@ -52,7 +52,7 @@ sbatch_account="diaggen"
 dry_run=false
 extra_args=()
 
-# --- argument parsing ------------------------------------------------------
+# --- argument parsing -------------------------------------------------------
 while [ $# -gt 0 ]; do
     case "$1" in
         -i|--input)     input="$2";           shift 2 ;;
@@ -75,7 +75,7 @@ missing=()
 [ -n "${output}" ] || missing+=( "--output" )
 [ -n "${email}" ]  || missing+=( "--email" )
 if [ ${#missing[@]} -gt 0 ]; then
-    echo "ERROR: ontbrekende argumenten: ${missing[*]}" >&2
+    echo "ERROR: missing arguments: ${missing[*]}" >&2
     echo >&2
     usage >&2
     exit 1
@@ -84,10 +84,10 @@ fi
 [ -n "${job_name}" ] || job_name="Nextflow_${pipeline_name}"
 
 for f in "${workflow_path}/main.nf" "${workflow_path}/tools/nextflow"; do
-    [ -e "${f}" ] || { echo "ERROR: niet gevonden: ${f}" >&2; exit 1; }
+    [ -e "${f}" ] || { echo "ERROR: not found: ${f}" >&2; exit 1; }
 done
 
-# --- paden -----------------------------------------------------------------
+# --- paths -------------------------------------------------------------------
 input=$(realpath "${input}")
 mkdir -p "${output}"
 output=$(realpath "${output}")
@@ -101,8 +101,8 @@ if [ -f 'workflow.running' ] || [ -f 'workflow.done' ] || [ -f 'workflow.failed'
     exit 0
 fi
 
-# --- nextflow commando opbouwen -------------------------------------------
-# helper: staat deze (nextflow) flag al in de door de user meegegeven args?
+# --- build nextflow command -------------------------------------------------
+# helper: is this (nextflow) flag already present in the user-supplied args?
 has_flag() {
     local needle="$1" arg
     for arg in ${extra_args[@]+"${extra_args[@]}"}; do
@@ -120,10 +120,10 @@ has_flag -resume   || nf_args+=( -resume )
 has_flag -ansi-log || nf_args+=( -ansi-log false )
 nf_args+=( ${extra_args[@]+"${extra_args[@]}"} )
 
-# veilig quoten zodat het in de heredoc niet uit elkaar valt
+# quote safely so it doesn't fall apart inside the heredoc
 nf_cmd=$(printf '%q ' "${workflow_path}/tools/nextflow" "${nf_args[@]}")
 
-# --- nextflow_trace.txt roteren -------------------------------------------
+# --- rotate nextflow_trace.txt ------------------------------------------------
 trace_file="${output}/log/nextflow_trace.txt"
 if [ -f "${trace_file}" ]; then
     max_suffix=0
@@ -191,7 +191,7 @@ EOT
 )
 
 if [ "${dry_run}" = true ]; then
-    echo "--- dry-run: job script (niet gesubmit) ---"
+    echo "--- dry-run: job script (not submitted) ---"
     echo "${job_script}"
     exit 0
 fi
