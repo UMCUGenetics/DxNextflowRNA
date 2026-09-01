@@ -28,54 +28,10 @@ include { softwareVersionsToYAML        } from '../subworkflows/nf-core/utils_nf
 
 workflow DXNEXTFLOWRNA {
     main:
-    def createMetaWithIdSimpleName = { file -> [[id: file.getSimpleName()], file] }
-
     // Reference file channels
-    ch_fasta_fai = Channel
-        .fromPath(params.fasta)
-        .combine(Channel.fromPath(params.fai))
-        .map { fasta, fai -> [[id: fasta.getSimpleName()], fasta, fai] }
-        .collect()
-
-    ch_gene_bed = Channel
-        .fromPath(params.gene_bed)
-        .collect()
-    ch_gtf = Channel
-        .fromPath(params.gtf)
-        .map(createMetaWithIdSimpleName)
-        .first()
-        .collect()
-    ch_star_index = Channel
-        .fromPath(params.star_index)
-        .map(createMetaWithIdSimpleName)
-        .first()
-    ch_ref_flat = Channel.fromPath(params.ref_flat).first()
-    ch_rrna_interval = Channel.fromPath(params.rrna_intervals).first()
-    ch_sortmerna_fastas = Channel
-        .fromPath(params.rrna_database_manifest)
-        .splitCsv(by: 1, strip: true)
-        .map { line -> file(line[0], checkIfExists: true) }
-        .collect()
-        .map { files -> [[id: file(params.rrna_database_manifest).getSimpleName()], files] }
-    ch_sortmerna_index = Channel
-        .fromPath(params.sortmerna_index)
-        .map(createMetaWithIdSimpleName)
-        .first()
-
-    ch_dbsnp = channel
-        .fromPath(params.dbsnp)
-        .map(createMetaWithIdSimpleName)
-        .first()
-    ch_dbsnp_tbi = channel
-        .fromPath("${params.dbsnp}.{tbi,csi}")
-        .map(createMetaWithIdSimpleName)
-        .first()
 
 
-    PREPARE_REFERENCES(
-        ch_fasta_fai,
-        ch_gtf
-    )
+    PREPARE_REFERENCES( )
 
     // Input channel
     ch_fastq = Channel
@@ -100,12 +56,12 @@ workflow DXNEXTFLOWRNA {
     // SUBWORKFLOW: Run fastq_trim_filter_align_dedup
     //
     FASTQ_TRIM_FILTER_ALIGN_DEDUP(
-        ch_fasta_fai,
+        PREPARE_REFERENCES.out.ch_fasta_fai,
         ch_fastq,
-        ch_gtf,
-        ch_sortmerna_fastas,
-        ch_sortmerna_index,
-        ch_star_index,
+        PREPARE_REFERENCES.out.ch_gtf,
+        PREPARE_REFERENCES.out.ch_sortmerna_fastas,
+        PREPARE_REFERENCES.out.ch_sortmerna_index,
+        PREPARE_REFERENCES.out.ch_star_index,
         params.seq_platform,
         params.seq_center,
         false,
@@ -130,11 +86,11 @@ workflow DXNEXTFLOWRNA {
     //
     FASTQ_BAM_QC(
         FASTQ_TRIM_FILTER_ALIGN_DEDUP.out.ch_bam_bai,
-        ch_fasta_fai.map { meta, fasta, fai -> [fasta] },
+        PREPARE_REFERENCES.out.ch_fasta_fai.map { meta, fasta, fai -> [fasta] },
         ch_fastq,
-        ch_gene_bed,
-        ch_ref_flat,
-        ch_rrna_interval,
+        PREPARE_REFERENCES.out.ch_gene_bed,
+        PREPARE_REFERENCES.out.ch_ref_flat,
+        PREPARE_REFERENCES.out.ch_rrna_interval,
     )
     ch_versions = ch_versions.mix(FASTQ_BAM_QC.out.versions)
 
@@ -160,7 +116,7 @@ workflow DXNEXTFLOWRNA {
 
     BAM_QUANTIFICATION_FEATURECOUNTS(
         FASTQ_TRIM_FILTER_ALIGN_DEDUP.out.ch_bam_bai,
-        ch_gtf
+        PREPARE_REFERENCES.out.ch_gtf
     )
     ch_versions = ch_versions.mix(BAM_QUANTIFICATION_FEATURECOUNTS.out.versions)
 
@@ -180,8 +136,8 @@ workflow DXNEXTFLOWRNA {
             FASTQ_TRIM_FILTER_ALIGN_DEDUP.out.star_align_junction,
             ch_starfusion_ref,
             FASTQ_TRIM_FILTER_ALIGN_DEDUP.out.ch_bam_bai,
-            ch_fasta_fai,
-            ch_gtf,
+            PREPARE_REFERENCES.out.ch_fasta_fai,
+            PREPARE_REFERENCES.out.ch_gtf,
             params.arriba_blacklist,
             params.arriba_known_fusions,
             params.arriba_cytobands,
@@ -198,7 +154,7 @@ workflow DXNEXTFLOWRNA {
         GENE_EXON_OUTRIDER(
             BAM_QUANTIFICATION_FEATURECOUNTS.out.gene_counts,
             BAM_QUANTIFICATION_FEATURECOUNTS.out.exon_counts,
-            ch_gtf
+            PREPARE_REFERENCES.out.ch_gtf
         )
 
         ch_versions = ch_versions.mix(GENE_EXON_OUTRIDER.out.versions)
@@ -208,11 +164,11 @@ workflow DXNEXTFLOWRNA {
     if (params.run_variant_calling) {
         BAM_VARIANT_CALLING(
             FASTQ_TRIM_FILTER_ALIGN_DEDUP.out.ch_bam_bai,
-            ch_fasta_fai,
+            PREPARE_REFERENCES.out.ch_fasta_fai,
             PREPARE_REFERENCES.out.dict,
             PREPARE_REFERENCES.out.interval_list_split,
-            ch_dbsnp,
-            ch_dbsnp_tbi
+            PREPARE_REFERENCES.out.ch_dbsnp,
+            PREPARE_REFERENCES.out.ch_dbsnp_tbi
         )
     }
 
