@@ -58,9 +58,7 @@ workflow BAM_VARIANT_CALLING {
 
     SAMTOOLS_INDEX(splitncigar_merged_bam)
 
-    def splitncigar_merged_bam_indices = SAMTOOLS_INDEX.out.bai
-        .mix(SAMTOOLS_INDEX.out.csi)
-        .mix(SAMTOOLS_INDEX.out.crai)
+    def splitncigar_merged_bam_indices = SAMTOOLS_INDEX.out.index
 
     def splitncigar_merged_bam_bai = splitncigar_merged_bam.join(splitncigar_merged_bam_indices, failOnDuplicate: true, failOnMismatch: true)
 
