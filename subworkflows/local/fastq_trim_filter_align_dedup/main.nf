@@ -50,10 +50,10 @@ workflow FASTQ_TRIM_FILTER_ALIGN_DEDUP {
 
     ch_bam_bai = BAM_DEDUP_STATS_SAMTOOLS_UMICOLLAPSE.out.bam.join(BAM_DEDUP_STATS_SAMTOOLS_UMICOLLAPSE.out.index)
 
-    ch_umitools_dedup_log = BAM_DEDUP_STATS_SAMTOOLS_UMICOLLAPSE.out.dedup_stats  // channel: [ val(meta), path(log) ]
-    ch_samtools_stats     = BAM_DEDUP_STATS_SAMTOOLS_UMICOLLAPSE.out.stats     // channel: [ val(meta), path(stats) ]
-    ch_flagstat           = BAM_DEDUP_STATS_SAMTOOLS_UMICOLLAPSE.out.flagstat  // channel: [ val(meta), path(flagstat) ]
-    ch_idxstats           = BAM_DEDUP_STATS_SAMTOOLS_UMICOLLAPSE.out.idxstats  // channel: [ val(meta), path(idxstats) ]
+    ch_umicollapse_dedup_log = BAM_DEDUP_STATS_SAMTOOLS_UMICOLLAPSE.out.dedup_stats  // channel: [ val(meta), path(log) ]
+    ch_samtools_stats        = BAM_DEDUP_STATS_SAMTOOLS_UMICOLLAPSE.out.stats        // channel: [ val(meta), path(stats) ]
+    ch_flagstat              = BAM_DEDUP_STATS_SAMTOOLS_UMICOLLAPSE.out.flagstat     // channel: [ val(meta), path(flagstat) ]
+    ch_idxstats              = BAM_DEDUP_STATS_SAMTOOLS_UMICOLLAPSE.out.idxstats     // channel: [ val(meta), path(idxstats) ]
 
 
     SAMTOOLS_CONVERT(
@@ -84,7 +84,7 @@ workflow FASTQ_TRIM_FILTER_ALIGN_DEDUP {
     star_align_log_progress      = STAR_ALIGN.out.log_progress // channel: [ val(meta), path(log_progress) ]
     star_align_wig               = STAR_ALIGN.out.wig // channel: [ val(meta), path(wig) ]
     star_align_bedgraph          = STAR_ALIGN.out.bedgraph // channel: [ val(meta), path(bg) ]
-    umitools_dedup_log           = ch_umitools_dedup_log // channel: [ val(meta), path(log) ]
+    umicollapse_dedup_log        = ch_umicollapse_dedup_log // channel: [ val(meta), path(log) ]
     samtools_stats               = ch_samtools_stats // channel: [ val(meta), path(stats) ]
     flagstat                     = ch_flagstat// channel: [ val(meta), path(flagstat) ]
     idxstats                     = ch_idxstats // channel: [ val(meta), path(idxstats) ]
