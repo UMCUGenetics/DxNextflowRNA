@@ -4,11 +4,21 @@
 
 > Ewels PA, Peltzer A, Fillinger S, Patel H, Alneberg J, Wilm A, Garcia MU, Di Tommaso P, Nahnsen S. The nf-core framework for community-curated bioinformatics pipelines. Nat Biotechnol. 2020 Mar;38(3):276-278. doi: 10.1038/s41587-020-0439-x. PubMed PMID: 32055031.
 
+- [nf-core/rnafusion](https://zenodo.org/records/3946477)
+
 ## [Nextflow](https://pubmed.ncbi.nlm.nih.gov/28398311/)
 
 > Di Tommaso P, Chatzou M, Floden EW, Barja PP, Palumbo E, Notredame C. Nextflow enables reproducible computational workflows. Nat Biotechnol. 2017 Apr 11;35(4):316-319. doi: 10.1038/nbt.3820. PubMed PMID: 28398311.
 
 ## Pipeline tools
+
+- [Arriba](https://doi.org/10.1101/gr.257246.119)
+
+  > Sebastian Uhrig, Julia Ellermann, Tatjana Walther, Pauline Burkhardt, Martina Fröhlich, Barbara Hutter, Umut H. Toprak, Olaf Neumann, Albrecht Stenzinger, Claudia Scholl, Stefan Fröhling and Benedikt Brors: Accurate and efficient detection of gene fusions from RNA sequencing data. Genome Research. March 2021 31: 448-460; Published in Advance January 13, 2021. doi: 10.1101/gr.257246.119
+
+- [BEDOPS](http://bioinformatics.oxfordjournals.org/content/28/14/1919.abstract)
+
+  > Shane Neph, M. Scott Kuehn, Alex P. Reynolds, et al. BEDOPS: high-performance genomic feature operations. Bioinformatics (2012) 28 (14): 1919-1920. doi: 10.1093/bioinformatics/bts277
 
 - [FastQC](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/)
 
@@ -17,6 +27,14 @@
 - [featureCounts](https://pubmed.ncbi.nlm.nih.gov/24227677/)
 
   > Liao Y, Smyth GK, Shi W. featureCounts: an efficient general purpose program for assigning sequence reads to genomic features. Bioinformatics. 2014 Apr 1;30(7):923-30. doi: 10.1093/bioinformatics/btt656. Epub 2013 Nov 13. PubMed PMID: 24227677.
+
+- [fusion-report](https://github.com/Clinical-Genomics/fusion-report)
+
+  > Martin Proks, Annick Renevey, clingen-sthlm, Alexander Peltzer, Mike Lloyd, Sebastian Allard, Avinash R, & HD Yi. (2025). Clinical-Genomics/fusion-report: Release v4.0.1 (v4.0.1). Zenodo. https://doi.org/10.5281/zenodo.15657441
+
+- [GATK](https://www.oreilly.com/library/view/genomics-in-the/9781491975183/)
+
+  > Van der Auwera GA & O'Connor BD. (2020). Genomics in the Cloud: Using Docker, GATK, and WDL in Terra (1st Edition). O'Reilly Media. ISBN: 9781491975183
 
 - [MultiQC](https://pubmed.ncbi.nlm.nih.gov/27312411/)
 
@@ -43,6 +61,10 @@
 - [STAR](https://pubmed.ncbi.nlm.nih.gov/23104886/)
 
   > Dobin A, Davis CA, Schlesinger F, Drenkow J, Zaleski C, Jha S, Batut P, Chaisson M, Gingeras TR. STAR: ultrafast universal RNA-seq aligner Bioinformatics. 2013 Jan 1;29(1):15-21. doi: 10.1093/bioinformatics/bts635. Epub 2012 Oct 25. PubMed PMID: 23104886; PubMed Central PMCID: PMC3530905.
+
+- [STAR-Fusion](https://genomebiology.biomedcentral.com/articles/10.1186/s13059-019-1842-9)
+
+  > Haas, B. J., Dobin, A., Li, B., Stransky, N., Pochet, N., & Regev, A. (2019). Accuracy assessment of fusion transcript detection via read-mapping and de novo fusion transcript assembly-based methods. Genome Biology, 20(1), 213. https://doi.org/10.1186/s13059-019-1842-9
 
 - [Trim Galore!](https://www.bioinformatics.babraham.ac.uk/projects/trim_galore/)
 
